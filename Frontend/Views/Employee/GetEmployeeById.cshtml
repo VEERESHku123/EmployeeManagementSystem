@@ -1,0 +1,128 @@
+﻿@model Frontend.Models.EmployeeModel
+
+@{
+    ViewData["Title"] = "GetEmployeeById";
+}
+
+<link rel="stylesheet" href="~/css/employee-details.css" />
+
+<div class="employee-card">
+
+    <h2 class="employee-title">
+        Employee Details -
+        <span class="employee-name">
+            @Model.FirstName @Model.LastName
+        </span>
+    </h2>
+
+    <dl class="row employee-dl">
+
+        <dt class="col-sm-3">Employee ID</dt>
+        <dd class="col-sm-9">@Model.EmployeeId</dd>
+
+        <dt class="col-sm-3">Name</dt>
+        <dd class="col-sm-9">@Model.FirstName @Model.LastName</dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.PhoneNumber)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Gender)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Gender)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.JobTitle)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.JobTitle)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Salary)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Salary)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.DepartmentId)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.DepartmentId)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.ManagerId)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.ManagerId)
+        </dd>
+
+    </dl>
+
+    <div class="mt-4 text-center">
+        <a asp-action="UpdateEmployee"
+           asp-route-id="@Model.EmployeeId"
+           class="btn-custom btn-edit">
+            Edit
+        </a>
+        <a href="#"
+           id="deleteBtn"
+           data-id="@Model.EmployeeId"
+           class="btn-custom btn-edit">
+            Remove
+        </a>
+
+        <a asp-action="GetAllEmployees"
+           asp-controller="Employee"
+           class="btn-custom btn-back">
+            Back to List
+        </a>
+    </div>
+
+</div>
+
+<script>
+    document.getElementById("deleteBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const id = this.getAttribute("data-id");
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This employee will be permanently deleted!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // redirect to delete action
+                window.location.href = `/Employee/DeleteEmployee/${id}`;
+            }
+        });
+    });
+</script>

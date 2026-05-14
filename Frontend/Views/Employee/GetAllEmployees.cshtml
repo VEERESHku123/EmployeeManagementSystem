@@ -1,0 +1,128 @@
+﻿@model IEnumerable<Frontend.Models.EmployeeModel>
+
+@{
+    ViewData["Title"] = "GetAllEmployees";
+}
+
+<link rel="stylesheet" href="~/css/employee-table.css" />
+
+<div class="table-wrapper">
+
+    <!-- SEARCH + PAGE SIZE ROW -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+
+        <!-- PAGE SIZE (LEFT SIDE) -->
+        <form method="get" asp-action="GetAllEmployees" asp-controller="Employee" style="display:flex; align-items:center; gap:10px;">
+            <label style="font-weight:500; color:#0b1f3a;">Show</label>
+
+            <select name="pageSize"
+                    class="form-select"
+                    onchange="this.form.submit()"
+                    style="width:80px;">
+                <option value="5" selected="@(ViewBag.PageSize == 5)">5</option>
+                <option value="10" selected="@(ViewBag.PageSize == 10)">10</option>
+                <option value="25" selected="@(ViewBag.PageSize == 25)">25</option>
+                <option value="50" selected="@(ViewBag.PageSize == 50)">50</option>
+            </select>
+
+            <label style="color:#6b7280;">Entries</label>
+        </form>
+
+        <!-- SEARCH (RIGHT SIDE) -->
+        <form id="searchForm"
+              method="get"
+              asp-action="GetAllEmployees"
+              asp-controller="Employee"
+              style="display:flex; align-items:center;">
+
+            <input type="text"
+                   id="searchInput"
+                   name="search"
+                   value="@ViewBag.Search"
+                   placeholder="Search employees..."
+                   class="form-control"
+                   style="width:250px;" />
+
+            <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
+
+        </form>
+
+    </div>
+
+    <!-- TABLE -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Employee Id</th>
+                <th>Name</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr style="cursor:pointer"
+                    onclick="location.href='@Url.Action("GetEmployeeById", "Employee", new { id = item.EmployeeId })'">
+
+                    <td>@item.EmployeeId</td>
+
+                    <td>
+                        @item.FirstName @item.LastName
+                    </td>
+
+                    <td>
+                        @item.JobTitle
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+@if (ViewBag.TotalPages != null)
+{
+    <div style="display:flex; justify-content:center; margin-top:20px; gap:6px;">
+
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <a class="btn btn-outline-primary"
+               href="@Url.Action("GetAllEmployees", new { page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize, search = ViewBag.Search })">
+                Prev
+            </a>
+        }
+
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <a class="btn @(i == ViewBag.CurrentPage ? "btn-primary" : "btn-outline-primary")"
+               href="@Url.Action("GetAllEmployees", new { page = i, pageSize = ViewBag.PageSize, search = ViewBag.Search })">
+                @i
+            </a>
+        }
+
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <a class="btn btn-outline-primary"
+               href="@Url.Action("GetAllEmployees", new { page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize, search = ViewBag.Search })">
+                Next
+            </a>
+        }
+
+    </div>
+}
+</div>
+
+<script>
+    let debounceTimer;
+
+    const searchInput = document.getElementById("searchInput");
+    const searchForm = document.getElementById("searchForm");
+
+    searchInput.addEventListener("input", function () {
+
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(() => {
+            searchForm.submit();
+        }, 600); 
+    });
+</script>

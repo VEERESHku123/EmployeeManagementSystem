@@ -1,0 +1,130 @@
+﻿@using Frontend.Enums
+@model Frontend.Models.EmployeeModel
+
+@{
+    ViewData["Title"] = "Add New Employee";
+}
+
+<link rel="stylesheet" href="~/css/employee-Add.css" />
+
+<h2 class="page-title">Add New Employee</h2>
+
+<div class="form-card">
+
+    <form asp-action="AddNewEmployee" method="post">
+
+        <div class="section-title">Basic Information</div>
+
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label asp-for="EmployeeId" class="form-label">Employee Id</label>
+                <input asp-for="EmployeeId" class="form-control" />
+                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-6 form-group">
+                <label asp-for="FirstName" class="form-label">First Name</label>
+                <input asp-for="FirstName" class="form-control" />
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label asp-for="LastName" class="form-label">Last Name</label>
+                <input asp-for="LastName" class="form-control" />
+            </div>
+        </div>
+
+        <div class="section-title">Contact Details</div>
+
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                <input asp-for="PhoneNumber" class="form-control" type="number"/>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label asp-for="DOB" class="form-label"></label>
+                <input asp-for="DOB" type="date" class="form-control" />
+            </div>
+        </div>
+
+        <div class="section-title">Job Details</div>
+
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label asp-for="Gender" class="form-label"></label>
+                <select asp-for="Gender"
+                        class="form-control"
+                        asp-items="Html.GetEnumSelectList<GenderEnum>()">
+                </select>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label asp-for="HiredDate" class="form-label">Hired Date</label>
+                <input asp-for="HiredDate" type="date" class="form-control" />
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-6 form-group">
+                <label asp-for="JobTitle" class="form-label">Job Title</label>
+
+                <select asp-for="JobTitle" class="form-control">
+                    <option value="">-- Select Job Title --</option>
+                    <option value="Software Engineer">Software Engineer</option>
+                    <option value="Senior Software Engineer">Senior Software Engineer</option>
+                    <option value="Team Lead">Team Lead</option>
+                    <option value="Project Manager">Project Manager</option>
+                    <option value="HR Manager">HR Manager</option>
+                    <option value="QA Engineer">QA Engineer</option>
+                    <option value="Business Analyst">Business Analyst</option>
+                </select>
+
+                <span asp-validation-for="JobTitle" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label asp-for="Salary" class="form-label"></label>
+                <input asp-for="Salary" type="number" step="0.01" class="form-control" />
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-6 form-group">
+                <label asp-for="DepartmentId" class="form-label">Department</label>
+                <select asp-for="DepartmentId"
+                        class="form-control"
+                        asp-items="ViewBag.Departments">
+                    <option value="">-- Select Department --</option>
+                </select>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label asp-for="ManagerId" class="form-label">Manager</label>
+                <select asp-for="ManagerId"
+                        class="form-control"
+                        asp-items="ViewBag.Managers">
+                    <option value="">-- Select Manager --</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <button type="submit" class="btn-navy">Add</button>
+            <a asp-action="GetAllEmployees" class="btn-outline-navy">Cancel</a>
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

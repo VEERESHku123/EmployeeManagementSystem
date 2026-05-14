@@ -1,0 +1,74 @@
+﻿.page-title {
+    font-weight: 600;
+    color: #0a1f44;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-card {
+    max-width: 800px;
+    margin: auto;
+    padding: 25px;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    background: #fff;
+    margin-bottom: 30px;
+}
+
+.form-label {
+    font-weight: 400;
+    color: #0a1f44;
+}
+
+.form-control:focus {
+    border-color: #0a1f44;
+    box-shadow: 0 0 0 0.15rem rgba(10, 31, 68, 0.2);
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #666;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 1px solid #0a1f44;
+}
+
+/* Inputs */
+.form-control {
+    border-radius: 6px;
+}
+
+/* Buttons */
+.btn-navy {
+    background-color: #0a1f44;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+}
+
+    .btn-navy:hover {
+        background-color: #122b5c;
+        color: #fff;
+    }
+
+.btn-outline-navy {
+    border: 1px solid #0a1f44;
+    color: #0a1f44;
+    padding: 8px 18px;
+    border-radius: 6px;
+    background: transparent;
+}
+
+    .btn-outline-navy:hover {
+        background-color: #0a1f44;
+        color: #fff;
+    }
+
+/* Validation */
+.text-danger {
+    font-size: 12px;
+}

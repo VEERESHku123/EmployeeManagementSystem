@@ -1,0 +1,83 @@
+﻿.employee-card {
+    max-width: 650px;
+    margin: 10px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.employee-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.employee-dl dt,
+.employee-dl dd {
+    padding: 6px 0;
+    font-size: 14px;
+}
+
+.employee-dl dt {
+    font-weight: 600;
+    color: #34495e;
+}
+
+.employee-dl dd {
+    color: #555;
+}
+
+.btn-custom {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s ease;
+    margin: 3px;
+}
+
+.btn-edit {
+    background: #0a1f44;
+    color: white;
+}
+
+    .btn-edit:hover {
+        background: #2980b9;
+        transform: scale(1.03);
+    }
+
+.btn-back {
+    background: #0a1f44;
+    color: white;
+}
+
+    .btn-back:hover {
+        background: #27ae60;
+        transform: scale(1.03);
+    }
+
+.employee-name {
+    color: #e74c3c;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+/* smoother animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
