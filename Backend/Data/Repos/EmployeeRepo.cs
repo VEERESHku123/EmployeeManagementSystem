@@ -15,17 +15,10 @@ namespace Backend.Data.Repos
             Mapper = mapper;
         }
 
-
-
-        //public async Task<List<EmployeeEntity>> GetAllAsync()
-        //{
-        //    return await Context.Employees.ToListAsync();
-        //}
-
         public async Task<(List<EmployeeEntity> Data, int TotalCount)> GetAllAsync(string searchTerm, int page, int pageSize)
         {
             page = page < 1 ? 1 : page;
-            pageSize = pageSize < 1 ? 10 : pageSize;
+            pageSize = pageSize < 1 ? 5 : pageSize;
 
             IQueryable<EmployeeEntity> query = Context.Employees;
 
@@ -64,23 +57,6 @@ namespace Backend.Data.Repos
                 return false;
             }
 
-            //// Basic details
-            //found.FirstName = entity.FirstName;
-            //found.LastName = entity.LastName;
-            //found.PhoneNumber = entity.PhoneNumber;
-            //found.Email = entity.Email;
-            //found.DOB = entity.DOB;
-            //found.Gender = entity.Gender;
-
-            //// Employment details
-            //found.HiredDate = entity.HiredDate;
-            //found.JobTitle = entity.JobTitle;
-            //found.Salary = entity.Salary;
-            //found.Status = entity.Status;
-
-            //// Relationships
-            //found.DepartmentId = entity.DepartmentId;
-            //found.ManagerId = entity.ManagerId;
 
             Mapper.Map(entity, found);
 
@@ -113,16 +89,25 @@ namespace Backend.Data.Repos
             return result > 0;
         }
 
-        public async Task<List<EmployeeEntity>> SearchAsync(string searchTerm)
+        public async Task<bool> CheckEmailExistsAsync(string email)
         {
-            var result = await Context.Employees.Where(
-                                e => e.FirstName.Contains(searchTerm) || 
-                                        e.LastName.Contains(searchTerm) || 
-                                        e.EmployeeId.Contains(searchTerm
-                                 )).ToListAsync();
+            var result = await Context.Employees.SingleOrDefaultAsync(e => e.Email == email);
 
-            return result;
+            return result != null;
         }
 
+        public async Task<bool> CheckEmployeeIdExistsAsync(string id)
+        {
+            var result = await Context.Employees.SingleOrDefaultAsync(e => e.EmployeeId == id);
+
+            return result != null;
+        }
+
+        public async Task<bool> CheckPhoneExistsAsync(string phoneNumber, string? id)
+        {
+            return await Context.Employees
+                .AnyAsync(e => e.PhoneNumber == phoneNumber
+                             && (id == null || e.EmployeeId != id));
+        }
     }
 }

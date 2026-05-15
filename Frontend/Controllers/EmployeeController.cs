@@ -1,4 +1,5 @@
-﻿using Frontend.APIs;
+﻿using AutoMapper;
+using Frontend.APIs;
 using Frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -7,16 +8,19 @@ namespace Frontend.Controllers
 {
     public class EmployeeController : Controller
     {
-        public EmployeeController(EmployeeAPI employeeAPI, DepartmentAPI departmentAPI, ManagerAPI managerAPI)
+        public EmployeeController(EmployeeAPI employeeAPI, DepartmentAPI departmentAPI, ManagerAPI managerAPI, IMapper mapper)
         {
             DepartmentAPI = departmentAPI;
             ManagerAPI = managerAPI;
             EmployeeAPI = employeeAPI;
+            Mapper = mapper;
         }
 
         public EmployeeAPI EmployeeAPI { get; set; }
         public DepartmentAPI DepartmentAPI { get; set; }
         public ManagerAPI ManagerAPI { get; set; }
+        public IMapper Mapper { get; set; }
+
 
         [HttpGet]
         public async Task<IActionResult> GetAllEmployees(string search, int page = 1, int pageSize = 5)
@@ -34,7 +38,8 @@ namespace Frontend.Controllers
 
             ViewBag.TotalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize);
 
-            return View(result.Employees);
+            //return View(result.Employees);
+            return PartialView("EmployeeTable", result.Employees);
         }
 
         [HttpGet]
@@ -95,12 +100,13 @@ namespace Frontend.Controllers
             {
                 return RedirectToAction("StatusCode404Page", "StatusCode");
             }
+            var employee = Mapper.Map<UpdateEmployeeModel>(result.Employee);
 
-            return View(result.Employee);
+            return View(employee);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateEmployee(EmployeeModel model)
+        public async Task<IActionResult> UpdateEmployee(UpdateEmployeeModel model)
         {
             var result = await EmployeeAPI.UpdateEmployee(model.EmployeeId, model);
             Console.WriteLine(model.EmployeeId);
@@ -140,6 +146,31 @@ namespace Frontend.Controllers
                 TempData["ErrorMessage"] = "Failed to delete employee!";
                 return RedirectToAction("StatusCode500Page", "StatusCode");
             }
+        }
+
+        // validations
+        [HttpGet]
+        public async Task<JsonResult> IsEmailAvailable(string email)
+        {
+            var exists = await EmployeeAPI.CheckEmailExists(email);
+
+            return Json(!exists); 
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> IsEmployeeIdAvailable(string employeeId)
+        {
+            var exists = await EmployeeAPI.CheckEmployeeIdExists(employeeId);
+
+            return Json(!exists);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> IsPhoneAvailable(string phoneNumber, string? employeeId)
+        {
+            var exists = await EmployeeAPI.CheckPhoneExists(phoneNumber, employeeId);
+
+            return Json(!exists);
         }
     }
 }

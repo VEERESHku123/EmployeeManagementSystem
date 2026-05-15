@@ -8,11 +8,12 @@ namespace Backend.Services
     {
 
         Task<bool> AddEmployeeAsync(CreateEmployeeDTO employeeDTO);
+        Task<bool> CheckEmailExistsAsync(string email);
+        Task<bool> CheckEmployeeIdExistsAsync(string id);
+        Task<bool> CheckPhoneExistsAsync(string phoneNumber, string? id);
         Task<bool> DeleteEmployeeAsync(string id);
         Task<(List<EmployeeDTO> Data, int TotalCount)> GetAllEmployeeAsync(string searchTerm, int page, int pageSize);
         Task<EmployeeDTO> GetEmployeeByIdAsync(string id);
         Task<bool> UpdateEmployeeAsync(string id, CreateEmployeeDTO dto);
-
-        Task<List<EmployeeDTO>> SearchAsync(string searchTerm);
     }
 }

@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add swagger to the container.
+// swagger 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add Repos to the container.
+//Repos 
 builder.Services.AddDbContext<EmployeeDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("employeeManagementDbConStr")));
 builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
 builder.Services.AddScoped<DepartmentRepo>();
@@ -19,8 +19,9 @@ builder.Services.AddScoped<ManagerRepo>();
 
 
 // Add services to the container.
+builder.Services.AddControllers(options => options.Filters.Add<CommonExceptionFilter>());
+
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddControllers();
 builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<ManagerService>();

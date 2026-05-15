@@ -1,10 +1,12 @@
 ﻿using Frontend.Enums;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 namespace Frontend.Models
 {
     public class EmployeeModel
     {
         [Required]
+        [Remote("IsEmployeeIdAvailable", "Employee", ErrorMessage = "Employee ID already exists")]
         public required string EmployeeId { get; set; }
 
         [Required(ErrorMessage = "First name is required")]
@@ -17,10 +19,12 @@ namespace Frontend.Models
 
         [Required(ErrorMessage = "Phone number is required")]
         [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Enter valid mobile number")]
+        [Remote("IsPhoneAvailable", "Employee", ErrorMessage = "Phone number already exists")]
         public required string PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
+        [Remote("IsEmailAvailable", "Employee", ErrorMessage = "Email already exists")]
         public required string Email { get; set; }
 
         [Required(ErrorMessage = "Date of birth is required")]

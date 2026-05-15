@@ -1,0 +1,24 @@
+﻿@model IEnumerable<Frontend.Models.EmployeeModel>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Employee Id</th>
+            <th>Name</th>
+            <th>Role</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr style="cursor:pointer"
+                onclick="location.href='@Url.Action("GetEmployeeById", "Employee", new { id = item.EmployeeId })'">
+
+                <td>@item.EmployeeId</td>
+                <td>@item.FirstName @item.LastName</td>
+                <td>@item.JobTitle</td>
+            </tr>
+        }
+    </tbody>
+</table>

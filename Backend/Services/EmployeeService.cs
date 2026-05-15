@@ -34,12 +34,38 @@ namespace Backend.Services
 
         public async Task<bool> AddEmployeeAsync(CreateEmployeeDTO employeeDTO)
         {
-            return await repo.AddAsync(mapper.Map<EmployeeEntity>(employeeDTO));
+            try
+            {
+                if (await CheckEmailExistsAsync(employeeDTO.Email)) throw new InvalidOperationException("Email already Exsist");
+                if (await CheckEmployeeIdExistsAsync(employeeDTO.EmployeeId)) throw new InvalidOperationException("Employee ID already Exsist");
+                if (await CheckPhoneExistsAsync(employeeDTO.PhoneNumber, "")) throw new InvalidOperationException("PhoneNumber already Exsist");
+
+                return await repo.AddAsync(mapper.Map<EmployeeEntity>(employeeDTO));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
-        public async Task<bool> UpdateEmployeeAsync(string id, CreateEmployeeDTO dto)
+        public async Task<bool> UpdateEmployeeAsync(string id, CreateEmployeeDTO employeeDTO)
         {
-            return await repo.UpdateAsync(id, mapper.Map<EmployeeEntity>(dto));
+            try
+            {
+                if (await CheckEmailExistsAsync(employeeDTO.Email)) throw new InvalidOperationException("Email already Exsist");
+                if (await CheckEmployeeIdExistsAsync(employeeDTO.EmployeeId)) throw new InvalidOperationException("Employee ID already Exsist");
+                if (await CheckPhoneExistsAsync(employeeDTO.PhoneNumber, "")) throw new InvalidOperationException("PhoneNumber already Exsist");
+
+                return await repo.UpdateAsync(id, mapper.Map<EmployeeEntity>(employeeDTO));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+           
         }
 
         public async Task<bool> DeleteEmployeeAsync(string id)
@@ -47,11 +73,19 @@ namespace Backend.Services
             return await repo.DeleteByIdAsync(id);
         }
 
-        public async Task<List<EmployeeDTO>> SearchAsync(string searchTerm)
+        public async Task<bool> CheckEmailExistsAsync(string email)
         {
-            var result =  await repo.SearchAsync(searchTerm);
+            return await repo.CheckEmailExistsAsync(email);
+        }
 
-            return mapper.Map<List<EmployeeDTO>>(result);
+        public async Task<bool> CheckEmployeeIdExistsAsync(string id)
+        {
+            return await repo.CheckEmployeeIdExistsAsync(id);
+        }
+
+        public async Task<bool> CheckPhoneExistsAsync(string phoneNumber, string? id)
+        {
+            return await repo.CheckPhoneExistsAsync(phoneNumber, id);
         }
     }
 }

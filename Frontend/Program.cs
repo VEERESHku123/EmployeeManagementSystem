@@ -1,4 +1,5 @@
 using Frontend.APIs;
+using Frontend.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,7 @@ builder.Services.AddHttpClient("BackEnd", client =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

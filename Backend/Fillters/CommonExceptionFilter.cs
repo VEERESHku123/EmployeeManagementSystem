@@ -6,15 +6,28 @@ namespace Auth.Fillters
 {
     public class CommonExceptionFilter : ExceptionFilterAttribute
     {
+        private readonly ILogger<CommonExceptionFilter> logger;
+
+        public CommonExceptionFilter(ILogger<CommonExceptionFilter> logger)
+        {
+            this.logger = logger;
+        }
+
         public override void OnException(ExceptionContext context)
         {
             var e = context.Exception;
+
+            logger.LogError(e, "Unhandled exception occurred: {Message}", e.Message);
 
             int statusCode;
             string errorMessage;
 
             switch(e)
             {
+                case InvalidOperationException:
+                    statusCode = (int)HttpStatusCode.Conflict;
+                    errorMessage = e.Message;
+                    break;
                 case ArgumentException:
                     statusCode = (int)HttpStatusCode.BadRequest;
                     errorMessage = e.Message;
@@ -41,7 +54,10 @@ namespace Auth.Fillters
                 Error = errorMessage
             };
 
-            context.Result = new JsonResult(errorResponse);
+            context.Result = new JsonResult(errorResponse)
+            {
+                StatusCode = statusCode
+            };
             context.ExceptionHandled = true;
         }
     }

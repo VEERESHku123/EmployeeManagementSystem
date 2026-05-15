@@ -1,5 +1,5 @@
 ﻿using Frontend.Models;
-
+using System.Net;
 namespace Frontend.APIs
 {
     public class EmployeeAPI
@@ -52,7 +52,7 @@ namespace Frontend.APIs
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<int> UpdateEmployee(string id, EmployeeModel model)
+        public async Task<int> UpdateEmployee(string id, UpdateEmployeeModel model)
         {
             var response = await client.PutAsJsonAsync($"employee/update/{id}", model);
             Console.WriteLine(response.IsSuccessStatusCode);
@@ -64,6 +64,42 @@ namespace Frontend.APIs
             var response = await client.DeleteAsync($"employee/delete/{id}");
 
             return (int)response.StatusCode;
+        }
+
+        public async Task<bool> CheckEmailExists(string email)
+        {
+            var response = await client.GetAsync($"employee/CheckEmailExists/{email}");
+
+            Console.WriteLine("email validation");
+            if (response.StatusCode == HttpStatusCode.OK)
+                return true;   
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return false;  
+
+            throw new Exception("API error");
+        }
+
+        public async Task<bool> CheckEmployeeIdExists(string employeeId)
+        {
+            var response = await client.GetAsync($"employee/CheckEmployeeIdExists/{employeeId}");
+            Console.WriteLine("id validation");
+            if (response.StatusCode == HttpStatusCode.OK)
+                return true;  
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return false;  
+
+            throw new Exception("API error");
+        }
+
+        public async Task<bool> CheckPhoneExists(string phoneNumber, string? employeeId)
+        {
+            var url = $"employee/CheckPhoneExists?phoneNumber={phoneNumber}&id={employeeId}";
+
+            var response = await client.GetAsync(url);
+
+            return response.StatusCode == HttpStatusCode.Conflict;
         }
     }
 }
