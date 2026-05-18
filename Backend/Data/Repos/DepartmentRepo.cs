@@ -15,7 +15,16 @@ namespace Backend.Data.Repos
 
         public async Task<List<DepartmentEntity>> GetAllAsync()
         {
-            return await Context.Departments.ToListAsync();
+            try
+            {
+                return await Context.Departments.ToListAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
     }

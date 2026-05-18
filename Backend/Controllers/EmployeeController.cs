@@ -1,4 +1,4 @@
-﻿using Auth.Fillters;
+﻿using Backend.Fillters;
 using Backend.DTOs;
 using Backend.Services;
 using Microsoft.AspNetCore.Http;
@@ -71,7 +71,6 @@ namespace Backend.Controllers
             }
 
             var result = await service.UpdateEmployeeAsync(id, dto);
-            Console.WriteLine(result);
             return (result) ? Ok("Updated") : NotFound();
         }
 

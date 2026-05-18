@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<Frontend.Models.EmployeeModel>
 
 <table class="table">
+
     <thead>
         <tr>
             <th>Employee Id</th>
@@ -10,6 +11,7 @@
     </thead>
 
     <tbody>
+
         @foreach (var item in Model)
         {
             <tr style="cursor:pointer"
@@ -18,7 +20,56 @@
                 <td>@item.EmployeeId</td>
                 <td>@item.FirstName @item.LastName</td>
                 <td>@item.JobTitle</td>
+
             </tr>
         }
+
     </tbody>
+
 </table>
+
+@if (ViewBag.TotalPages != null)
+{
+    <div style="display:flex; justify-content:center; margin-top:20px; gap:6px;">
+
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <a class="btn btn-outline-primary pagination-link"
+               href="@Url.Action("GetAllEmployees", new
+               {
+                   page = ViewBag.CurrentPage - 1,
+                   pageSize = ViewBag.PageSize,
+                   search = ViewBag.Search
+               })">
+                Prev
+            </a>
+        }
+
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <a class="btn @(i == ViewBag.CurrentPage ? "btn-primary" : "btn-outline-primary") pagination-link"
+               href="@Url.Action("GetAllEmployees", new
+               {
+                   page = i,
+                   pageSize = ViewBag.PageSize,
+                   search = ViewBag.Search
+               })">
+                @i
+            </a>
+        }
+
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <a class="btn btn-outline-primary pagination-link"
+               href="@Url.Action("GetAllEmployees", new
+               {
+                   page = ViewBag.CurrentPage + 1,
+                   pageSize = ViewBag.PageSize,
+                   search = ViewBag.Search
+               })">
+                Next
+            </a>
+        }
+
+    </div>
+}

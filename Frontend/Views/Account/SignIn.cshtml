@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Sign In";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In</title>
+
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+
+<body>
+
+    <div class="login-card">
+        <h2>Welcome Back</h2>
+        <p>Please sign in to your account</p>
+
+        <form asp-controller="Account" asp-action="SignIn" method="post" class="login-form">
+
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="UsernameOrEmail" placeholder="Enter username or email" required />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="Password" placeholder="Enter password" required />
+            </div>
+
+            <button type="submit" class="btn-login">
+                Sign In
+            </button>
+        </form>
+
+        <div class="divider">OR</div>
+
+        <a asp-controller="Account" asp-action="SignIn" class="btn-microsoft">
+            SignIn with Microsoft
+        </a>
+
+        <div class="footer-text">
+            Secure authentication powered by Microsoft
+        </div>
+    </div>
+
+</body>
+</html>

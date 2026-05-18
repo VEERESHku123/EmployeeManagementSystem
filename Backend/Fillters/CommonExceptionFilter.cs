@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net;
 
-namespace Auth.Fillters
+namespace Backend.Fillters
 {
     public class CommonExceptionFilter : ExceptionFilterAttribute
     {

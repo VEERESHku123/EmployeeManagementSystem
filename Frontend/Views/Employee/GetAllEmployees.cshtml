@@ -8,32 +8,38 @@
 
 <div class="table-wrapper">
 
-    <!-- SEARCH + PAGE SIZE ROW -->
+    <!-- TOP BAR -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
 
-        <!-- PAGE SIZE (LEFT SIDE) -->
-        <form method="get" asp-action="GetAllEmployees" asp-controller="Employee" style="display:flex; align-items:center; gap:10px;">
-            <label style="font-weight:500; color:#0b1f3a;">Show</label>
+        <!-- PAGE SIZE -->
+        <form id="pageSizeForm"
+              method="get"
+              asp-action="GetAllEmployees"
+              asp-controller="Employee"
+              style="display:flex; align-items:center; gap:10px;">
 
-            <select name="pageSize"
+            <label>Show</label>
+
+            <select id="pageSizeSelect"
+                    name="pageSize"
                     class="form-select"
-                    onchange="this.form.submit()"
                     style="width:80px;">
+
                 <option value="5" selected="@(ViewBag.PageSize == 5)">5</option>
                 <option value="10" selected="@(ViewBag.PageSize == 10)">10</option>
                 <option value="25" selected="@(ViewBag.PageSize == 25)">25</option>
                 <option value="50" selected="@(ViewBag.PageSize == 50)">50</option>
+
             </select>
 
-            <label style="color:#6b7280;">Entries</label>
+            <label>Entries</label>
         </form>
 
-        <!-- SEARCH (RIGHT SIDE) -->
+        <!-- SEARCH -->
         <form id="searchForm"
               method="get"
               asp-action="GetAllEmployees"
-              asp-controller="Employee"
-              style="display:flex; align-items:center;">
+              asp-controller="Employee">
 
             <input type="text"
                    id="searchInput"
@@ -43,68 +49,18 @@
                    class="form-control"
                    style="width:250px;" />
 
-            <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
-
         </form>
 
     </div>
 
+    <!-- TABLE PARTIAL -->
     <div id="employeeTableContainer">
         @await Html.PartialAsync("EmployeeTable", Model)
     </div>
 
-@if (ViewBag.TotalPages != null)
-{
-    <div style="display:flex; justify-content:center; margin-top:20px; gap:6px;">
-
-        @if (ViewBag.CurrentPage > 1)
-        {
-            <a class="btn btn-outline-primary"
-               href="@Url.Action("GetAllEmployees", new { page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize, search = ViewBag.Search })">
-                Prev
-            </a>
-        }
-
-        @for (int i = 1; i <= ViewBag.TotalPages; i++)
-        {
-            <a class="btn @(i == ViewBag.CurrentPage ? "btn-primary" : "btn-outline-primary")"
-               href="@Url.Action("GetAllEmployees", new { page = i, pageSize = ViewBag.PageSize, search = ViewBag.Search })">
-                @i
-            </a>
-        }
-
-        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-        {
-            <a class="btn btn-outline-primary"
-               href="@Url.Action("GetAllEmployees", new { page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize, search = ViewBag.Search })">
-                Next
-            </a>
-        }
-
-    </div>
-}
 </div>
-<script>
-    let debounceTimer;
 
-    const searchInput = document.getElementById("searchInput");
 
-    searchInput.addEventListener("input", function () {
-
-        clearTimeout(debounceTimer);
-
-        debounceTimer = setTimeout(() => {
-
-            const search = searchInput.value;
-            const pageSize = @ViewBag.PageSize;
-
-            fetch(`/Employee/GetAllEmployees?search=${encodeURIComponent(search)}&pageSize=${pageSize}&page=1`)
-                .then(response => response.text())
-                .then(html => {
-
-                    document.getElementById("employeeTableContainer").innerHTML = html;
-                });
-
-        }, 600);
-    });
-</script>
+@section Scripts {
+    <script src="~/js/employee-list.js"></script>
+}

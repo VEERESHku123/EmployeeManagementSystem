@@ -25,6 +25,8 @@ namespace Frontend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllEmployees(string search, int page = 1, int pageSize = 5)
         {
+            if (search != null) search.Trim();
+
             var result = await EmployeeAPI.SendAllEmployee(search, page, pageSize);
 
             if (result.StatusCode == 500)
@@ -35,11 +37,16 @@ namespace Frontend.Controllers
             ViewBag.Search = search;
             ViewBag.PageSize = pageSize;
             ViewBag.CurrentPage = page;
-
             ViewBag.TotalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize);
 
-            //return View(result.Employees);
-            return PartialView("EmployeeTable", result.Employees);
+            // AJAX request
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("EmployeeTable", result.Employees);
+            }
+
+            // Normal page load
+            return View(result.Employees);
         }
 
         [HttpGet]

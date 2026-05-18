@@ -20,94 +20,172 @@ namespace Backend.Data.Repos
             page = page < 1 ? 1 : page;
             pageSize = pageSize < 1 ? 5 : pageSize;
 
-            IQueryable<EmployeeEntity> query = Context.Employees;
-
-            if (!string.IsNullOrWhiteSpace(searchTerm))
+            try
             {
-                query = query.Where(e =>
-                    e.FirstName.Contains(searchTerm) ||
-                    e.LastName.Contains(searchTerm) ||
-                    e.EmployeeId.Contains(searchTerm));
+                IQueryable<EmployeeEntity> query = Context.Employees;
+
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    var terms = searchTerm
+                                    .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    query = query.Where(e =>
+                                terms.All(t =>
+                                    e.FirstName.Contains(t) ||
+                                    e.LastName.Contains(t) ||
+                                    e.EmployeeId.Contains(t)
+                                )
+                            );
+                }
+
+                var totalCount = await query.CountAsync();
+
+                var data = await query
+                    .OrderBy(e => e.EmployeeId)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return (data, totalCount);
             }
+            catch (Exception)
+            {
 
-            var totalCount = await query.CountAsync();
-
-            var data = await query
-                .OrderBy(e => e.EmployeeId)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return (data, totalCount);
+                throw;
+            }
+            
         }
 
         public async Task<EmployeeEntity> GetById(string id)
         {
-            var found = await Context.Employees.FindAsync(id);
+            try
+            {
+                var found = await Context.Employees.FindAsync(id);
 
-            return found;
+                return found;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
         public async Task<bool> UpdateAsync(string id, EmployeeEntity entity)
         {
-            var found = await Context.Employees.FindAsync(id);
-
-            if (found == null)
+            try
             {
-                return false;
+                var found = await Context.Employees.FindAsync(id);
+
+                if (found == null)
+                {
+                    return false;
+                }
+
+
+                Mapper.Map(entity, found);
+
+                await Context.SaveChangesAsync();
+
+                return true;
             }
+            catch (Exception)
+            {
 
-
-            Mapper.Map(entity, found);
-
-            await Context.SaveChangesAsync();
-
-            return true;
+                throw;
+            }
+            
         }
 
         public async Task<bool> DeleteByIdAsync(string id)
         {
-            var found = await Context.Employees.FindAsync(id);
-
-            if (found == null)
+            try
             {
-                return false;
+                var found = await Context.Employees.FindAsync(id);
+
+                if (found == null)
+                {
+                    return false;
+                }
+
+                Context.Employees.Remove(found);
+
+                await Context.SaveChangesAsync();
+
+                return true;
             }
+            catch (Exception)
+            {
 
-            Context.Employees.Remove(found);
-
-            await Context.SaveChangesAsync();
-
-            return true;
+                throw;
+            }
+            
 
         }
 
         public async Task<bool> AddAsync(EmployeeEntity entity)
         {
-            await Context.AddAsync(entity);
-            var result = await Context.SaveChangesAsync();
-            return result > 0;
+            try
+            {
+                await Context.AddAsync(entity);
+                var result = await Context.SaveChangesAsync();
+                return result > 0;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
         public async Task<bool> CheckEmailExistsAsync(string email)
         {
-            var result = await Context.Employees.SingleOrDefaultAsync(e => e.Email == email);
+            try
+            {
+                var result = await Context.Employees.SingleOrDefaultAsync(e => e.Email == email);
 
-            return result != null;
+                return result != null;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
         public async Task<bool> CheckEmployeeIdExistsAsync(string id)
         {
-            var result = await Context.Employees.SingleOrDefaultAsync(e => e.EmployeeId == id);
+            try
+            {
+                var result = await Context.Employees.SingleOrDefaultAsync(e => e.EmployeeId == id);
 
-            return result != null;
+                return result != null;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
         public async Task<bool> CheckPhoneExistsAsync(string phoneNumber, string? id)
         {
-            return await Context.Employees
+            try
+            {
+                return await Context.Employees
                 .AnyAsync(e => e.PhoneNumber == phoneNumber
                              && (id == null || e.EmployeeId != id));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
     }
 }
