@@ -1,24 +1,35 @@
-﻿<div class="text-center">
+﻿<div class="container-fluid homepage">
+    <div class="row justify-content-center align-items-start mt-5">
 
-    <h2>Microsoft Login Demo</h2>
+        <div class="col-md-8 text-center">
 
-    @if (Context.Session.GetString("JWT") == null)
-    {
-        <a class="btn btn-primary"
-           asp-controller="Account"
-           asp-action="Login">
-            Login with Microsoft
-        </a>
-    }
-    else
-    {
-        <h4>Logged In</h4>
+            <div class="welcome-card shadow-lg">
 
-        <a class="btn btn-danger"
-           asp-controller="Account"
-           asp-action="Logout">
-            Logout
-        </a>
-    }
+                <h1 class="display-4 fw-bold">
+                    👋 EMS App
+                </h1>
 
+                <p class="lead mt-3">
+                    Manage employees, departments, attendance,
+                    and records efficiently in one place.
+                </p>
+
+                <div class="greeting-box mt-4">
+                    <h4>Hello!</h4>
+                    <p>
+                        Please login to continue and access your dashboard.
+                    </p>
+                </div>
+
+                <a asp-controller="Account"
+                   asp-action="Login"
+                   class="btn login-btn mt-4 px-5 py-2">
+                    Login
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
 </div>

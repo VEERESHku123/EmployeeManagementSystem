@@ -21,8 +21,6 @@ namespace Frontend.Controllers
                 RedirectUri = "/account/callback"
             };
 
-            properties.Items["prompt"] = "login";
-
             return Challenge(properties,
                 OpenIdConnectDefaults.AuthenticationScheme);
         }
@@ -32,17 +30,26 @@ namespace Frontend.Controllers
             var email = User.FindFirst("preferred_username")?.Value;
             var name = User.Identity?.Name;
 
-            var token = await accountApi.GetJwtToken(email, name);
+            var auth = await accountApi.GetJwtToken(email, name);
 
-            HttpContext.Session.SetString("JWT", token);
+            HttpContext.Session.SetString("JwtToken", auth.Token);
+            
+            HttpContext.Session.SetString("Role", auth.RoleType);
 
-            return RedirectToAction("Index", "Home");
+            HttpContext.Session.SetString("Email", email);
+
+            TempData["SuccessMessage"] = "Login successful";
+
+            return RedirectToAction("GetAllEmployees", "Employee");
         }
 
 
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
+
+            TempData["SuccessMessage"] = "Logged out successfully";
+
             return SignOut(OpenIdConnectDefaults.AuthenticationScheme);
         }
     }

@@ -40,7 +40,7 @@ namespace Backend.Data.Context
 
             employeeBuilder.Property<string>(e => e.LastName)
                 .HasColumnName("last_name")
-                .HasColumnType("varchar(500)")
+                .HasColumnType("varchar(50)")
                 .IsRequired();
 
             employeeBuilder.Property<string>(e => e.PhoneNumber)
@@ -71,9 +71,15 @@ namespace Backend.Data.Context
                .IsRequired();
 
             employeeBuilder
-                .Property<GenderEnum>(e => e.Gender)
+                .Property<Gender>(e => e.Gender)
                 .HasColumnName("gender")
                 .HasColumnType("varchar(20)")
+                .IsRequired();
+
+            employeeBuilder
+                .Property<Role>(e => e.Role)
+                .HasColumnType("varchar(20)")
+                .HasColumnName("role-type")
                 .IsRequired();
 
             employeeBuilder

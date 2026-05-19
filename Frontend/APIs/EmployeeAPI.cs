@@ -1,5 +1,8 @@
 ﻿using Frontend.Models;
+using Newtonsoft.Json.Linq;
+using NuGet.Common;
 using System.Net;
+using System.Net.Http.Headers;
 namespace Frontend.APIs
 {
     public class EmployeeAPI
@@ -12,7 +15,7 @@ namespace Frontend.APIs
         }
 
         public async Task<(List<EmployeeModel> Employees, int TotalCount, int StatusCode)> SendAllEmployee(
-    string searchTerm, int page, int pageSize)
+            string searchTerm, int page, int pageSize)
         {
             var url = $"employee/all?search={Uri.EscapeDataString(searchTerm ?? "")}&page={page}&pageSize={pageSize}";
 
@@ -46,23 +49,42 @@ namespace Frontend.APIs
             return (employee, (int)response.StatusCode);
         }
 
-        public async Task<bool> AddNewEmployee(EmployeeModel model)
+        public async Task<bool> AddNewEmployee(EmployeeModel model, string token)
         {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await client.PostAsJsonAsync("employee/add", model);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<int> UpdateEmployee(string id, UpdateEmployeeModel model)
+        public async Task<int> UpdateEmployee(string id, UpdateEmployeeModel model, string token)
         {
+            Console.WriteLine(model.Role);
+
+            client.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue(
+                            "Bearer",
+                            token);
             var response = await client.PutAsJsonAsync($"employee/update/{id}", model);
-            Console.WriteLine(response.IsSuccessStatusCode);
+
+            Console.WriteLine(response.StatusCode);
             return (int)response.StatusCode;
         }
 
-        public async Task<int> DeleteEmployee(string id)
+        public async Task<int> DeleteEmployee(string id, string token)
         {
+            client.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue(
+                            "Bearer",
+                            token);
+
             var response = await client.DeleteAsync($"employee/delete/{id}");
 
+            Console.WriteLine("---------------------------");
+            Console.WriteLine(id);
+            Console.WriteLine("https://localhost:7200/employee/delete/NOVIQ005".Equals(client.BaseAddress + "employee/delete/{id}"));
+            Console.WriteLine($"{client.BaseAddress}employee/delete/{id}");
+            Console.WriteLine(response.StatusCode);
             return (int)response.StatusCode;
         }
 

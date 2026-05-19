@@ -10,11 +10,11 @@ namespace Frontend.Models
         public required string EmployeeId { get; set; }
 
         [Required(ErrorMessage = "First name is required")]
-        [StringLength(50, MinimumLength = 2)]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "First name must be 2–50 characters")]
         public required string FirstName { get; set; }
 
         [Required(ErrorMessage = "Last name is required")]
-        [StringLength(50, MinimumLength = 1)]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "Last name must be 1–50 characters")]
         public required string LastName { get; set; }
 
         [Required(ErrorMessage = "Phone number is required")]
@@ -35,6 +35,7 @@ namespace Frontend.Models
         [StringLength(50)]
         public required string JobTitle { get; set; }
 
+        public Role Role { get; set; }
         public decimal Salary { get; set; }
 
         public bool Status { get; set; } = true;

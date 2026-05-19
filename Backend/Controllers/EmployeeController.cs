@@ -1,9 +1,8 @@
-﻿using Backend.Fillters;
-using Backend.DTOs;
+﻿using Backend.DTOs;
 using Backend.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+using System.Security.Claims;
 
 namespace Backend.Controllers
 {
@@ -44,6 +43,7 @@ namespace Backend.Controllers
 
         [HttpPost]
         [Route("add")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddEmployeeAsync(CreateEmployeeDTO dto)
         {
             if (!ModelState.IsValid)
@@ -63,20 +63,47 @@ namespace Backend.Controllers
 
         [HttpPut]
         [Route("update/{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateEmployee(string id, [FromBody] CreateEmployeeDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            Console.WriteLine("---------------------------------");
+            Console.WriteLine(dto.Role);
 
-            var result = await service.UpdateEmployeeAsync(id, dto);
-            return (result) ? Ok("Updated") : NotFound();
+            var role =  User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var loggedInEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            // Admin can update anyone
+            if (role == "Admin")
+            {
+                var result =
+                    await service.UpdateEmployeeAsync(id, dto);
+
+                return result
+                    ? Ok("Updated")
+                    : NotFound();
+            }
+
+            // Employee can update only own profile
+            if (loggedInEmail != dto.Email)
+            {
+                return Forbid(
+                    "You can update only your own profile");
+            }
+            var update = await service.UpdateEmployeeAsync(id, dto);
+            Console.WriteLine("---------------------------------");
+            Console.WriteLine(dto.Role);
+            return (update) ? Ok("Updated") : NotFound();
         }
 
 
         [HttpDelete]
         [Route("delete/{id}")]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
             var result = await service.DeleteEmployeeAsync(id);

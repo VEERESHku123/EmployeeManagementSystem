@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "GetEmployeeById";
+    var role = Context.Session.GetString("Role");
+    var email = Context.Session.GetString("Email");
 }
 
 <link rel="stylesheet" href="~/css/employee-details.css" />
@@ -80,20 +82,26 @@
         </dd>
 
     </dl>
-
+   
     <div class="mt-4 text-center">
-        <a asp-action="UpdateEmployee"
-           asp-route-id="@Model.EmployeeId"
-           class="btn-custom btn-edit">
-            Edit
-        </a>
-        <a href="#"
-           id="deleteBtn"
-           data-id="@Model.EmployeeId"
-           class="btn-custom btn-edit">
-            Remove
-        </a>
-
+        @if (role == "Admin" || email == Model.Email)
+        {
+            <a asp-action="UpdateEmployee"
+               asp-route-id="@Model.EmployeeId"
+               class="btn-custom btn-edit">
+                Edit
+            </a>
+        }
+        @if(role == "Admin")
+        {
+            <a asp-controller="Employee"
+                asp-action="DeleteEmployee"
+               asp-route-id ="@Model.EmployeeId"
+               class="btn-custom btn-edit">
+                Remove
+            </a>
+        }
+        
         <a asp-action="GetAllEmployees"
            asp-controller="Employee"
            class="btn-custom btn-back">

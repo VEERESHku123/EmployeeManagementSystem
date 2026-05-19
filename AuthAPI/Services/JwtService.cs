@@ -16,19 +16,20 @@ namespace AuthAPI.Services
             this.config = config;
         }
 
-        public AuthResponse GenerateToken(string email, string name)
+        public AuthResponse GenerateToken(string email, string name, string role)
         {
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.Name, name)
+                new Claim(ClaimTypes.Name, name),
+                new Claim(ClaimTypes.Role, role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
 
             var credentials = new SigningCredentials( key, SecurityAlgorithms.HmacSha256);
 
-            var expiry = DateTime.UtcNow.AddMinutes(Convert.ToDouble(config["Jwt:DurationInMinutes"]));
+            var expiry = DateTime.UtcNow.AddDays(int.Parse(config["Jwt:DurationInMinutes"]));
 
             var token = new JwtSecurityToken(
                            issuer: config["Jwt:Issuer"],
@@ -41,7 +42,8 @@ namespace AuthAPI.Services
             return new AuthResponse
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
-                Expiration = expiry
+                Expiration = expiry,
+                RoleType = role
             };
         }
     }

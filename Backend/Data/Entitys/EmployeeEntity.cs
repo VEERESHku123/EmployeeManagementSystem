@@ -11,7 +11,7 @@ namespace Backend.Data.Models
         public required String PhoneNumber { get; set; }
         public required string Email { get; set; }
         public required DateOnly DOB { get; set; }
-        public GenderEnum Gender { get; set; }
+        public Gender Gender { get; set; }
         public DateOnly HiredDate { get; set; }
         public required string JobTitle { get; set; }
         public decimal Salary { get; set; }
@@ -19,6 +19,8 @@ namespace Backend.Data.Models
 
         public int DepartmentId { get; set; }
         public string ManagerId { get; set; }
+
+        public Role Role { get; set; }
 
         //Navigation
         public DepartmentEntity Department { get; set; }

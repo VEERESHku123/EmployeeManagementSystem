@@ -6,6 +6,7 @@ namespace Frontend.Models
     public class EmployeeModel
     {
         [Required]
+        [Length(10, 11, ErrorMessage = "Employee ID should contain 10 to 11 characters.")]
         [Remote("IsEmployeeIdAvailable", "Employee", ErrorMessage = "Employee ID already exists")]
         public required string EmployeeId { get; set; }
 
@@ -14,7 +15,7 @@ namespace Frontend.Models
         public required string FirstName { get; set; }
 
         [Required(ErrorMessage = "Last name is required")]
-        [StringLength(50, MinimumLength = 2)]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "Name cannot be empty and must not exceed 50 characters.")]
         public required string LastName { get; set; }
 
         [Required(ErrorMessage = "Phone number is required")]

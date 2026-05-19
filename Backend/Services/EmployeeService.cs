@@ -52,6 +52,8 @@ namespace Backend.Services
 
         public async Task<bool> AddEmployeeAsync(CreateEmployeeDTO employeeDTO)
         {
+            employeeDTO.Role = Enums.Role.User;
+
             try
             {
                 if (await CheckEmailExistsAsync(employeeDTO.Email)) throw new InvalidOperationException("Email already Exsist");

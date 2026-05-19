@@ -84,7 +84,9 @@ namespace Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNewEmployee(EmployeeModel model)
         {
-            var isSuccess = await EmployeeAPI.AddNewEmployee(model);
+            var token = HttpContext.Session.GetString("JwtToken");
+
+            var isSuccess = await EmployeeAPI.AddNewEmployee(model, token);
 
             if(isSuccess)
             {
@@ -115,8 +117,10 @@ namespace Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateEmployee(UpdateEmployeeModel model)
         {
-            var result = await EmployeeAPI.UpdateEmployee(model.EmployeeId, model);
-            Console.WriteLine(model.EmployeeId);
+            var token = HttpContext.Session.GetString("JwtToken");
+
+            var result = await EmployeeAPI.UpdateEmployee(model.EmployeeId, model, token);
+
 
             if (result == 200)
             {
@@ -135,9 +139,12 @@ namespace Frontend.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
-            var result = await EmployeeAPI.DeleteEmployee(id);
+            var token = HttpContext.Session.GetString("JwtToken");
+            Console.WriteLine("id: " + id);
+            var result = await EmployeeAPI.DeleteEmployee(id, token);
             if (result == 200)
             {
                 TempData["SuccessMessage"] = $"Employee Id: {id} deleted successfully!";

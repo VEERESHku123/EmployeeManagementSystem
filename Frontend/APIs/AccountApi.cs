@@ -11,7 +11,7 @@ namespace Frontend.APIs
             client = factory.CreateClient("Auth");
         }
 
-        public async Task<string> GetJwtToken(string email, string name)
+        public async Task<AuthResponse> GetJwtToken(string email, string name)
         {
             var url = client.BaseAddress + "microsoft-signin";
             var response = await client.PostAsJsonAsync(url, new
@@ -23,10 +23,9 @@ namespace Frontend.APIs
             if (!response.IsSuccessStatusCode)
                 return null;
 
-            var result = await response.Content
-                .ReadFromJsonAsync<AuthResponse>();
+            return await response.Content.ReadFromJsonAsync<AuthResponse>();
 
-            return result.Token;
+            
         }
     }
 }

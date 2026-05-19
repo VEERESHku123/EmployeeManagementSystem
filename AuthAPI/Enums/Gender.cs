@@ -1,6 +1,6 @@
 ﻿namespace AuthAPI.Enums
 {
-    public enum GenderEnum
+    public enum Gender
     {
         Male,
         Female,

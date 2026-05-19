@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Update Employee";
+    var role = Context.Session.GetString("Role");
 }
 
 <link rel="stylesheet" href="~/css/employee-update.css" />
@@ -107,6 +108,18 @@
                 <label asp-for="ManagerId" class="form-label">Manager Id</label>
                 <input asp-for="ManagerId" class="form-control readonly-field" readonly />
             </div>
+        </div>
+        <div class ="row mt-2">
+            @if(role == "Admin")
+                {
+                <div class="col-md-6 form-group">
+                        <label asp-for="Role" class="form-label"></label>
+                        <select asp-for="Role" class="form-control"
+                                asp-items="Html.GetEnumSelectList<Role>()">
+                        </select>
+                </div>
+                    
+                }
         </div>
 
         <div class="mt-4 text-center">

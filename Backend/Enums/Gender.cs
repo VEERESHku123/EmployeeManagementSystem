@@ -1,6 +1,6 @@
 ﻿namespace Backend.Enums
 {
-    public enum GenderEnum
+    public enum Gender
     {
         Male,
         Female,
