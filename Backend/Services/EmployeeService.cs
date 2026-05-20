@@ -7,20 +7,21 @@ namespace Backend.Services
 {
     public class EmployeeService : IEmployeeService
     {
+        private readonly IEmployeeRepo employeeRepo;
+        private readonly IMapper mapper;
         public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper)
         {
-            this.repo = employeeRepo;
+            this.employeeRepo = employeeRepo;
             this.mapper = mapper;
         }
 
-        public IEmployeeRepo repo { get; set; }
-        public IMapper mapper { get; set; }
+        
 
         public async Task<(List<EmployeeDTO> Data, int TotalCount)> GetAllEmployeeAsync(string searchTerm, int page, int pageSize)
         {
             try
             {
-                var result = await repo.GetAllAsync(searchTerm, page, pageSize);
+                var result = await employeeRepo.GetAllAsync(searchTerm, page, pageSize);
 
                 return (
                     mapper.Map<List<EmployeeDTO>>(result.Data),
@@ -39,7 +40,7 @@ namespace Backend.Services
         {
             try
             {
-                var result = await repo.GetById(id);
+                var result = await employeeRepo.GetById(id);
                 return mapper.Map<EmployeeDTO>(result);
             }
             catch (Exception)
@@ -60,7 +61,7 @@ namespace Backend.Services
                 if (await CheckEmployeeIdExistsAsync(employeeDTO.EmployeeId)) throw new InvalidOperationException("Employee ID already Exsist");
                 if (await CheckPhoneExistsAsync(employeeDTO.PhoneNumber, "")) throw new InvalidOperationException("PhoneNumber already Exsist");
 
-                return await repo.AddAsync(mapper.Map<EmployeeEntity>(employeeDTO));
+                return await employeeRepo.AddAsync(mapper.Map<EmployeeEntity>(employeeDTO));
             }
             catch (Exception)
             {
@@ -76,7 +77,7 @@ namespace Backend.Services
             {
                 if (await CheckPhoneExistsAsync(employeeDTO.PhoneNumber, employeeDTO.EmployeeId)) throw new InvalidOperationException("PhoneNumber already Exsist");
 
-                return await repo.UpdateAsync(id, mapper.Map<EmployeeEntity>(employeeDTO));
+                return await employeeRepo.UpdateAsync(id, mapper.Map<EmployeeEntity>(employeeDTO));
             }
             catch (Exception)
             {
@@ -90,7 +91,7 @@ namespace Backend.Services
         {
             try
             {
-                return await repo.DeleteByIdAsync(id);
+                return await employeeRepo.DeleteByIdAsync(id);
             }
             catch (Exception)
             {
@@ -104,7 +105,7 @@ namespace Backend.Services
         {
             try
             {
-                return await repo.CheckEmailExistsAsync(email);
+                return await employeeRepo.CheckEmailExistsAsync(email);
             }
             catch (Exception)
             {
@@ -118,7 +119,7 @@ namespace Backend.Services
         {
             try
             {
-                return await repo.CheckEmployeeIdExistsAsync(id);
+                return await employeeRepo.CheckEmployeeIdExistsAsync(id);
             }
             catch (Exception)
             {
@@ -132,7 +133,7 @@ namespace Backend.Services
         {
             try
             {
-                return await repo.CheckPhoneExistsAsync(phoneNumber, id);
+                return await employeeRepo.CheckPhoneExistsAsync(phoneNumber, id);
             }
             catch (Exception)
             {

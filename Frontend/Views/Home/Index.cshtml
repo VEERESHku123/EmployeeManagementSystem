@@ -1,35 +1,103 @@
-﻿<div class="container-fluid homepage">
-    <div class="row justify-content-center align-items-start mt-5">
+﻿<div class="hero-container">
 
-        <div class="col-md-8 text-center">
+    <!-- Left -->
+    <div class="hero-content">
 
-            <div class="welcome-card shadow-lg">
+        <h1>👋 EMS App</h1>
 
-                <h1 class="display-4 fw-bold">
-                    👋 EMS App
-                </h1>
+        <p class="tagline">
+            Manage employees, departments,
+            and records efficiently.
+        </p>
 
-                <p class="lead mt-3">
-                    Manage employees, departments, attendance,
-                    and records efficiently in one place.
-                </p>
+        <h2>Hello!</h2>
 
-                <div class="greeting-box mt-4">
-                    <h4>Hello!</h4>
-                    <p>
-                        Please login to continue and access your dashboard.
-                    </p>
+        <p>
+            Please login to continue and
+            access dashboard.
+        </p>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           asp-route-showLogin="true"
+           class="hero-btn">
+
+            Login →
+        </a>
+
+    </div>
+
+
+
+    <!-- Right -->
+    <div class="hero-right">
+
+        @if (Context.Request.Query["showLogin"] == "true")
+        {
+
+            <!-- LOGIN CARD -->
+
+            <div class="login-card">
+
+                <h3>Login</h3>
+
+                <form asp-controller="Account"
+                      asp-action="SignIn"
+                      method="post">
+
+                    <input type="email"
+                           name="Email"
+                           placeholder="Email"
+                           class="form-control mb-3" />
+
+
+                    <input type="password"
+                           name="Password"
+                           placeholder="Password"
+                           class="form-control mb-3" />
+
+
+                    <button class="btn btn-primary w-100">
+
+                        Login
+
+                    </button>
+
+                </form>
+
+
+                <div class="text-center mt-3">
+
+                    OR
+
                 </div>
 
+
                 <a asp-controller="Account"
-                   asp-action="Login"
-                   class="btn login-btn mt-4 px-5 py-2">
-                    Login
+                   asp-action="MicrosoftSignIn"
+                   class="btn btn-outline-dark w-100 mt-3">
+
+                    Continue with Microsoft
+
                 </a>
 
             </div>
 
-        </div>
+        }
+        else
+        {
+
+            <!-- VIDEO -->
+
+            <video autoplay muted loop>
+
+                <source src="~/videos/ems-animation.mp4"
+                        type="video/mp4" />
+
+            </video>
+
+        }
 
     </div>
+
 </div>

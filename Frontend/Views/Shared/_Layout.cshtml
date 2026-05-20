@@ -12,17 +12,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
+<body class="hero-bg">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="">Employee Management App</a>
+                <a class="navbar-brand ms-2" asp-area="">Employee Management App</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1" >
                         @if (Context.Session.GetString("JwtToken") != null)
                             {  
                             <li class="nav-item">
@@ -50,14 +50,15 @@
                     </ul>
 
                     <!-- Right menu -->
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto me-2">
 
                         @if (Context.Session.GetString("JwtToken") == null)
                         {
                             <li class="nav-item">
                                 <a class="btn btn-outline-light btn-sm px-3 py-1 rounded-pill shadow-sm custom-btn"
-                                   asp-controller="Account"
-                                   asp-action="Login">
+                                   asp-controller="Home"
+                                   asp-action="Index"
+                                   asp-route-showLogin="true">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>
                                     Login
                                 </a>
@@ -80,44 +81,49 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <script>
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <text>
-                    Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '@TempData["SuccessMessage"]',
-                    timer: 3000,
-                    showConfirmButton: false
-                    });
-                </text>
-            }
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <text>
-                    Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: '@TempData["ErrorMessage"]',
-                    timer: 3000,
-                    showConfirmButton: false
-                    });
-                </text>
-            }
-        </script>
+    <div class="container-fluid px-0">
+        <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- COMMON BACKGROUND -->
+    <div class="global-bg">
+
+        <div class="bg-lines"></div>
+
+        <div class="bubble bubble1"></div>
+        <div class="bubble bubble2"></div>
+        <div class="bubble bubble3"></div>
+
+    </div>
+    @if (TempData["SuccessMessage"] != null ||
+     TempData["ErrorMessage"] != null)
+    {
+        <script>
+
+            let icon =
+            '@(TempData["SuccessMessage"] != null ? "success" : "error")';
+
+            let message =
+            '@(TempData["SuccessMessage"] ?? TempData["ErrorMessage"])';
+
+            Swal.fire({
+            icon: icon,
+            title: icon === 'success' ? 'Success' : 'Error',
+            text: message,
+            timer: 3000,
+            showConfirmButton: false
+            });
+
+        </script>
+    }
+    @* <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2026 - Frontend - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

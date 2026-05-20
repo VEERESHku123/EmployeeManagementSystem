@@ -1,30 +1,34 @@
 ﻿using Frontend.Models;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Frontend.APIs
 {
     public class ManagerAPI
     {
         private readonly HttpClient client;
+        private readonly IMemoryCache cache;
 
-        public ManagerAPI(IHttpClientFactory factory)
+        public ManagerAPI(IHttpClientFactory factory, IMemoryCache cache)
         {
             client = factory.CreateClient("BackEnd");
+            this.cache = cache;
         }
 
-        public async Task<(List<ManagerModel> managersList, int StatusCode)> SendAllManagers()
+        public async Task<List<ManagerModel>> SendAllManagers()
         {
             try
             {
-                var response = await client.GetAsync("manager/all");
-
-                if (!response.IsSuccessStatusCode)
+                if(!cache.TryGetValue("Managers", out List<ManagerModel> managers))
                 {
-                    return (new List<ManagerModel>(), (int)response.StatusCode);
+                    managers = await client.GetFromJsonAsync<List<ManagerModel>>("manager/all");
+
+                    cache.Set(
+                        "Managers",
+                        managers,
+                        TimeSpan.FromHours(1));
                 }
 
-                var managers = await response.Content.ReadFromJsonAsync<List<ManagerModel>>();
-
-                return (managers ?? new List<ManagerModel>(), (int)response.StatusCode);
+                return managers?? new List<ManagerModel>();
             }
             catch
             {

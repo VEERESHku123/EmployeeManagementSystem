@@ -77,37 +77,119 @@
         <div class="row mt-2">
             <div class="col-md-6 form-group">
                 <label asp-for="JobTitle" class="form-label">Job Title</label>
+                @if(role == "Admin")
+                    {
+                    <select asp-for="JobTitle" class="form-control">
+                        <option value="">-- Select Job Title --</option>
+                        <option value="Software Engineer">Software Engineer</option>
+                        <option value="Senior Software Engineer">Senior Software Engineer</option>
+                        <option value="Team Lead">Team Lead</option>
+                        <option value="Project Manager">Project Manager</option>
+                        <option value="HR Manager">HR Manager</option>
+                        <option value="QA Engineer">QA Engineer</option>
+                        <option value="Business Analyst">Business Analyst</option>
+                    </select>
+                    }
+                    else
+                    {
+                    <select asp-for="JobTitle" class="form-control" disabled>
+                        <option value="">-- Select Job Title --</option>
+                        <option value="Software Engineer">Software Engineer</option>
+                        <option value="Senior Software Engineer">Senior Software Engineer</option>
+                        <option value="Team Lead">Team Lead</option>
+                        <option value="Project Manager">Project Manager</option>
+                        <option value="HR Manager">HR Manager</option>
+                        <option value="QA Engineer">QA Engineer</option>
+                        <option value="Business Analyst">Business Analyst</option>
+                    </select>
+                    <input type="hidden"
+                           asp-for="JobTitle" />
+                    }
 
-                <select asp-for="JobTitle" class="form-control">
-                    <option value="">-- Select Job Title --</option>
-                    <option value="Software Engineer">Software Engineer</option>
-                    <option value="Senior Software Engineer">Senior Software Engineer</option>
-                    <option value="Team Lead">Team Lead</option>
-                    <option value="Project Manager">Project Manager</option>
-                    <option value="HR Manager">HR Manager</option>
-                    <option value="QA Engineer">QA Engineer</option>
-                    <option value="Business Analyst">Business Analyst</option>
-                </select>
+                
 
                 <span asp-validation-for="JobTitle" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 form-group">
                 <label asp-for="Salary" class="form-label"></label>
-                <input asp-for="Salary" class="form-control readonly-field" readonly />
+                <input asp-for="Salary" class="form-control @(role != "Admin" ? "readonly-field" : "")" readonly = "@(role != "Admin")" />
             </div>
         </div>
 
         <div class="row mt-2">
-            <div class="col-md-6 form-group">
-                <label asp-for="DepartmentId" class="form-label">Department Id</label>
-                <input asp-for="DepartmentId" class="form-control readonly-field" readonly />
+
+            <!-- Department -->
+            <div class="col-md-6 form-group required">
+                <label asp-for="DepartmentId"
+                       class="form-label">Department</label>
+
+                @if (role == "Admin")
+                {
+                    <select asp-for="DepartmentId"
+                            class="form-control"
+                            asp-items="ViewBag.Departments">
+
+                        <option value="">
+                            -- Select Department --
+                        </option>
+
+                    </select>
+                }
+                else
+                {
+                    <select asp-for="DepartmentId"
+                            class="form-control"
+                            asp-items="ViewBag.Departments"
+                            disabled>
+
+                        <option value="">
+                            -- Select Department --
+                        </option>
+
+                    </select>
+
+                    <input type="hidden"
+                           asp-for="DepartmentId" />
+                }
             </div>
 
+
+            <!-- Manager -->
             <div class="col-md-6 form-group">
-                <label asp-for="ManagerId" class="form-label">Manager Id</label>
-                <input asp-for="ManagerId" class="form-control readonly-field" readonly />
+                <label asp-for="ManagerId"
+                       class="form-label">Manager</label>
+
+                @if (role == "Admin")
+                {
+                    <select asp-for="ManagerId"
+                            class="form-control"
+                            asp-items="ViewBag.Managers">
+
+                        <option value="">
+                            -- Select Manager --
+                        </option>
+
+                    </select>
+                }
+                else
+                {
+                    <select asp-for="ManagerId"
+                            class="form-control"
+                            asp-items="ViewBag.Managers"
+                            disabled>
+
+                        <option value="">
+                            -- Select Manager --
+                        </option>
+
+                    </select>
+
+                    <input type="hidden"
+                           asp-for="ManagerId" />
+                }
             </div>
+
         </div>
         <div class ="row mt-2">
             @if(role == "Admin")

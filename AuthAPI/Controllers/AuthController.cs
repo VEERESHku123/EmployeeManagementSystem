@@ -21,17 +21,27 @@ namespace AuthAPI.Controllers
         [HttpPost("microsoft-signin")]
         public async Task<IActionResult> MicrosoftSignIn([FromBody] MicrosoftSignInRequest request)
         {
-            var role = await employeeService.CheckEmailExistsAsync(request.Email);
-            if (role == null) {
-                return Unauthorized();
+            try
+            {
+                var role = await employeeService.CheckEmailExistsAsync(request.Email);
+                if (role == null)
+                {
+                    return Unauthorized();
+                }
+
+                var response = jwtService.GenerateToken(
+                    request.Email,
+                    request.Name,
+                    role);
+
+                return Ok(response);
             }
+            catch (Exception e)
+            {
 
-            var response = jwtService.GenerateToken(
-                request.Email,
-                request.Name,
-                role);
-
-            return Ok(response);
+                return Problem(e.Message, "", 500);
+            }
+            
         }
     }
 }

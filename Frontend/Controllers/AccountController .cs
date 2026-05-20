@@ -1,4 +1,5 @@
 ﻿using Frontend.APIs;
+using Frontend.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,22 @@ namespace Frontend.Controllers
             this.accountApi = accountApi;
         }
 
-        public IActionResult Login()
+
+        [HttpPost]
+        public IActionResult SignIn(SignInModel model)
+        {
+            
+            return View();
+        }
+
+        public IActionResult MicrosoftSignIn()
         {
             var properties = new AuthenticationProperties
             {
                 RedirectUri = "/account/callback"
             };
+
+            properties.Items["prompt"] = "select_account";
 
             return Challenge(properties,
                 OpenIdConnectDefaults.AuthenticationScheme);

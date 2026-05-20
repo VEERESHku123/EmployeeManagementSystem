@@ -44,7 +44,7 @@ namespace Frontend.Models
         public decimal Salary { get; set; }
 
         public bool Status { get; set; } = true;
-
+        
         [Range(1, int.MaxValue, ErrorMessage = "Invalid Department")]
         public int DepartmentId { get; set; }
 

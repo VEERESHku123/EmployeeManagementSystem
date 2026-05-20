@@ -28,7 +28,7 @@ function loadEmployees(page) {
     const search = document.getElementById("searchInput").value;
     const pageSize = document.getElementById("pageSizeSelect").value;
 
-    fetch(`/Employee/GetAllEmployees?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`, {
+    fetch(`/employee/all?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`, {
         headers: {
             "X-Requested-With": "XMLHttpRequest"
         }

@@ -24,8 +24,6 @@ namespace Frontend.APIs
                 return null;
 
             return await response.Content.ReadFromJsonAsync<AuthResponse>();
-
-            
         }
     }
 }

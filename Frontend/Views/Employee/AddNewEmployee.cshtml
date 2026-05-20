@@ -17,13 +17,13 @@
 
         <div class="row">
             <div class="col-md-6 form-group">
-                <label asp-for="EmployeeId" class="form-label">Employee Id</label>
+                <label asp-for="EmployeeId" class="form-label required">Employee Id</label>
                 <input asp-for="EmployeeId" class="form-control" />
                 <span asp-validation-for="EmployeeId" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 form-group">
-                <label asp-for="Email" class="form-label"></label>
+                <label asp-for="Email" class="form-label required"></label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
@@ -31,13 +31,13 @@
 
         <div class="row mt-2">
             <div class="col-md-6 form-group">
-                <label asp-for="FirstName" class="form-label">First Name</label>
+                <label asp-for="FirstName" class="form-label required">First Name</label>
                 <input asp-for="FirstName" class="form-control" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 form-group">
-                <label asp-for="LastName" class="form-label">Last Name</label>
+                <label asp-for="LastName" class="form-label required">Last Name</label>
                 <input asp-for="LastName" class="form-control" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
@@ -47,13 +47,13 @@
 
         <div class="row">
             <div class="col-md-6 form-group">
-                <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                <label asp-for="PhoneNumber" class="form-label required">Phone Number</label>
                 <input asp-for="PhoneNumber" class="form-control" type="number"/>
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 form-group">
-                <label asp-for="DOB" class="form-label"></label>
+                <label asp-for="DOB" class="form-label required"></label>
                 <input asp-for="DOB" type="date" class="form-control" />
                 <span asp-validation-for="DOB" class="text-danger"></span>
             </div>
@@ -63,7 +63,7 @@
 
         <div class="row">
             <div class="col-md-6 form-group">
-                <label asp-for="Gender" class="form-label"></label>
+                <label asp-for="Gender" class="form-label required"></label>
                 <select asp-for="Gender"
                         class="form-control"
                         asp-items="Html.GetEnumSelectList<GenderEnum>()">
@@ -71,14 +71,14 @@
             </div>
 
             <div class="col-md-6 form-group">
-                <label asp-for="HiredDate" class="form-label">Hired Date</label>
+                <label asp-for="HiredDate" class="form-label required">Hired Date</label>
                 <input asp-for="HiredDate" type="date" class="form-control" />
             </div>
         </div>
 
         <div class="row mt-2">
             <div class="col-md-6 form-group">
-                <label asp-for="JobTitle" class="form-label">Job Title</label>
+                <label asp-for="JobTitle" class="form-label required">Job Title</label>
 
                 <select asp-for="JobTitle" class="form-control">
                     <option value="">-- Select Job Title --</option>
@@ -101,7 +101,7 @@
         </div>
 
         <div class="row mt-2">
-            <div class="col-md-6 form-group">
+            <div class="col-md-6 form-group required">
                 <label asp-for="DepartmentId" class="form-label">Department</label>
                 <select asp-for="DepartmentId"
                         class="form-control"

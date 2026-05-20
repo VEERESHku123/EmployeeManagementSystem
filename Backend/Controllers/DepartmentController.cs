@@ -8,17 +8,18 @@ namespace Backend.Controllers
     [ApiController]
     public class DepartmentController : ControllerBase
     {
+        private readonly DepartmentService departmentService;
         public DepartmentController(DepartmentService service)
         {
-            Service = service;
+            departmentService = service;
         }
 
-        public DepartmentService Service { get; set; }
+        
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAllEmployees()
         {
-            var result = await Service.GetAllManagersAsync();
+            var result = await departmentService.GetAllManagersAsync();
 
             return (result != null) ? Ok(result) : NoContent();
         }

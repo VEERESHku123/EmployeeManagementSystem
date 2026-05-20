@@ -5,18 +5,19 @@ namespace Backend.Services
 {
     public class ManagerService
     {
+        private readonly ManagerRepo managerRepo;
         public ManagerService(ManagerRepo repo)
         {
-            Repo = repo;
+            managerRepo = repo;
         }
 
-        public ManagerRepo Repo { get; set; }
+        
 
         public async Task<List<ManagerEntity>> GetAllManagersAsync()
         {
             try
             {
-                return await Repo.GetAllAsync();
+                return await managerRepo.GetAllAsync();
             }
             catch
             {

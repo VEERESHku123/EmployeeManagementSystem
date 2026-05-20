@@ -5,18 +5,19 @@ namespace Backend.Services
 {
     public class DepartmentService
     {
+        private readonly DepartmentRepo departmentRepo;
         public DepartmentService(DepartmentRepo repo)
         {
-            Repo = repo;
+            departmentRepo = repo;
         }
 
-        public DepartmentRepo Repo { get; set; }
+        
 
         public async Task<List<DepartmentEntity>> GetAllManagersAsync()
         {
             try
             {
-                return await Repo.GetAllAsync();
+                return await departmentRepo.GetAllAsync();
             }
             catch
             {

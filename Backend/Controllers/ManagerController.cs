@@ -8,18 +8,19 @@ namespace Backend.Controllers
     [ApiController]
     public class ManagerController : ControllerBase
     {
+        private readonly ManagerService managerService;
         public ManagerController(ManagerService service)
         {
-            Service = service;
+            managerService = service;
         }
 
-        public ManagerService Service { get; set; }
+        
 
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAllEmployees()
         {
-            var result = await Service.GetAllManagersAsync();
+            var result = await managerService.GetAllManagersAsync();
 
             return (result != null) ? Ok(result) : NoContent();
         }

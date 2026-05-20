@@ -23,6 +23,7 @@ namespace Frontend.Controllers
 
 
         [HttpGet]
+        [Route("employee/all")]
         public async Task<IActionResult> GetAllEmployees(string search, int page = 1, int pageSize = 5)
         {
             if (search != null) search.Trim();
@@ -50,6 +51,7 @@ namespace Frontend.Controllers
         }
 
         [HttpGet]
+        [Route("employee")]
         public async Task<IActionResult> GetEmployeeById(string id)
         {
             var result = await EmployeeAPI.SendEmployeeById(id);
@@ -65,14 +67,13 @@ namespace Frontend.Controllers
             return View(result.Employee);
         }
 
+
         [HttpGet]
+        [Route("employee/add")]
         public async Task<IActionResult> AddNewEmployee()
         {
-            var departmentsResponse = await DepartmentAPI.SendAllDepartments();
-            var managersResponse = await ManagerAPI.SendAllManagers();
-
-            var departments = departmentsResponse.departmentList;
-            var managers = managersResponse.managersList;
+            var departments = await DepartmentAPI.SendAllDepartments();
+            var managers = await ManagerAPI.SendAllManagers();
 
             ViewBag.Departments = new SelectList(departments, "DepartmentId", "DepartmentName");
 
@@ -101,6 +102,7 @@ namespace Frontend.Controllers
         }
 
         [HttpGet]
+        [Route("employee/update")]
         public async Task<IActionResult> UpdateEmployee(string id)
         {
             var result = await EmployeeAPI.SendEmployeeById(id);
@@ -110,6 +112,13 @@ namespace Frontend.Controllers
                 return RedirectToAction("StatusCode404Page", "StatusCode");
             }
             var employee = Mapper.Map<UpdateEmployeeModel>(result.Employee);
+
+            var departments = await DepartmentAPI.SendAllDepartments();
+            var managers = await ManagerAPI.SendAllManagers();
+
+            ViewBag.Departments = new SelectList(departments, "DepartmentId", "DepartmentName");
+
+            ViewBag.Managers = new SelectList(managers, "ManagerId", "ManagerName");
 
             return View(employee);
         }

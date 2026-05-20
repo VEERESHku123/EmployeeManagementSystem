@@ -10,18 +10,19 @@ namespace Backend.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
+        private readonly IEmployeeService employeeService; 
         public EmployeeController(IEmployeeService service)
         {
-            this.service = service;
+            this.employeeService = service;
         }
 
-        public IEmployeeService service { get; set; }
+        
 
         [HttpGet]
         [Route("all")]
         public async Task<IActionResult> GetAllEmployees([FromQuery] string? search, [FromQuery] int page, [FromQuery] int pageSize)
         {
-            var result = await service.GetAllEmployeeAsync(search, page, pageSize);
+            var result = await employeeService.GetAllEmployeeAsync(search, page, pageSize);
 
                 var response = new PagedEmployeeResponse
                 {
@@ -36,7 +37,7 @@ namespace Backend.Controllers
         [Route("{id}")]
         public async Task<IActionResult> GetEmployeeById(string id)
         {
-            var result = await service.GetEmployeeByIdAsync(id);
+            var result = await employeeService.GetEmployeeByIdAsync(id);
             return (result != null) ? Ok(result) : NotFound($"Employee ID: {id} Not Found");
             
         }
@@ -51,7 +52,7 @@ namespace Backend.Controllers
                 return BadRequest(ModelState);
             }
             
-            var result = await service.AddEmployeeAsync(dto);
+            var result = await employeeService.AddEmployeeAsync(dto);
 
             if(result)
                 return Created("", "Employee created successfully");
@@ -70,8 +71,7 @@ namespace Backend.Controllers
             {
                 return BadRequest(ModelState);
             }
-            Console.WriteLine("---------------------------------");
-            Console.WriteLine(dto.Role);
+
 
             var role =  User.FindFirst(ClaimTypes.Role)?.Value;
 
@@ -81,7 +81,7 @@ namespace Backend.Controllers
             if (role == "Admin")
             {
                 var result =
-                    await service.UpdateEmployeeAsync(id, dto);
+                    await employeeService.UpdateEmployeeAsync(id, dto);
 
                 return result
                     ? Ok("Updated")
@@ -94,9 +94,9 @@ namespace Backend.Controllers
                 return Forbid(
                     "You can update only your own profile");
             }
-            var update = await service.UpdateEmployeeAsync(id, dto);
-            Console.WriteLine("---------------------------------");
-            Console.WriteLine(dto.Role);
+
+            var update = await employeeService.UpdateEmployeeAsync(id, dto);
+
             return (update) ? Ok("Updated") : NotFound();
         }
 
@@ -106,7 +106,7 @@ namespace Backend.Controllers
         [Authorize(Roles ="Admin")]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
-            var result = await service.DeleteEmployeeAsync(id);
+            var result = await employeeService.DeleteEmployeeAsync(id);
 
             return (result) ? Ok("Deleted") : NotFound();
 
@@ -116,7 +116,7 @@ namespace Backend.Controllers
         [Route("CheckEmailExists/{email}")]
         public async Task<IActionResult> CheckEmailExists(string email)
         {
-            var result = await service.CheckEmailExistsAsync(email);
+            var result = await employeeService.CheckEmailExistsAsync(email);
 
             return (result) ? Ok("Email Exsist") : NotFound("Email Not Found");
         }
@@ -125,7 +125,7 @@ namespace Backend.Controllers
         [Route("CheckEmployeeIdExists/{id}")]
         public async Task<IActionResult> CheckEmployeeIdExists(string id)
         {
-            var result = await service.CheckEmployeeIdExistsAsync(id);
+            var result = await employeeService.CheckEmployeeIdExistsAsync(id);
 
             return (result) ? Ok("Id Exsist") : NotFound("Id Not Found");
         }
@@ -134,7 +134,7 @@ namespace Backend.Controllers
         [Route("CheckPhoneExists")]
         public async Task<IActionResult> CheckPhoneExists([FromQuery] string phoneNumber, [FromQuery] string? id)
         {
-            var exists = await service.CheckPhoneExistsAsync(phoneNumber, id);
+            var exists = await employeeService.CheckPhoneExistsAsync(phoneNumber, id);
 
             if (exists)
                 return Conflict("Phone number already exists");

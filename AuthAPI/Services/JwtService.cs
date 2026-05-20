@@ -22,7 +22,7 @@ namespace AuthAPI.Services
             {
                 new Claim(ClaimTypes.Email, email),
                 new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Role, role)
+                new Claim("role", role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));

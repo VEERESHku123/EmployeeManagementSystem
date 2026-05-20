@@ -1,27 +1,36 @@
 ﻿.employee-card {
     max-width: 650px;
-    margin: 10px auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 0.4s ease-in-out;
+    margin: 20px auto;
+    padding: 25px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(12px);
+    animation: fadeIn .4s ease;
 }
 
 .employee-title {
     text-align: center;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     color: #2c3e50;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
 }
 
 .employee-dl dt,
 .employee-dl dd {
-    padding: 6px 0;
-    font-size: 14px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,.25);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    transition: .25s ease;
 }
+
+    .employee-dl dt:hover,
+    .employee-dl dd:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(0,0,0,.12);
+    }
 
 .employee-dl dt {
     font-weight: 600;
@@ -34,43 +43,36 @@
 
 .btn-custom {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
     font-size: 13px;
-    text-decoration: none;
     font-weight: 600;
-    transition: 0.2s ease;
-    margin: 3px;
+    transition: .25s;
 }
 
-.btn-edit {
-    background: #0a1f44;
-    color: white;
-}
-
-    .btn-edit:hover {
-        background: #2980b9;
-        transform: scale(1.03);
-    }
-
+.btn-edit,
 .btn-back {
     background: #0a1f44;
     color: white;
 }
 
+    .btn-edit:hover {
+        transform: scale(1.05);
+        background: #2980b9;
+    }
+
     .btn-back:hover {
+        transform: scale(1.05);
         background: #27ae60;
-        transform: scale(1.03);
     }
 
 .employee-name {
     color: #e74c3c;
     font-weight: 700;
-    letter-spacing: 0.3px;
 }
 
-/* smoother animation */
 @keyframes fadeIn {
+
     from {
         opacity: 0;
         transform: translateY(10px);
@@ -78,6 +80,6 @@
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: none;
     }
 }
