@@ -28,12 +28,13 @@ namespace Backend.DTOs
         [Required]
         public DateOnly HiredDate { get; set; }
         [Required]
-        public required string JobTitle { get; set; }
+        public required string Designation { get; set; }
         [Range(0, 10000000)]
         public decimal Salary { get; set; }
 
         public Role Role { get; set; }
 
+        public bool IsActive { get; set; }
         public int DepartmentId { get; set; }
         public string? ManagerId { get; set; }
     }

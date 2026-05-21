@@ -7,9 +7,9 @@ namespace Backend.Data.Repos
 {
     public class EmployeeRepo : IEmployeeRepo
     {
-        public EmployeeDbContext Context { get; set; }
+        public AppDbContext Context { get; set; }
         public IMapper Mapper { get; set; }
-        public EmployeeRepo(EmployeeDbContext context, IMapper mapper)
+        public EmployeeRepo(AppDbContext context, IMapper mapper)
         {
             Context = context;
             Mapper = mapper;
@@ -33,10 +33,12 @@ namespace Backend.Data.Repos
                                 terms.All(t =>
                                     e.FirstName.Contains(t) ||
                                     e.LastName.Contains(t) ||
-                                    e.EmployeeId.Contains(t)
+                                    e.EmployeeId.Contains(t) 
                                 )
                             );
                 }
+
+                query = query.Where(e => e.IsActive == true);
 
                 var totalCount = await query.CountAsync();
 
@@ -109,7 +111,8 @@ namespace Backend.Data.Repos
                     return false;
                 }
 
-                Context.Employees.Remove(found);
+                found.IsActive = false;
+                //Context.Employees.Remove(found);
 
                 await Context.SaveChangesAsync();
 
@@ -128,6 +131,11 @@ namespace Backend.Data.Repos
         {
             try
             {
+                if(entity.IsActive == null)
+                {
+                    entity.IsActive = true;
+                }
+
                 await Context.AddAsync(entity);
                 var result = await Context.SaveChangesAsync();
                 return result > 0;

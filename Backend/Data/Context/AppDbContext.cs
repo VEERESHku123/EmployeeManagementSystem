@@ -1,21 +1,19 @@
-﻿using AuthAPI.Data.Entitys;
-using AuthAPI.Enums;
+﻿using Backend.Data.Models;
+using Backend.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Data;
-using System.Reflection;
 
-namespace AuthAPI.Data.Context
+namespace Backend.Data.Context
 {
-    public class EmployeeDbContext : DbContext
+    public class AppDbContext : DbContext
     {
-        
-
-        public DbSet<EmployeeEntity> Employees { get; set; }
-
-        public EmployeeDbContext(DbContextOptions options) : base(options)
+        public AppDbContext(DbContextOptions options) : base(options)
         {
         }
+
+        public DbSet<EmployeeEntity> Employees { get; set; }
+        public DbSet<DepartmentEntity> Departments { get; set; }
+        public DbSet<ManagerEntity> Managers { get; set; }  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,7 +40,7 @@ namespace AuthAPI.Data.Context
 
             employeeBuilder.Property<string>(e => e.LastName)
                 .HasColumnName("last_name")
-                .HasColumnType("varchar(500)")
+                .HasColumnType("varchar(50)")
                 .IsRequired();
 
             employeeBuilder.Property<string>(e => e.PhoneNumber)
@@ -91,8 +89,8 @@ namespace AuthAPI.Data.Context
                 .IsRequired();
 
             employeeBuilder
-                .Property<string>(e => e.JobTitle)
-               .HasColumnName("job_title")
+                .Property<string>(e => e.Designation)
+               .HasColumnName("designation")
                .HasColumnType("varchar(100)")
                .IsRequired();
 
@@ -104,8 +102,8 @@ namespace AuthAPI.Data.Context
                .HasDefaultValue(0);
 
             employeeBuilder
-                .Property<bool>(e => e.Status)
-                .HasColumnName("status")
+                .Property<bool>(e => e.IsActive)
+                .HasColumnName("is_active")
                 .HasColumnType("bit")
                 .HasDefaultValue(true);
 
@@ -121,9 +119,64 @@ namespace AuthAPI.Data.Context
                 .HasColumnType("varchar(50)")
                 .IsRequired(false);
 
+            employeeBuilder
+                .HasOne(e => e.Department)
+                .WithMany(d => d.Employees)
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            employeeBuilder
+                .HasOne(e => e.Manager)
+                .WithMany(m => m.Employees)
+                .HasForeignKey(e => e.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+            #region Department Builder
+            EntityTypeBuilder<DepartmentEntity> departmentBuilder = modelBuilder.Entity<DepartmentEntity>();
+
+            departmentBuilder
+                .ToTable("department")
+                .HasKey(d => d.DepartmentId);
+
+            departmentBuilder
+                .Property<int>(d => d.DepartmentId)
+                .HasColumnName("department_id")
+                .HasColumnType("int")
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn(100, 1);
+
+            departmentBuilder
+                .Property<string>(d => d.DepartmentName)
+                .HasColumnName("department_name")
+                .HasColumnType("varchar(50)")
+                .IsRequired();
+            #endregion
+
+            #region Manager Builder
+            EntityTypeBuilder<ManagerEntity> managerBuilder = modelBuilder.Entity<ManagerEntity>();
+
+            managerBuilder
+                .ToTable("managers")
+                .HasKey(m => m.ManagerId);
+
+            managerBuilder.Property<string>(m => m.ManagerId)
+                .HasColumnName("manager_id")
+                .HasColumnType("varchar(50)")
+                .IsRequired();
+
+            managerBuilder
+                .HasIndex(m => m.ManagerId)
+                .IsUnique();
+
+
+            managerBuilder.Property<string>(m => m.ManagerName)
+                .HasColumnName("manager_name")
+                .HasColumnType("varchar(50)")
+                .IsRequired();
+
             #endregion
         }
-
-
     }
 }

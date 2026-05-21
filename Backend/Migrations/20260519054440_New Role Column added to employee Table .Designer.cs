@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Backend.Migrations
 {
-    [DbContext(typeof(EmployeeDbContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20260519054440_New Role Column added to employee Table ")]
     partial class NewRoleColumnaddedtoemployeeTable
     {

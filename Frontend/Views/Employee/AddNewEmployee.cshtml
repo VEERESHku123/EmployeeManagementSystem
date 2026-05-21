@@ -78,9 +78,9 @@
 
         <div class="row mt-2">
             <div class="col-md-6 form-group">
-                <label asp-for="JobTitle" class="form-label required">Job Title</label>
+                <label asp-for="Designation" class="form-label required">Designation</label>
 
-                <select asp-for="JobTitle" class="form-control">
+                <select asp-for="Designation" class="form-control">
                     <option value="">-- Select Job Title --</option>
                     <option value="Software Engineer">Software Engineer</option>
                     <option value="Senior Software Engineer">Senior Software Engineer</option>
@@ -91,7 +91,7 @@
                     <option value="Business Analyst">Business Analyst</option>
                 </select>
 
-                <span asp-validation-for="JobTitle" class="text-danger"></span>
+                <span asp-validation-for="Designation" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 form-group">

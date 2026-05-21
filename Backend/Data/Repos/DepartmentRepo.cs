@@ -6,8 +6,8 @@ namespace Backend.Data.Repos
 {
     public class DepartmentRepo
     {
-        public EmployeeDbContext Context { get; set; }
-        public DepartmentRepo(EmployeeDbContext context)
+        public AppDbContext Context { get; set; }
+        public DepartmentRepo(AppDbContext context)
         {
             Context = context;
         }

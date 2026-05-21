@@ -76,10 +76,10 @@
 
         <div class="row mt-2">
             <div class="col-md-6 form-group">
-                <label asp-for="JobTitle" class="form-label">Job Title</label>
+                <label asp-for="Designation" class="form-label">Designation</label>
                 @if(role == "Admin")
                     {
-                    <select asp-for="JobTitle" class="form-control">
+                    <select asp-for="Designation" class="form-control">
                         <option value="">-- Select Job Title --</option>
                         <option value="Software Engineer">Software Engineer</option>
                         <option value="Senior Software Engineer">Senior Software Engineer</option>
@@ -92,7 +92,7 @@
                     }
                     else
                     {
-                    <select asp-for="JobTitle" class="form-control" disabled>
+                    <select asp-for="Designation" class="form-control" disabled>
                         <option value="">-- Select Job Title --</option>
                         <option value="Software Engineer">Software Engineer</option>
                         <option value="Senior Software Engineer">Senior Software Engineer</option>
@@ -103,12 +103,12 @@
                         <option value="Business Analyst">Business Analyst</option>
                     </select>
                     <input type="hidden"
-                           asp-for="JobTitle" />
+                           asp-for="Designation" />
                     }
 
                 
 
-                <span asp-validation-for="JobTitle" class="text-danger"></span>
+                <span asp-validation-for="Designation" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 form-group">
@@ -191,17 +191,29 @@
             </div>
 
         </div>
-        <div class ="row mt-2">
-            @if(role == "Admin")
-                {
+        <div class="row mt-2">
+
+            @if (role == "Admin")
+            {
                 <div class="col-md-6 form-group">
-                        <label asp-for="Role" class="form-label"></label>
-                        <select asp-for="Role" class="form-control"
-                                asp-items="Html.GetEnumSelectList<Role>()">
-                        </select>
+                    <label asp-for="Role" class="form-label"></label>
+
+                    <select asp-for="Role"
+                            class="form-control"
+                            asp-items="Html.GetEnumSelectList<Role>()">
+                    </select>
                 </div>
-                    
-                }
+
+                <div class="col-md-6 form-group">
+                    <label asp-for="IsActive" class="form-label"></label>
+                    <br />
+
+                    <input asp-for="IsActive"
+                           type="checkbox"
+                           class="form-check-input" />
+                </div>
+            }
+
         </div>
 
         <div class="mt-4 text-center">

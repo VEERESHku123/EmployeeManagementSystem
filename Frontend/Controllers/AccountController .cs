@@ -1,4 +1,5 @@
-﻿using Frontend.APIs;
+﻿using Frontend.ApiServices.Implements;
+using Frontend.ApiServices.Interfaces;
 using Frontend.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -8,9 +9,9 @@ namespace Frontend.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly AccountApi accountApi;
+        private readonly IAccountApiService accountApi;
 
-        public AccountController(AccountApi accountApi)
+        public AccountController(IAccountApiService accountApi)
         {
             this.accountApi = accountApi;
         }

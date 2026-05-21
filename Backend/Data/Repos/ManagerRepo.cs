@@ -6,9 +6,9 @@ namespace Backend.Data.Repos
 {
     public class ManagerRepo
     {
-        public EmployeeDbContext Context { get; set; }
+        public AppDbContext Context { get; set; }
 
-        public ManagerRepo(EmployeeDbContext context)
+        public ManagerRepo(AppDbContext context)
         {
             Context = context;
         }

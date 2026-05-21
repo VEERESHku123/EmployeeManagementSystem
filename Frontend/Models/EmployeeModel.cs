@@ -36,14 +36,14 @@ namespace Frontend.Models
 
         public DateOnly HiredDate { get; set; }
 
-        [Required(ErrorMessage = "Job title is required")]
+        [Required(ErrorMessage = "Designation is required")]
         [StringLength(50)]
-        public required string JobTitle { get; set; }
+        public required string Designation { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Salary must be positive")]
         public decimal Salary { get; set; }
 
-        public bool Status { get; set; } = true;
+        public bool IsActive { get; set; } = true;
         
         [Range(1, int.MaxValue, ErrorMessage = "Invalid Department")]
         public int DepartmentId { get; set; }

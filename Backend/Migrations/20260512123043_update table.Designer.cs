@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Backend.Migrations
 {
-    [DbContext(typeof(EmployeeDbContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20260512123043_update table")]
     partial class updatetable
     {

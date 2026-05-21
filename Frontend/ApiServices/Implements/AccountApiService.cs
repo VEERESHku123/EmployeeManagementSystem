@@ -1,12 +1,13 @@
-﻿using Frontend.Models;
+﻿using Frontend.ApiServices.Interfaces;
+using Frontend.Models;
 
-namespace Frontend.APIs
+namespace Frontend.ApiServices.Implements
 {
-    public class AccountApi
+    public class AccountApiService : IAccountApiService
     {
         private readonly HttpClient client;
 
-        public AccountApi(IHttpClientFactory factory)
+        public AccountApiService(IHttpClientFactory factory)
         {
             client = factory.CreateClient("Auth");
         }
@@ -22,6 +23,9 @@ namespace Frontend.APIs
 
             if (!response.IsSuccessStatusCode)
                 return null;
+
+            Console.WriteLine("------------------------------------------");
+            Console.WriteLine(response.StatusCode);
 
             return await response.Content.ReadFromJsonAsync<AuthResponse>();
         }

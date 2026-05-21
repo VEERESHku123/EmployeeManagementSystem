@@ -67,7 +67,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             };
     });
 // DB
-builder.Services.AddDbContext<EmployeeDbContext>(
+builder.Services.AddDbContext<AppDbContext>(
     options =>
         options.UseSqlServer(
             builder.Configuration.GetConnectionString(

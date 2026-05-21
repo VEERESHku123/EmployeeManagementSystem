@@ -32,11 +32,11 @@ namespace Backend.DTOs
 
         [Required(ErrorMessage = "Job title is required")]
         [StringLength(50)]
-        public required string JobTitle { get; set; }
+        public required string Designation { get; set; }
 
         public decimal Salary { get; set; }
 
-        public bool Status { get; set; } = true;
+        public bool IsActive { get; set; } = true;
 
         public int DepartmentId { get; set; }
         public string? ManagerId { get; set; }

@@ -31,14 +31,14 @@ namespace Frontend.Models
 
         public DateOnly HiredDate { get; set; }
 
-        [Required(ErrorMessage = "Job title is required")]
+        [Required(ErrorMessage = "Designation is required")]
         [StringLength(50)]
-        public required string JobTitle { get; set; }
+        public required string Designation { get; set; }
 
         public Role Role { get; set; }
         public decimal Salary { get; set; }
 
-        public bool Status { get; set; } = true;
+        public bool IsActive { get; set; }
 
         public int DepartmentId { get; set; }
         public string? ManagerId { get; set; }

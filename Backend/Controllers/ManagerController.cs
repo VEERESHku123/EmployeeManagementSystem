@@ -1,4 +1,5 @@
 ﻿using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ namespace Backend.Controllers
 
 
         [HttpGet("all")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> GetAllEmployees()
         {
             var result = await managerService.GetAllManagersAsync();

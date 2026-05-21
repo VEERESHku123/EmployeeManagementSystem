@@ -6,4 +6,5 @@ obj/
 *.cache
 *.db
 *.log
-appsettings.Development.json
+appsettings.json
+.env

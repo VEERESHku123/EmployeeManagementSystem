@@ -20,6 +20,7 @@ namespace Backend.Controllers
 
         [HttpGet]
         [Route("all")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> GetAllEmployees([FromQuery] string? search, [FromQuery] int page, [FromQuery] int pageSize)
         {
             var result = await employeeService.GetAllEmployeeAsync(search, page, pageSize);
@@ -35,6 +36,7 @@ namespace Backend.Controllers
 
         [HttpGet]
         [Route("{id}")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> GetEmployeeById(string id)
         {
             var result = await employeeService.GetEmployeeByIdAsync(id);
@@ -114,6 +116,7 @@ namespace Backend.Controllers
 
         [HttpGet]
         [Route("CheckEmailExists/{email}")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> CheckEmailExists(string email)
         {
             var result = await employeeService.CheckEmailExistsAsync(email);
@@ -123,6 +126,7 @@ namespace Backend.Controllers
 
         [HttpGet]
         [Route("CheckEmployeeIdExists/{id}")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> CheckEmployeeIdExists(string id)
         {
             var result = await employeeService.CheckEmployeeIdExistsAsync(id);
@@ -132,6 +136,7 @@ namespace Backend.Controllers
 
         [HttpGet]
         [Route("CheckPhoneExists")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> CheckPhoneExists([FromQuery] string phoneNumber, [FromQuery] string? id)
         {
             var exists = await employeeService.CheckPhoneExistsAsync(phoneNumber, id);

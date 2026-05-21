@@ -5,9 +5,9 @@ namespace AuthAPI.Data.Repos
 {
     public class EmployeeRepo
     {
-        private readonly EmployeeDbContext context;
+        private readonly AppDbContext context;
 
-        public EmployeeRepo(EmployeeDbContext context)
+        public EmployeeRepo(AppDbContext context)
         {
             this.context = context;
         }
@@ -21,6 +21,7 @@ namespace AuthAPI.Data.Repos
                     return result.Role.ToString();
                 else
                     return null;
+
             }
             catch (Exception)
             {

@@ -13,9 +13,9 @@ namespace Backend.Data.Models
         public required DateOnly DOB { get; set; }
         public Gender Gender { get; set; }
         public DateOnly HiredDate { get; set; }
-        public required string JobTitle { get; set; }
+        public required string Designation { get; set; }
         public decimal Salary { get; set; }
-        public bool Status { get; set; } = true;
+        public bool IsActive { get; set; }
 
         public int DepartmentId { get; set; }
         public string ManagerId { get; set; }

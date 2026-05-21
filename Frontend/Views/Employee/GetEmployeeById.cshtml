@@ -50,7 +50,7 @@
             Job Title
         </dt>
         <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.JobTitle)
+            @Html.DisplayFor(model => model.Designation)
         </dd>
 
         <dt class="col-sm-3">
@@ -64,7 +64,7 @@
             Status
         </dt>
         <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Status)
+            @Html.DisplayFor(model => model.IsActive)
         </dd>
 
         <dt class="col-sm-3">
@@ -94,12 +94,11 @@
         }
         @if(role == "Admin")
         {
-            <a asp-controller="Employee"
-                asp-action="DeleteEmployee"
-               asp-route-id ="@Model.EmployeeId"
-               class="btn-custom btn-edit">
+            <button id="deleteBtn"
+                    data-id="@Model.EmployeeId"
+                    class="btn-custom btn-edit">
                 Remove
-            </a>
+            </button>
         }
         
         <a asp-action="GetAllEmployees"
@@ -111,26 +110,39 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    document.getElementById("deleteBtn").addEventListener("click", function (e) {
-        e.preventDefault();
+    document.getElementById("deleteBtn")?.addEventListener("click", function () {
 
-        const id = this.getAttribute("data-id");
+    const id = this.dataset.id;
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "This employee will be permanently deleted!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // redirect to delete action
-                window.location.href = `/Employee/DeleteEmployee/${id}`;
-            }
-        });
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Employee will be deleted permanently!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Delete"
+    }).then(async (result) => {
+
+    if(result.isConfirmed){
+
+    const response = await fetch('/employee/delete', {
+    method: 'POST',
+    headers: {
+        'Content-Type':'application/json'
+        },
+        body: JSON.stringify(id)
+    });
+
+    if(response.ok){
+        window.location.href='/employee/all';
+    }
+    else{
+        Swal.fire("Error","Delete failed","error");
+        }
+        }
+    });
+
     });
 </script>

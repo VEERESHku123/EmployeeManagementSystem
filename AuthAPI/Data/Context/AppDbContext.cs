@@ -1,22 +1,26 @@
-﻿using Backend.Data.Models;
-using Backend.Enums;
+﻿using AuthAPI.Data.Entitys;
+using AuthAPI.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Backend.Data.Context
+namespace AuthAPI.Data.Context
 {
-    public class EmployeeDbContext : DbContext
+    public class AppDbContext : DbContext
     {
-        public EmployeeDbContext(DbContextOptions options) : base(options)
+
+
+        public DbSet<EmployeeEntity> Employees { get; set; }
+        public DbSet<RoleEntiry> Roles { get; set; }
+        public DbSet<UserEntity> USers { get; set; }
+
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 
-        public DbSet<EmployeeEntity> Employees { get; set; }
-        public DbSet<DepartmentEntity> Departments { get; set; }
-        public DbSet<ManagerEntity> Managers { get; set; }  
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+
             #region Employee Builder
             EntityTypeBuilder<EmployeeEntity> employeeBuilder = modelBuilder.Entity<EmployeeEntity>();
 
@@ -40,7 +44,7 @@ namespace Backend.Data.Context
 
             employeeBuilder.Property<string>(e => e.LastName)
                 .HasColumnName("last_name")
-                .HasColumnType("varchar(50)")
+                .HasColumnType("varchar(500)")
                 .IsRequired();
 
             employeeBuilder.Property<string>(e => e.PhoneNumber)
@@ -89,8 +93,8 @@ namespace Backend.Data.Context
                 .IsRequired();
 
             employeeBuilder
-                .Property<string>(e => e.JobTitle)
-               .HasColumnName("job_title")
+                .Property<string>(e => e.Designation)
+               .HasColumnName("designation")
                .HasColumnType("varchar(100)")
                .IsRequired();
 
@@ -102,8 +106,8 @@ namespace Backend.Data.Context
                .HasDefaultValue(0);
 
             employeeBuilder
-                .Property<bool>(e => e.Status)
-                .HasColumnName("status")
+                .Property<bool>(e => e.IsActive)
+                .HasColumnName("is_active")
                 .HasColumnType("bit")
                 .HasDefaultValue(true);
 
@@ -119,64 +123,74 @@ namespace Backend.Data.Context
                 .HasColumnType("varchar(50)")
                 .IsRequired(false);
 
-            employeeBuilder
-                .HasOne(e => e.Department)
-                .WithMany(d => d.Employees)
-                .HasForeignKey(e => e.DepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            employeeBuilder
-                .HasOne(e => e.Manager)
-                .WithMany(m => m.Employees)
-                .HasForeignKey(e => e.ManagerId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             #endregion
 
-            #region Department Builder
-            EntityTypeBuilder<DepartmentEntity> departmentBuilder = modelBuilder.Entity<DepartmentEntity>();
+            #region RoleBuilder
 
-            departmentBuilder
-                .ToTable("department")
-                .HasKey(d => d.DepartmentId);
+            EntityTypeBuilder<RoleEntiry> roleBuilder = modelBuilder.Entity<RoleEntiry>();
 
-            departmentBuilder
-                .Property<int>(d => d.DepartmentId)
-                .HasColumnName("department_id")
+            roleBuilder
+                .ToTable("role")
+                .HasKey(r => r.RoleId);
+
+            roleBuilder
+                .Property<int>(r => r.RoleId)
+                .HasColumnName("role_id")
                 .HasColumnType("int")
                 .ValueGeneratedOnAdd()
                 .UseIdentityColumn(100, 1);
 
-            departmentBuilder
-                .Property<string>(d => d.DepartmentName)
-                .HasColumnName("department_name")
-                .HasColumnType("varchar(50)")
-                .IsRequired();
-            #endregion
-
-            #region Manager Builder
-            EntityTypeBuilder<ManagerEntity> managerBuilder = modelBuilder.Entity<ManagerEntity>();
-
-            managerBuilder
-                .ToTable("managers")
-                .HasKey(m => m.ManagerId);
-
-            managerBuilder.Property<string>(m => m.ManagerId)
-                .HasColumnName("manager_id")
-                .HasColumnType("varchar(50)")
-                .IsRequired();
-
-            managerBuilder
-                .HasIndex(m => m.ManagerId)
-                .IsUnique();
-
-
-            managerBuilder.Property<string>(m => m.ManagerName)
-                .HasColumnName("manager_name")
-                .HasColumnType("varchar(50)")
+            roleBuilder
+                .Property<string>(r => r.RoleName)
+                .HasColumnName("role_name")
+                .HasColumnType("varchar(30)")
                 .IsRequired();
 
             #endregion
+
+            #region UserBuilder
+
+            EntityTypeBuilder<UserEntity> userBuilder =  modelBuilder.Entity<UserEntity>();
+
+            userBuilder
+                .ToTable("user")
+                .HasKey(u => u.UserId);
+
+            userBuilder
+                .Property<int>(u => u.UserId)
+                .HasColumnName("user_id")
+                .HasColumnType("int")
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn(1, 1);
+
+            userBuilder
+                .Property<string>(u => u.Email)
+                .HasColumnName("email")
+                .HasColumnType("varchar(60)")
+                .IsRequired();
+
+            userBuilder
+                .Property<string>(u => u.PasswordHash)
+                .HasColumnName("password_hash")
+                .HasColumnType("nvarchar(500)")
+                .IsRequired();
+
+            userBuilder
+                .Property<int>(u => u.RoleId)
+                .HasColumnName("role_id")
+                .HasColumnType("int")
+                .IsRequired();
+
+            userBuilder
+                .HasOne(u => u.Role)
+                .WithMany()
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
         }
+
+
     }
 }

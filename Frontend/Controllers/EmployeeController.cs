@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
-using Frontend.APIs;
+using Frontend.ApiServices.Implements;
+using Frontend.ApiServices.Interfaces;
 using Frontend.Models;
+using Frontend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -8,53 +10,51 @@ namespace Frontend.Controllers
 {
     public class EmployeeController : Controller
     {
-        public EmployeeController(EmployeeAPI employeeAPI, DepartmentAPI departmentAPI, ManagerAPI managerAPI, IMapper mapper)
+        private readonly IEmployeeServices empService;
+        private readonly IDepartmentApiService departmentApi;
+        private readonly IManagerApiService managerApi;
+        private readonly IMapper mapper;
+
+        public EmployeeController(IEmployeeServices empService, IDepartmentApiService departmentApi, IManagerApiService managerApi, IMapper mapper)
         {
-            DepartmentAPI = departmentAPI;
-            ManagerAPI = managerAPI;
-            EmployeeAPI = employeeAPI;
-            Mapper = mapper;
+            this.departmentApi = departmentApi;
+            this.managerApi = managerApi;
+            this.mapper = mapper;
+            this.empService = empService;
         }
 
-        public EmployeeAPI EmployeeAPI { get; set; }
-        public DepartmentAPI DepartmentAPI { get; set; }
-        public ManagerAPI ManagerAPI { get; set; }
-        public IMapper Mapper { get; set; }
+        
 
 
         [HttpGet]
         [Route("employee/all")]
         public async Task<IActionResult> GetAllEmployees(string search, int page = 1, int pageSize = 5)
         {
-            if (search != null) search.Trim();
+            var model = await empService.GetAllEmployees(search, page, pageSize);
 
-            var result = await EmployeeAPI.SendAllEmployee(search, page, pageSize);
-
-            if (result.StatusCode == 500)
+            if (model.StatusCode == 500)
             {
-                return RedirectToAction("StatusCode500Page", "StatusCode");
+                return RedirectToAction("StatusCode500Page","StatusCode");
             }
 
-            ViewBag.Search = search;
-            ViewBag.PageSize = pageSize;
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize);
+            ViewBag.Search = model.Search;
+            ViewBag.PageSize = model.PageSize;
+            ViewBag.CurrentPage = model.CurrentPage;
+            ViewBag.TotalPages = model.TotalPages;
 
-            // AJAX request
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("EmployeeTable", result.Employees);
+                return PartialView("EmployeeTable", model.Employees);
             }
 
-            // Normal page load
-            return View(result.Employees);
+            return View(model.Employees);
         }
 
         [HttpGet]
         [Route("employee")]
         public async Task<IActionResult> GetEmployeeById(string id)
         {
-            var result = await EmployeeAPI.SendEmployeeById(id);
+            var result = await empService.GetEmployeeById(id);
             if (result.StatusCode == 500)
             {
                 return RedirectToAction("StatusCode500Page", "StatusCode");
@@ -72,8 +72,8 @@ namespace Frontend.Controllers
         [Route("employee/add")]
         public async Task<IActionResult> AddNewEmployee()
         {
-            var departments = await DepartmentAPI.SendAllDepartments();
-            var managers = await ManagerAPI.SendAllManagers();
+            var departments = await departmentApi.GetAllDepartments();
+            var managers = await managerApi.SendAllManagers();
 
             ViewBag.Departments = new SelectList(departments, "DepartmentId", "DepartmentName");
 
@@ -83,11 +83,11 @@ namespace Frontend.Controllers
         }
 
         [HttpPost]
+        [Route("employee/add")]
         public async Task<IActionResult> AddNewEmployee(EmployeeModel model)
         {
-            var token = HttpContext.Session.GetString("JwtToken");
 
-            var isSuccess = await EmployeeAPI.AddNewEmployee(model, token);
+            var isSuccess = await empService.AddNewEmployee(model);
 
             if(isSuccess)
             {
@@ -105,16 +105,16 @@ namespace Frontend.Controllers
         [Route("employee/update")]
         public async Task<IActionResult> UpdateEmployee(string id)
         {
-            var result = await EmployeeAPI.SendEmployeeById(id);
+            var result = await empService.GetEmployeeById(id);
 
             if(result.StatusCode == 404)
             {
                 return RedirectToAction("StatusCode404Page", "StatusCode");
             }
-            var employee = Mapper.Map<UpdateEmployeeModel>(result.Employee);
+            var employee = mapper.Map<UpdateEmployeeModel>(result.Employee);
 
-            var departments = await DepartmentAPI.SendAllDepartments();
-            var managers = await ManagerAPI.SendAllManagers();
+            var departments = await departmentApi.GetAllDepartments();
+            var managers = await managerApi.SendAllManagers();
 
             ViewBag.Departments = new SelectList(departments, "DepartmentId", "DepartmentName");
 
@@ -124,11 +124,11 @@ namespace Frontend.Controllers
         }
 
         [HttpPost]
+        [Route("employee/update")]
         public async Task<IActionResult> UpdateEmployee(UpdateEmployeeModel model)
         {
-            var token = HttpContext.Session.GetString("JwtToken");
 
-            var result = await EmployeeAPI.UpdateEmployee(model.EmployeeId, model, token);
+            var result = await empService.UpdateEmployee(model.EmployeeId, model);
 
 
             if (result == 200)
@@ -148,52 +148,38 @@ namespace Frontend.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> DeleteEmployee(string id)
+        [HttpPost]
+        [Route("employee/delete")]
+        public async Task<IActionResult> DeleteEmployee([FromBody] string id)
         {
-            var token = HttpContext.Session.GetString("JwtToken");
-            Console.WriteLine("id: " + id);
-            var result = await EmployeeAPI.DeleteEmployee(id, token);
+            var result = await empService.DeleteEmployee(id);
+
             if (result == 200)
-            {
-                TempData["SuccessMessage"] = $"Employee Id: {id} deleted successfully!";
-                return RedirectToAction("GetAllEmployees");
-            }
-            else if(result == 404)
-            {
-                TempData["ErrorMessage"] = "Failed to delete employee!";
-                return RedirectToAction("StatusCode404Page", "StatusCode");
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Failed to delete employee!";
-                return RedirectToAction("StatusCode500Page", "StatusCode");
-            }
+                return Ok();
+
+            return BadRequest();
         }
 
         // validations
         [HttpGet]
         public async Task<JsonResult> IsEmailAvailable(string email)
         {
-            var exists = await EmployeeAPI.CheckEmailExists(email);
-
-            return Json(!exists); 
+            return Json(await empService.IsEmailAvailable(email));
+ 
         }
 
         [HttpGet]
         public async Task<JsonResult> IsEmployeeIdAvailable(string employeeId)
         {
-            var exists = await EmployeeAPI.CheckEmployeeIdExists(employeeId);
+            return Json( await empService.IsEmployeeIdAvailable(employeeId));
 
-            return Json(!exists);
+            
         }
 
         [HttpGet]
         public async Task<JsonResult> IsPhoneAvailable(string phoneNumber, string? employeeId)
         {
-            var exists = await EmployeeAPI.CheckPhoneExists(phoneNumber, employeeId);
-
-            return Json(!exists);
+            return Json( await empService.IsPhoneAvailable(phoneNumber, employeeId));
         }
     }
 }

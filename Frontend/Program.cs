@@ -1,5 +1,8 @@
-using Frontend.APIs;
+using Frontend.ApiServices.Implements;
+using Frontend.ApiServices.Interfaces;
 using Frontend.Mappers;
+using Frontend.Services.Implements;
+using Frontend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 
@@ -14,11 +17,18 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<EmployeeAPI>();
-builder.Services.AddScoped<DepartmentAPI>();
-builder.Services.AddScoped<ManagerAPI>();
-builder.Services.AddScoped<AccountApi>();
+builder.Services.AddHttpContextAccessor();
 
+// Api Services
+builder.Services.AddScoped<IEmployeeApiService, EmployeeApiService>();
+builder.Services.AddScoped<IDepartmentApiService, DepartmentApiService>();
+builder.Services.AddScoped<IManagerApiService, ManagerApiService>();
+builder.Services.AddScoped<IAccountApiService, AccountApiService>();
+
+// Service
+builder.Services.AddScoped<IEmployeeServices, EmployeeServices>();
+
+// HttpClient 
 builder.Services.AddHttpClient("BackEnd", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["BaseUrl:BackEnd"]);
