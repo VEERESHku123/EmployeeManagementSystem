@@ -1,6 +1,10 @@
 using AuthAPI.Data.Context;
 using AuthAPI.Data.Repos;
+using AuthAPI.Data.Repos.Implements;
+using AuthAPI.Data.Repos.Interfaces;
 using AuthAPI.Services;
+using AuthAPI.Services.Implements;
+using AuthAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -11,7 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Repos 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("employeeManagementDbConStr")));
-builder.Services.AddScoped<EmployeeRepo>();
+builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
+builder.Services.AddScoped<IRoleRepo, RoleRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
+
 
 //swagger
 builder.Services.AddSwaggerGen(options =>
@@ -44,7 +51,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // Services
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Auth
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

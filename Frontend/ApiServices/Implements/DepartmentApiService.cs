@@ -29,8 +29,10 @@ namespace Frontend.ApiServices.Implements
 
                 if (!cache.TryGetValue("Departments", out List<DepartmentModel> departmentList))
                 {
-                    var token = context.HttpContext?.Session.GetString("JwtToken");
+                    var token = context.HttpContext?.Session.GetString("AccessToken");
+
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
                     departmentList = await client.GetFromJsonAsync<List<DepartmentModel>>("department/all");
 
                     cache.Set(

@@ -21,11 +21,8 @@ namespace Frontend.ApiServices.Implements
                 Name = name
             });
 
-            if (!response.IsSuccessStatusCode)
-                return null;
+            if (!response.IsSuccessStatusCode) return null;
 
-            Console.WriteLine("------------------------------------------");
-            Console.WriteLine(response.StatusCode);
 
             return await response.Content.ReadFromJsonAsync<AuthResponse>();
         }

@@ -2,6 +2,7 @@
 using Frontend.Models;
 using System.Net;
 using System.Net.Http.Headers;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 namespace Frontend.ApiServices.Implements
 {
     public class EmployeeApiService : IEmployeeApiService
@@ -18,7 +19,7 @@ namespace Frontend.ApiServices.Implements
         public async Task<(List<EmployeeModel> Employees, int TotalCount, int StatusCode)> GetAllEmployees(
             string searchTerm, int page, int pageSize)
         {
-            var token = context.HttpContext?.Session.GetString("JwtToken");
+            var token = context.HttpContext?.Session.GetString("AccessToken");
 
             var url = $"employee/all?search={Uri.EscapeDataString(searchTerm ?? "")}&page={page}&pageSize={pageSize}";
 
@@ -30,6 +31,7 @@ namespace Frontend.ApiServices.Implements
             {
                 return (new List<EmployeeModel>(), 0, (int)response.StatusCode);
             }
+            ;
 
             var result = await response.Content.ReadFromJsonAsync<EmployeePagedResponseModel>();
             return (
@@ -59,7 +61,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<bool> AddNewEmployee(EmployeeModel model)
         {
-            var token = context.HttpContext?.Session.GetString("JwtToken");
+            var token = context.HttpContext?.Session.GetString("AccessToken");
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -69,7 +71,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<int> UpdateEmployee(string id, UpdateEmployeeModel model)
         {
-            var token = context.HttpContext?.Session.GetString("JwtToken");
+            var token = context.HttpContext?.Session.GetString("AccessToken");
 
             client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
@@ -83,7 +85,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<int> DeleteEmployee(string id)
         {
-            var token = context.HttpContext?.Session.GetString("JwtToken");
+            var token = context.HttpContext?.Session.GetString("AccessToken");
 
             client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
@@ -97,7 +99,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<bool> CheckEmailExists(string email)
         {
-            var token = context.HttpContext?.Session.GetString("JwtToken");
+            var token = context.HttpContext?.Session.GetString("AccessToken");
             client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
                             "Bearer",
@@ -110,7 +112,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<bool> CheckEmployeeIdExists(string employeeId)
         {
-            var token = context.HttpContext?.Session.GetString("JwtToken");
+            var token = context.HttpContext?.Session.GetString("AccessToken");
 
             client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
@@ -123,7 +125,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<bool> CheckPhoneExists(string phoneNumber, string? employeeId)
         {
-            var token = context.HttpContext?.Session.GetString("JwtToken");
+            var token = context.HttpContext?.Session.GetString("AccessToken");
 
             client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(

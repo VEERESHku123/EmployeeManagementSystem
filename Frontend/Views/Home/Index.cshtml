@@ -1,16 +1,9 @@
 ﻿<div class="hero-container">
 
-    <!-- Left -->
+    <!-- Left Section -->
     <div class="hero-content">
 
-        <h1>👋 EMS App</h1>
-
-        <p class="tagline">
-            Manage employees, departments,
-            and records efficiently.
-        </p>
-
-        <h2>Hello!</h2>
+        <h2>Welcome Back!</h2>
 
         <p>
             Please login to continue and
@@ -29,65 +22,144 @@
 
 
 
-    <!-- Right -->
+    <!-- Right Section -->
     <div class="hero-right">
 
         @if (Context.Request.Query["showLogin"] == "true")
         {
-
-            <!-- LOGIN CARD -->
+            bool showActivate =
+            Context.Request.Query["activate"] == "true";
 
             <div class="login-card">
 
-                <h3>Login</h3>
+                <!-- Title -->
 
-                <form asp-controller="Account"
-                      asp-action="SignIn"
+                <h3>
+
+                    @(showActivate
+                        ? "Activate Account"
+                        : "Login")
+
+                </h3>
+
+
+                <!-- Form -->
+
+                <form asp-controller="User"
+                      asp-action="@(showActivate
+                                                        ? "ActivateAccount"
+                                                        : "SignIn")"
                       method="post">
+
+
+                    <!-- Email -->
 
                     <input type="email"
                            name="Email"
                            placeholder="Email"
-                           class="form-control mb-3" />
+                           class="form-control mb-3"
+                           required />
 
+
+                    <!-- Password -->
 
                     <input type="password"
                            name="Password"
                            placeholder="Password"
-                           class="form-control mb-3" />
+                           class="form-control mb-3"
+                           required />
 
+
+                    <!-- Confirm Password only for activation -->
+                    @if (showActivate)
+                    {
+                        <input type="password"
+                               name="ConfirmPassword"
+                               placeholder="Confirm Password"
+                               class="form-control mb-3"
+                               required />
+                    }
+
+
+                    <!-- Submit Button -->
 
                     <button class="btn btn-primary w-100">
 
-                        Login
+                        @(showActivate
+                            ? "Activate Account"
+                            : "Login")
 
                     </button>
 
                 </form>
 
 
+
+                <!-- Microsoft Login only in Login mode -->
+                @if (!showActivate)
+                {
+                    <div class="text-center mt-3">
+
+                        OR
+
+                    </div>
+
+
+                    <a asp-controller="User"
+                       asp-action="MicrosoftSignIn"
+                       class="btn btn-outline-dark w-100 mt-3">
+
+                        Continue with Microsoft
+
+                    </a>
+                }
+
+
+
+                <!-- Bottom Links -->
+
                 <div class="text-center mt-3">
 
-                    OR
+                    @if (!showActivate)
+                    {
+                        <small>
+
+                            First time user?
+
+                            <a asp-controller="Home"
+                               asp-action="Index"
+                               asp-route-showLogin="true"
+                               asp-route-activate="true">
+
+                                Activate Account
+
+                            </a>
+
+                        </small>
+                    }
+                    else
+                    {
+                        <small>
+
+                            Already activated?
+
+                            <a asp-controller="Home"
+                               asp-action="Index"
+                               asp-route-showLogin="true">
+
+                                ← Back to Login
+
+                            </a>
+
+                        </small>
+                    }
 
                 </div>
 
-
-                <a asp-controller="Account"
-                   asp-action="MicrosoftSignIn"
-                   class="btn btn-outline-dark w-100 mt-3">
-
-                    Continue with Microsoft
-
-                </a>
-
             </div>
-
         }
         else
         {
-
-            <!-- VIDEO -->
 
             <video autoplay muted loop>
 

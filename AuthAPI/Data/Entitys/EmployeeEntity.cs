@@ -21,5 +21,6 @@ namespace AuthAPI.Data.Entitys
 
         public int DepartmentId { get; set; }
         public string ManagerId { get; set; }
+        public UserEntity User { get; set; }
     }
 }

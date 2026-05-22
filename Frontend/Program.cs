@@ -23,10 +23,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEmployeeApiService, EmployeeApiService>();
 builder.Services.AddScoped<IDepartmentApiService, DepartmentApiService>();
 builder.Services.AddScoped<IManagerApiService, ManagerApiService>();
-builder.Services.AddScoped<IAccountApiService, AccountApiService>();
+builder.Services.AddScoped<IUserApiService, UserApiService>();
 
 // Service
 builder.Services.AddScoped<IEmployeeServices, EmployeeServices>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // HttpClient 
 builder.Services.AddHttpClient("BackEnd", client =>
@@ -36,7 +37,7 @@ builder.Services.AddHttpClient("BackEnd", client =>
 
 builder.Services.AddHttpClient("Auth", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["BaseUrl:Auth"]);
+    client.BaseAddress = new Uri(builder.Configuration["BaseUrl:User"]);
 });
 
 // Add services to the container.

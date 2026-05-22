@@ -1,4 +1,5 @@
-﻿using AuthAPI.Data.Repos;
+﻿using AuthAPI.Data.Entitys;
+using AuthAPI.Data.Repos;
 
 namespace AuthAPI.Services
 {
@@ -12,7 +13,7 @@ namespace AuthAPI.Services
         }
 
 
-        public async Task<string> CheckEmailExistsAsync(string email)
+        public async Task<EmployeeEntity> CheckEmailExistsAsync(string email)
         {
             try
             {

@@ -10,8 +10,8 @@ namespace AuthAPI.Data.Context
 
 
         public DbSet<EmployeeEntity> Employees { get; set; }
-        public DbSet<RoleEntiry> Roles { get; set; }
-        public DbSet<UserEntity> USers { get; set; }
+        public DbSet<RoleEntity> Roles { get; set; }
+        public DbSet<UserEntity> Users { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -125,69 +125,78 @@ namespace AuthAPI.Data.Context
 
             #endregion
 
-            #region RoleBuilder
+            //#region RoleBuilder
 
-            EntityTypeBuilder<RoleEntiry> roleBuilder = modelBuilder.Entity<RoleEntiry>();
+            //EntityTypeBuilder<RoleEntity> roleBuilder = modelBuilder.Entity<RoleEntity>();
 
-            roleBuilder
-                .ToTable("role")
-                .HasKey(r => r.RoleId);
+            //roleBuilder
+            //    .ToTable("role")
+            //    .HasKey(r => r.RoleId);
+            //#endregion
 
-            roleBuilder
-                .Property<int>(r => r.RoleId)
-                .HasColumnName("role_id")
-                .HasColumnType("int")
-                .ValueGeneratedOnAdd()
-                .UseIdentityColumn(100, 1);
+            //#region UserBuilder
 
-            roleBuilder
-                .Property<string>(r => r.RoleName)
-                .HasColumnName("role_name")
-                .HasColumnType("varchar(30)")
-                .IsRequired();
+            //EntityTypeBuilder<UserEntity> userBuilder =  modelBuilder.Entity<UserEntity>();
 
-            #endregion
+            //userBuilder
+            //    .ToTable("user")
+            //    .HasKey(u => u.UserId);
 
-            #region UserBuilder
+            //userBuilder
+            //    .Property<int>(u => u.UserId)
+            //    .HasColumnName("user_id")
+            //    .HasColumnType("int")
+            //    .ValueGeneratedOnAdd()
+            //    .UseIdentityColumn(1, 1);
 
-            EntityTypeBuilder<UserEntity> userBuilder =  modelBuilder.Entity<UserEntity>();
+            //userBuilder
+            //    .Property<string>(u => u.Email)
+            //    .HasColumnName("email")
+            //    .HasColumnType("varchar(60)")
+            //    .IsRequired();
 
-            userBuilder
-                .ToTable("user")
-                .HasKey(u => u.UserId);
+            //userBuilder
+            //    .Property<string>(u => u.PasswordHash)
+            //    .HasColumnName("password_hash")
+            //    .HasColumnType("nvarchar(500)")
+            //    .IsRequired();
 
-            userBuilder
-                .Property<int>(u => u.UserId)
-                .HasColumnName("user_id")
-                .HasColumnType("int")
-                .ValueGeneratedOnAdd()
-                .UseIdentityColumn(1, 1);
+            //userBuilder
+            //    .Property<int>(u => u.RoleId)
+            //    .HasColumnName("role_id")
+            //    .HasColumnType("int")
+            //    .IsRequired();
 
-            userBuilder
-                .Property<string>(u => u.Email)
-                .HasColumnName("email")
-                .HasColumnType("varchar(60)")
-                .IsRequired();
+            //userBuilder
+            //    .Property<string>(u => u.EmployeeId)
+            //    .HasColumnName("employee_id")
+            //    .HasColumnType("varchar(50)")
+            //    .IsRequired();
 
-            userBuilder
-                .Property<string>(u => u.PasswordHash)
-                .HasColumnName("password_hash")
-                .HasColumnType("nvarchar(500)")
-                .IsRequired();
+            //userBuilder
+            //    .Property<string>(u => u.RefreshToken)
+            //    .HasColumnType("nvarchar(500)")
+            //    .HasColumnName("refresh_token")
+            //    .IsRequired();
 
-            userBuilder
-                .Property<int>(u => u.RoleId)
-                .HasColumnName("role_id")
-                .HasColumnType("int")
-                .IsRequired();
+            //userBuilder
+            //    .Property<DateTime?>(u => u.RefreshTokenExpiryTime)
+            //    .HasColumnType("datetime")
+            //    .HasColumnName("refresh_token_expiry");
 
-            userBuilder
-                .HasOne(u => u.Role)
-                .WithMany()
-                .HasForeignKey(u => u.RoleId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //userBuilder
+            //    .HasOne(u => u.Role)
+            //    .WithMany()
+            //    .HasForeignKey(u => u.RoleId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
-            #endregion
+            //userBuilder
+            //    .HasOne(u => u.Employee)
+            //    .WithOne(e => e.User)
+            //    .HasForeignKey<UserEntity>(u => u.EmployeeId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //#endregion
 
         }
 

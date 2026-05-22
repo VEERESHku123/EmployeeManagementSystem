@@ -1,9 +1,11 @@
 ﻿using AuthAPI.Data.Context;
+using AuthAPI.Data.Entitys;
+using AuthAPI.Data.Repos.Implements;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Data.Repos
 {
-    public class EmployeeRepo
+    public class EmployeeRepo : IEmployeeRepo
     {
         private readonly AppDbContext context;
 
@@ -12,16 +14,11 @@ namespace AuthAPI.Data.Repos
             this.context = context;
         }
 
-        public async Task<string> CheckEmailExistsAsync(string email)
+        public async Task<EmployeeEntity> CheckEmailExistsAsync(string email)
         {
             try
             {
-                var result = await context.Employees.SingleOrDefaultAsync(e => e.Email == email);
-                if (result != null)
-                    return result.Role.ToString();
-                else
-                    return null;
-
+                return await context.Employees.FirstOrDefaultAsync(e => e.Email == email);
             }
             catch (Exception)
             {

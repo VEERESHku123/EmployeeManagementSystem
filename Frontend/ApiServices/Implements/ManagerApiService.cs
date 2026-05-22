@@ -24,7 +24,7 @@ namespace Frontend.ApiServices.Implements
             {
                 if (!cache.TryGetValue("Managers", out List<ManagerModel> managers))
                 {
-                    var token = context.HttpContext?.Session.GetString("JwtToken");
+                    var token = context.HttpContext?.Session.GetString("AccessToken");
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                     managers = await client.GetFromJsonAsync<List<ManagerModel>>("manager/all");
