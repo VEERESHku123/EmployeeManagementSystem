@@ -1,8 +1,10 @@
 using Backend.Data.Context;
-using Backend.Data.Repos;
+using Backend.Data.Repos.Implements;
+using Backend.Data.Repos.Interfaces;
 using Backend.Fillters;
 using Backend.Mapper;
-using Backend.Services;
+using Backend.Services.Implements;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -63,7 +65,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 IssuerSigningKey =
                     new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(
-                            builder.Configuration["Jwt:Key"]))
+                            builder.Configuration["Jwt:Key"])),
+
+                    ClockSkew = TimeSpan.Zero
             };
     });
 // DB
@@ -74,15 +78,15 @@ builder.Services.AddDbContext<AppDbContext>(
                 "employeeManagementDbConStr")));
 
 builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
-builder.Services.AddScoped<DepartmentRepo>();
-builder.Services.AddScoped<ManagerRepo>();
+builder.Services.AddScoped<IDepartmentRepo, DepartmentRepo>();
+builder.Services.AddScoped<IManagerRepo, ManagerRepo>();
 
 builder.Services.AddControllers(
     options => options.Filters.Add<CommonExceptionFilter>());
 
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<DepartmentService>();
-builder.Services.AddScoped<ManagerService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IManagerService, ManagerService>();
 
 builder.Services.AddAutoMapper(
     config => config.AddProfile<MappingProfile>());

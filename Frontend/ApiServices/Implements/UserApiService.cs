@@ -3,23 +3,16 @@ using Frontend.Models;
 
 namespace Frontend.ApiServices.Implements
 {
-    public class UserApiService : IUserApiService
+    public class UserApiService :  BaseApiService, IUserApiService
     {
-        private readonly HttpClient client;
-
-        public UserApiService(IHttpClientFactory factory)
-        {
-            client = factory.CreateClient("Auth");
-        }
+        public UserApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor) : base(factory, httpContextAccessor, "Auth") { }
+        
 
         public async Task<SignInResponseModel> SignIn(SignInModel model)
         {
             try
             {
                 var response = await client.PostAsJsonAsync("login", model);
-
-                if (!response.IsSuccessStatusCode)
-                    return null;
 
                 var result = await response.Content.ReadFromJsonAsync<SignInResponseModel>();
 
@@ -50,5 +43,59 @@ namespace Frontend.ApiServices.Implements
                 throw;
             }
         }
+
+        public async Task<ApiResponse<object>> ActivateAccount(ActivateAccountModel model)
+        {
+            try
+            {
+                var url = client.BaseAddress + "activateAccount";
+
+                var response = await client.PostAsJsonAsync(url, model);
+
+                var result = await response.Content.ReadFromJsonAsync<ApiResponse<object>>();
+
+                return result!;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<ApiResponse<object>> SignOut()
+        {
+            var response =
+                await SendAuthorizedRequestAsync(
+                    () => client.PostAsync("signOut", null));
+
+            if (response == null)
+            {
+                return new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Session expired"
+                };
+            }
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                return new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Failed to sign out"
+                };
+            }
+
+            return await response
+                .Content
+                .ReadFromJsonAsync<ApiResponse<object>>()
+
+                ?? new ApiResponse<object>
+                {
+                    Success = true,
+                    Message = "Signed out successfully"
+                };
+        }
+
     }
 }

@@ -153,30 +153,6 @@ footer.footer {
 
 
 
-.login-card {
-    background: white;
-    width: 400px;
-    padding: 40px;
-    border-radius: 25px;
-    box-shadow: 0 20px 40px rgba(0,0,0,.12);
-    animation: slideLogin .5s ease;
-}
-
-
-    .login-card input {
-        height: 50px;
-        border-radius: 12px;
-    }
-
-
-    .login-card button {
-        height: 50px;
-        border-radius: 12px;
-        background: #10194d;
-        border: none;
-    }
-
-
 
 @keyframes slideLeft {
 

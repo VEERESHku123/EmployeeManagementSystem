@@ -1,0 +1,74 @@
+﻿@model Frontend.Models.ActivateAccountModel
+
+<link rel="stylesheet"
+      href="~/css/signin.css"
+      asp-append-version="true" />
+
+<div class="login-card">
+
+    <h2>Activate Account 🔐</h2>
+
+    <p class="subtitle">
+        Set your password to activate account
+    </p>
+
+    <form asp-controller="User"
+          asp-action="ActivateAccount"
+          method="post">
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-2">
+        </div>
+
+        <input asp-for="Email"
+               class="form-control"
+               placeholder="Email" />
+
+        <span asp-validation-for="Email"
+              class="text-danger">
+        </span>
+
+        <input asp-for="Password"
+               type="password"
+               class="form-control"
+               placeholder="Password" />
+
+        <span asp-validation-for="Password"
+              class="text-danger">
+        </span>
+
+        <input asp-for="ConfirmPassword"
+               type="password"
+               class="form-control"
+               placeholder="Confirm Password" />
+
+        <span asp-validation-for="ConfirmPassword"
+              class="text-danger">
+        </span>
+
+        <button type="submit"
+                class="login-btn">
+            Activate Account
+        </button>
+
+    </form>
+
+    <div class="bottom-link">
+
+        Already activated?
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           asp-route-showLogin="true">
+
+            ← Back To Login
+
+        </a>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

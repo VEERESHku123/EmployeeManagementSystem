@@ -1,6 +1,6 @@
 ﻿using AuthAPI.Data.Entitys;
 
-namespace AuthAPI.Data.Repos.Implements
+namespace AuthAPI.Data.Repos.Interfaces
 {
     public interface IEmployeeRepo
     {

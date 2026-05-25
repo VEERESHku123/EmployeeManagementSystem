@@ -1,7 +1,7 @@
 ﻿using Backend.Data.Context;
 using Backend.Data.Models;
 
-namespace Backend.Data.Repos
+namespace Backend.Data.Repos.Interfaces
 {
     public interface IEmployeeRepo
     {

@@ -1,19 +1,29 @@
 using Frontend.ApiServices.Implements;
 using Frontend.ApiServices.Interfaces;
 using Frontend.Mappers;
-using Frontend.Services.Implements;
-using Frontend.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
+
 //Microsoft login
 builder.Services.AddSession();
 
 builder.Services.AddDistributedMemoryCache();
 
-builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+        options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+    })
+
+    .AddMicrosoftIdentityWebApp(
+        builder.Configuration.GetSection("AzureAd"));
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddAuthorization();
 
@@ -25,14 +35,10 @@ builder.Services.AddScoped<IDepartmentApiService, DepartmentApiService>();
 builder.Services.AddScoped<IManagerApiService, ManagerApiService>();
 builder.Services.AddScoped<IUserApiService, UserApiService>();
 
-// Service
-builder.Services.AddScoped<IEmployeeServices, EmployeeServices>();
-builder.Services.AddScoped<IUserService, UserService>();
-
 // HttpClient 
-builder.Services.AddHttpClient("BackEnd", client =>
+builder.Services.AddHttpClient("Backend", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["BaseUrl:BackEnd"]);
+    client.BaseAddress = new Uri(builder.Configuration["BaseUrl:Backend"]);
 });
 
 builder.Services.AddHttpClient("Auth", client =>

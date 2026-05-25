@@ -23,7 +23,7 @@ namespace AuthAPI.Services.Implements
             {
                 new Claim(ClaimTypes.Email,email),
                 new Claim("employeeId",employeeId),
-                new Claim("role",role)
+                new Claim(ClaimTypes.Role,role)
             };
 
             var key = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( config["Jwt:Key"]));
@@ -31,7 +31,7 @@ namespace AuthAPI.Services.Implements
             var credentials =
                 new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var expiry = DateTime.UtcNow.AddMinutes(int.Parse(config["Jwt:DurationInMinutes"]));
+            var expiry = DateTime.Now.AddMinutes(int.Parse(config["Jwt:DurationInMinutes"]));
 
             var jwt = new JwtSecurityToken(
                             issuer: config["Jwt:Issuer"],
@@ -43,7 +43,7 @@ namespace AuthAPI.Services.Implements
 
             string refreshToken = GenerateRefreshToken();
 
-            DateTime refreshExpiry = DateTime.UtcNow.AddDays(7);
+            DateTime refreshExpiry = DateTime.Now.AddDays(5);
 
             return new AuthResponse
             {
@@ -54,7 +54,6 @@ namespace AuthAPI.Services.Implements
                 RefreshToken = refreshToken,
 
                 RefreshTokenExpiry = refreshExpiry,
-
                 RoleType = role
             };
         }

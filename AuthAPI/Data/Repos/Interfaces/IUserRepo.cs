@@ -6,6 +6,7 @@ namespace AuthAPI.Data.Repos.Interfaces
     {
         Task<UserEntity?> GetUserByEmail(string email);
         Task<bool> AddUser(UserEntity user);
-        Task SaveRefreshToken(int userId, string refreshToken, DateTime expiry);
+        Task SaveRefreshToken(int userId, string? refreshToken, DateTime? expiry);
+        Task<UserEntity> GetByRefreshToken(string refreshToken);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using AuthAPI.Data.Entitys;
-using AuthAPI.Data.Repos;
+using AuthAPI.Data.Repos.Implements;
 
 namespace AuthAPI.Services
 {

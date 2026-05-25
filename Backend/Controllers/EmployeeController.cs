@@ -1,5 +1,5 @@
 ﻿using Backend.DTOs;
-using Backend.Services;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -25,12 +25,7 @@ namespace Backend.Controllers
         {
             var result = await employeeService.GetAllEmployeeAsync(search, page, pageSize);
 
-                var response = new PagedEmployeeResponse
-                {
-                    Employees = result.Data,
-                    TotalCount = result.TotalCount
-                };
-                return Ok(response);
+            return Ok(result);
             
         }
 
@@ -40,8 +35,13 @@ namespace Backend.Controllers
         public async Task<IActionResult> GetEmployeeById(string id)
         {
             var result = await employeeService.GetEmployeeByIdAsync(id);
-            return (result != null) ? Ok(result) : NotFound($"Employee ID: {id} Not Found");
-            
+
+            if (!result.Success)
+            {
+                return NotFound(result);
+            }
+
+            return Ok(result);
         }
 
         [HttpPost]
@@ -51,17 +51,27 @@ namespace Backend.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Validation failed",
+                    Errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
             }
-            
+
             var result = await employeeService.AddEmployeeAsync(dto);
 
-            if(result)
-                return Created("", "Employee created successfully");
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
 
-            return BadRequest("Unable to create employee");
-            
-            
+            return Created("", result);
+
+
         }
 
         [HttpPut]
@@ -71,35 +81,38 @@ namespace Backend.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Validation failed",
+                    Errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
             }
 
 
-            var role =  User.FindFirst(ClaimTypes.Role)?.Value;
-
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
             var loggedInEmail = User.FindFirst(ClaimTypes.Email)?.Value;
 
             // Admin can update anyone
             if (role == "Admin")
             {
-                var result =
-                    await employeeService.UpdateEmployeeAsync(id, dto);
+                var result = await employeeService.UpdateEmployeeAsync(id, dto);
 
-                return result
-                    ? Ok("Updated")
-                    : NotFound();
+                return result.Success ? Ok(result) : BadRequest(result);
             }
 
             // Employee can update only own profile
             if (loggedInEmail != dto.Email)
             {
-                return Forbid(
-                    "You can update only your own profile");
+                return Forbid("You can update only your own profile");
             }
 
             var update = await employeeService.UpdateEmployeeAsync(id, dto);
 
-            return (update) ? Ok("Updated") : NotFound();
+            return update.Success ? Ok(update) : BadRequest(update);
         }
 
 
@@ -110,7 +123,12 @@ namespace Backend.Controllers
         {
             var result = await employeeService.DeleteEmployeeAsync(id);
 
-            return (result) ? Ok("Deleted") : NotFound();
+            if (!result.Success)
+            {
+                return NotFound(result);
+            }
+
+            return Ok(result);
 
         }
 

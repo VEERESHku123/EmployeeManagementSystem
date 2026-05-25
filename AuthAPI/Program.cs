@@ -1,5 +1,4 @@
 using AuthAPI.Data.Context;
-using AuthAPI.Data.Repos;
 using AuthAPI.Data.Repos.Implements;
 using AuthAPI.Data.Repos.Interfaces;
 using AuthAPI.Services;

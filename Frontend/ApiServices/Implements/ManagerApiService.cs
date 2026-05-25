@@ -6,36 +6,58 @@ using System.Net.Http.Headers;
 
 namespace Frontend.ApiServices.Implements
 {
-    public class ManagerApiService : IManagerApiService
+    public class ManagerApiService : BaseApiService, IManagerApiService
     {
-        private readonly HttpClient client;
         private readonly IMemoryCache cache;
-        private readonly IHttpContextAccessor context;
-        public ManagerApiService(IHttpClientFactory factory, IMemoryCache cache, IHttpContextAccessor context)
+        public ManagerApiService(IMemoryCache cache, IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor) : base(factory, httpContextAccessor, "Backend")
         {
-            client = factory.CreateClient("BackEnd");
             this.cache = cache;
-            this.context = context;
+
         }
 
-        public async Task<List<ManagerModel>> SendAllManagers()
+        public async Task<ApiResponse<List<ManagerModel>>> SendAllManagers()
         {
             try
             {
-                if (!cache.TryGetValue("Managers", out List<ManagerModel> managers))
+                if (cache.TryGetValue("Managers",out ApiResponse<List<ManagerModel>> cachedManagers))
                 {
-                    var token = context.HttpContext?.Session.GetString("AccessToken");
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                    managers = await client.GetFromJsonAsync<List<ManagerModel>>("manager/all");
-
-                    cache.Set(
-                        "Managers",
-                        managers,
-                        TimeSpan.FromHours(1));
+                    return cachedManagers;
                 }
 
-                return managers ?? new List<ManagerModel>();
+                var response = await SendAuthorizedRequestAsync(() => client.GetAsync("manager/all"));
+
+                if (response == null)
+                {
+                    return new ApiResponse<List<ManagerModel>>
+                    {
+                        Success = false,
+                        Message = "Session expired"
+                    };
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ApiResponse<List<ManagerModel>>
+                    {
+                        Success = false,
+                        Message = "Failed to fetch managers"
+                    };
+                }
+
+                var result = await response.Content
+                                            .ReadFromJsonAsync<ApiResponse<List<ManagerModel>>>()
+                                            ?? new ApiResponse<List<ManagerModel>>
+                                            {
+                                                Success = false,
+                                                Message = "No response"
+                                            };
+
+                if (result.Success)
+                {
+                    cache.Set("Managers",result,TimeSpan.FromHours(1));
+                }
+
+                return result;
             }
             catch
             {

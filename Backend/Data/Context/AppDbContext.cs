@@ -54,13 +54,23 @@ namespace Backend.Data.Context
 
 
             employeeBuilder
-                .Property<string>(e => e.Email)
-               .HasColumnName("email")
+                .Property<string>(e => e.PersonalEmail)
+               .HasColumnName("personal_email")
                .HasColumnType("varchar(150)")
                .IsRequired();
 
             employeeBuilder
-                .HasIndex(e => e.Email)
+                .HasIndex(e => e.PersonalEmail)
+                .IsUnique();
+
+            employeeBuilder
+                .Property<string>(e => e.CompanyEmail)
+               .HasColumnName("company_email")
+               .HasColumnType("varchar(150)")
+               .IsRequired();
+
+            employeeBuilder
+                .HasIndex(e => e.CompanyEmail)
                 .IsUnique();
 
 
@@ -74,12 +84,6 @@ namespace Backend.Data.Context
                 .Property<Gender>(e => e.Gender)
                 .HasColumnName("gender")
                 .HasColumnType("varchar(20)")
-                .IsRequired();
-
-            employeeBuilder
-                .Property<Role>(e => e.Role)
-                .HasColumnType("varchar(20)")
-                .HasColumnName("role-type")
                 .IsRequired();
 
             employeeBuilder

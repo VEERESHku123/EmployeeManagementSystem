@@ -2,117 +2,201 @@
 using Frontend.Models;
 using System.Net;
 using System.Net.Http.Headers;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 namespace Frontend.ApiServices.Implements
 {
-    public class EmployeeApiService : IEmployeeApiService
+    public class EmployeeApiService : BaseApiService, IEmployeeApiService
     {
-        private readonly HttpClient client;
-        private readonly IHttpContextAccessor context;
+        public EmployeeApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor) : base(factory, httpContextAccessor, "Backend") { }
+        
 
-        public EmployeeApiService(IHttpClientFactory factory, IHttpContextAccessor context)
+        public async Task<ApiResponse<EmployeePaginationData>>GetAllEmployees(string searchTerm,int page,int pageSize)
         {
-            client = factory.CreateClient("BackEnd");
-            this.context = context;
-        }
+            var url = $"employee/all?search={Uri.EscapeDataString(searchTerm ?? "")}" + $"&page={page}&pageSize={pageSize}";
 
-        public async Task<(List<EmployeeModel> Employees, int TotalCount, int StatusCode)> GetAllEmployees(
-            string searchTerm, int page, int pageSize)
-        {
-            var token = context.HttpContext?.Session.GetString("AccessToken");
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync(url));
 
-            var url = $"employee/all?search={Uri.EscapeDataString(searchTerm ?? "")}&page={page}&pageSize={pageSize}";
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            var response = await client.GetAsync(url);
+            if (response == null)
+            {
+                return new ApiResponse<EmployeePaginationData>
+                {
+                    Success = false,
+                    Message = "Session expired"
+                };
+            }
 
             if (!response.IsSuccessStatusCode)
             {
-                return (new List<EmployeeModel>(), 0, (int)response.StatusCode);
+                return new ApiResponse<EmployeePaginationData>
+                {
+                    Success = false,
+                    Message = "Failed to fetch employees"
+                };
             }
-            ;
 
-            var result = await response.Content.ReadFromJsonAsync<EmployeePagedResponseModel>();
-            return (
-                result?.Employees ?? new(),
-                result?.TotalCount ?? 0,
-                (int)response.StatusCode
-            );
+            return await response.Content.ReadFromJsonAsync<ApiResponse<EmployeePaginationData>>()
+                   ?? new ApiResponse<EmployeePaginationData>
+                   {
+                       Success = false,
+                       Message = "No response"
+                   };
         }
 
-        public async Task<(EmployeeModel? Employee, int StatusCode)> GetEmployeeById(string id)
+        public async Task<ApiResponse<EmployeeModel>> GetEmployeeById(string id)
         {
-            var token = context.HttpContext?.Session.GetString("JwtToken");
+            var response = await SendAuthorizedRequestAsync( () => client.GetAsync($"employee/{id}"));
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            var response = await client.GetAsync($"employee/{id}");
+            if (response == null)
+            {
+                return new ApiResponse<EmployeeModel>
+                {
+                    Success = false,
+                    Message = "Session expired"
+                };
+            }
 
             if (!response.IsSuccessStatusCode)
             {
-                return (null, (int)response.StatusCode);
+                return new ApiResponse<EmployeeModel>
+                {
+                    Success = false,
+                    Message = "Failed to fetch employee"
+                };
             }
 
-            var employee = await response.Content.ReadFromJsonAsync<EmployeeModel>();
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<EmployeeModel>>();
 
-            return (employee, (int)response.StatusCode);
+            return result!;
         }
 
-        public async Task<bool> AddNewEmployee(EmployeeModel model)
+        public async Task<ApiResponse<EmployeeModel>> AddNewEmployee(EmployeeModel model)
         {
-            var token = context.HttpContext?.Session.GetString("AccessToken");
+            var response = await SendAuthorizedRequestAsync(() => client.PostAsJsonAsync("employee/add",model));
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            // Refresh token expired
+            if (response == null)
+            {
+                return new ApiResponse<EmployeeModel>
+                {
+                    Success = false,
+                    Message = "Session expired"
+                };
+            }
 
-            var response = await client.PostAsJsonAsync("employee/add", model);
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<ApiResponse<EmployeeModel>>();
+
+                return error ??
+                       new ApiResponse<EmployeeModel>
+                       {
+                           Success = false,
+                           Message = "Unable to create employee"
+                       };
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<EmployeeModel>>();
+
+            return result ??
+                   new ApiResponse<EmployeeModel>
+                   {
+                       Success = true,
+                       Message = "Employee created successfully",
+                       Data = model
+                      
+                   };
         }
 
-        public async Task<int> UpdateEmployee(string id, UpdateEmployeeModel model)
+        public async Task<ApiResponse<UpdateEmployeeModel>> UpdateEmployee(string id, UpdateEmployeeModel model)
         {
-            var token = context.HttpContext?.Session.GetString("AccessToken");
+            var response = await SendAuthorizedRequestAsync(() => client.PutAsJsonAsync($"employee/update/{id}", model));
 
-            client.DefaultRequestHeaders.Authorization =
-                        new AuthenticationHeaderValue(
-                            "Bearer",
-                            token);
+            // Refresh token expired
+            if (response == null)
+            {
+                return new ApiResponse<UpdateEmployeeModel>
+                {
+                    Success = false,
+                    Message = "Session expired"
+                };
+            }
 
-            var response = await client.PutAsJsonAsync($"employee/update/{id}", model);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<ApiResponse<UpdateEmployeeModel>>();
 
-            return (int)response.StatusCode;
+                return error ??
+                       new ApiResponse<UpdateEmployeeModel>
+                       {
+                           Success = false,
+                           Message = "Unable to update employee"
+                       };
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<UpdateEmployeeModel>>();
+
+            return result ??
+                   new ApiResponse<UpdateEmployeeModel>
+                   {
+                       Success = true,
+                       Message = "Employee updated successfully",
+                       Data = model
+                   };
         }
 
-        public async Task<int> DeleteEmployee(string id)
+        public async Task<ApiResponse<bool>> DeleteEmployee(string id)
         {
-            var token = context.HttpContext?.Session.GetString("AccessToken");
+            var response = await SendAuthorizedRequestAsync(() => client.DeleteAsync($"employee/delete/{id}"));
 
-            client.DefaultRequestHeaders.Authorization =
-                        new AuthenticationHeaderValue(
-                            "Bearer",
-                            token);
+            // Refresh token expired
+            if (response == null)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "Session expired"
+                };
+            }
 
-            var response = await client.DeleteAsync($"employee/delete/{id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
 
-            return (int)response.StatusCode;
+                return error ??
+                       new ApiResponse<bool>
+                       {
+                           Success = false,
+                           Message = "Unable to delete employee"
+                       };
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
+
+            return result ??
+                   new ApiResponse<bool>
+                   {
+                       Success = true,
+                       Message = "Employee deleted successfully",
+                       Data = true
+                   };
         }
 
         public async Task<bool> CheckEmailExists(string email)
         {
-            var token = context.HttpContext?.Session.GetString("AccessToken");
+            var token = httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
             client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
                             "Bearer",
                             token);
             var response = await client.GetAsync($"employee/CheckEmailExists/{email}");
 
-            return response.StatusCode == HttpStatusCode.OK;
+          
+            return response.IsSuccessStatusCode;
 
         }
 
         public async Task<bool> CheckEmployeeIdExists(string employeeId)
         {
-            var token = context.HttpContext?.Session.GetString("AccessToken");
+            var token = httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
 
             client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
@@ -120,12 +204,14 @@ namespace Frontend.ApiServices.Implements
                             token);
             var response = await client.GetAsync($"employee/CheckEmployeeIdExists/{employeeId}");
 
-            return response.StatusCode == HttpStatusCode.OK;
+            
+
+            return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> CheckPhoneExists(string phoneNumber, string? employeeId)
         {
-            var token = context.HttpContext?.Session.GetString("AccessToken");
+            var token = httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
 
             client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue(
@@ -136,7 +222,11 @@ namespace Frontend.ApiServices.Implements
 
             var response = await client.GetAsync(url);
 
+
+
             return response.StatusCode == HttpStatusCode.Conflict;
         }
+
+
     }
 }

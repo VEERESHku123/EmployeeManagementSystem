@@ -3,7 +3,6 @@
 
 @{
     ViewData["Title"] = "Update Employee";
-    var role = Context.Session.GetString("Role");
 }
 
 <link rel="stylesheet" href="~/css/employee-update.css" />
@@ -77,7 +76,7 @@
         <div class="row mt-2">
             <div class="col-md-6 form-group">
                 <label asp-for="Designation" class="form-label">Designation</label>
-                @if(role == "Admin")
+                @if (User.IsInRole("Admin"))
                     {
                     <select asp-for="Designation" class="form-control">
                         <option value="">-- Select Job Title --</option>
@@ -113,7 +112,7 @@
 
             <div class="col-md-6 form-group">
                 <label asp-for="Salary" class="form-label"></label>
-                <input asp-for="Salary" class="form-control @(role != "Admin" ? "readonly-field" : "")" readonly = "@(role != "Admin")" />
+                <input asp-for="Salary" class="form-control @(User.IsInRole("Admin") ? "readonly-field" : "")" readonly="@(!User.IsInRole("Admin"))" />
             </div>
         </div>
 
@@ -124,7 +123,7 @@
                 <label asp-for="DepartmentId"
                        class="form-label">Department</label>
 
-                @if (role == "Admin")
+                @if (User.IsInRole("Admin"))
                 {
                     <select asp-for="DepartmentId"
                             class="form-control"
@@ -160,7 +159,7 @@
                 <label asp-for="ManagerId"
                        class="form-label">Manager</label>
 
-                @if (role == "Admin")
+                @if (User.IsInRole("Admin"))
                 {
                     <select asp-for="ManagerId"
                             class="form-control"
@@ -193,7 +192,7 @@
         </div>
         <div class="row mt-2">
 
-            @if (role == "Admin")
+            @if (User.IsInRole("Admin"))
             {
                 <div class="col-md-6 form-group">
                     <label asp-for="Role" class="form-label"></label>

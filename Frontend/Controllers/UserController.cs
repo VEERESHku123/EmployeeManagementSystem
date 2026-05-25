@@ -1,46 +1,59 @@
-﻿using Frontend.Models;
-using Frontend.Services.Interfaces;
+﻿using Frontend.ApiServices.Interfaces;
+using Frontend.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System.Security.Claims;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Frontend.Controllers
 {
     public class UserController : Controller
     {
-        private readonly IUserService userService;
-
-        public UserController(IUserService userService)
+        private readonly IUserApiService userApiService;
+        public UserController(IUserApiService userApiService)
         {
-            this.userService = userService;
+            this.userApiService = userApiService;
         }
 
+
+        [HttpGet]
+        public IActionResult _SignIn()
+        {
+            return RedirectToAction("Index", "Home",
+                    new
+                    {
+                        showLogin = true,
+                        activate = false
+                    }
+            );
+        }
 
         [HttpPost]
         public async Task<IActionResult> SignIn(SignInModel model)
         {
             try
             {
-                var result = await userService.SignIn(model);
+                var email = User.FindFirst("preferred_username")?.Value;
 
-                if (result == null)
+                if (!ModelState.IsValid)
                 {
-                    TempData["ErrorMessage"] = "Something went wrong";
-
-                    return RedirectToAction("Index", "Home");
+                    return ReturnHomeView( model,showLogin: true);
                 }
+
+                var result = await userApiService.SignIn(model);
 
                 if (!result.Success)
                 {
-                    TempData["ErrorMessage"] = result.Message ?? "Invalid email or password";
+                    ModelState.AddModelError(string.Empty,result.Message);
 
-                    return RedirectToAction("Index", "Home");
+                    return ReturnHomeView(model, showLogin: true);
                 }
 
-                // Store JWT token
-                HttpContext.Session.SetString("AccessToken", result.AuthResponse.Token);
-
-                HttpContext.Session.SetString("RefreshToken", result.AuthResponse.RefreshToken);
+                //authenticate
+                await AuthenticateUser( model.Email, result.AuthResponse.RoleType, "Native", result.AuthResponse.Token, result.AuthResponse.RefreshToken);
 
                 TempData["SuccessMessage"] = "SignIn successful";
 
@@ -48,10 +61,10 @@ namespace Frontend.Controllers
             }
             catch (Exception e)
             {
-                TempData["ErrorMessage"] = e.Message;
-                return RedirectToAction("Index", "Home");
+                ModelState.AddModelError( string.Empty, e.Message);
+
+                return ReturnHomeView(model, showLogin: true);
             }
-            
         }
 
         public IActionResult MicrosoftSignIn()
@@ -60,8 +73,6 @@ namespace Frontend.Controllers
             {
                 RedirectUri = "/user/callback"
             };
-
-            properties.Items["prompt"] = "select_account";
 
             return Challenge(properties,
                 OpenIdConnectDefaults.AuthenticationScheme);
@@ -73,18 +84,17 @@ namespace Frontend.Controllers
             {
                 var email = User.FindFirst("preferred_username")?.Value;
 
-                var auth = await userService.MicrosoftSignIn(email);
+                var result = await userApiService.MicrosoftSignIn(email);
 
-                if (auth == null || !auth.Success)
+                if (result == null || !result.Success)
                 {
                     TempData["ErrorMessage"] = "SignIn failed";
 
                     return RedirectToAction("Index", "Home");
                 }
 
-                HttpContext.Session.SetString("AccessToken", auth.AuthResponse.Token);
-
-                HttpContext.Session.SetString("RefreshToken", auth.AuthResponse.RefreshToken);
+                //authenticate
+                await AuthenticateUser(email, result.AuthResponse.RoleType, "Microsoft", result.AuthResponse.Token, result.AuthResponse.RefreshToken);
 
                 TempData["SuccessMessage"] = "SignIn successful";
 
@@ -101,18 +111,106 @@ namespace Frontend.Controllers
         }
 
 
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> SignOut()
         {
             HttpContext.Session.Clear();
 
-            await HttpContext.SignOutAsync();
+            var res = await userApiService.SignOut();
+            Console.WriteLine("---------------");
+            Console.WriteLine(res.Message);
 
-            return SignOut(new AuthenticationProperties
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var loginProvider = User.FindFirst("LoginProvider")?.Value;
+
+            if (loginProvider == "Microsoft")
             {
-                RedirectUri = "/"
-            },
-            OpenIdConnectDefaults.AuthenticationScheme);
+                return SignOut(
+                    new AuthenticationProperties
+                    {
+                        RedirectUri = "/"
+                    },
+                    OpenIdConnectDefaults.AuthenticationScheme);
+            }
+
+            return RedirectToAction( "Index", "Home");
         }
+
+
+        [HttpGet]
+        public IActionResult _ActivateAccount()
+        {
+            return RedirectToAction("Index", "Home", new { showLogin = false, activate = true });
+        
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ActivateAccount(ActivateAccountModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    ViewBag.ShowActivate = true;
+                    return View("~/Views/Home/Index.cshtml", model);
+                }
+
+                var result = await userApiService.ActivateAccount(model);
+
+                if (!result.Success)
+                {
+                    ViewBag.ShowActivate = true;
+
+                    ModelState.AddModelError(string.Empty, result.Message);
+
+                    return View("~/Views/Home/Index.cshtml", model);
+                }
+
+                TempData["SuccessMessage"] = result.Message;
+
+                return RedirectToAction("_SignIn", "User", new { showLogin = true });
+            }
+            catch (Exception e)
+            {
+                ViewBag.ShowActivate = true;
+
+                ModelState.AddModelError(string.Empty, e.Message);
+
+                return View("~/Views/Home/Index.cshtml", model);
+            }
+        }
+
+
+
+
+        //helper methods
+        private async Task AuthenticateUser(string email, string role, string provider, string accessToken, string refreshToken)
+        {
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email,email),
+            new Claim(ClaimTypes.Role,role),
+            new Claim("LoginProvider",provider)
+        };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+            HttpContext.Session.SetString("AccessToken", accessToken);
+
+            HttpContext.Session.SetString("RefreshToken", refreshToken);
+        }
+
+        private IActionResult ReturnHomeView(object model, bool showLogin = false, bool showActivate = false)
+        {
+            ViewBag.ShowLogin = showLogin;
+            ViewBag.ShowActivate = showActivate;
+
+            return View("~/Views/Home/Index.cshtml", model);
+        }
+
+
     }
 
 

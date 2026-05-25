@@ -1,7 +1,9 @@
 ﻿using AuthAPI.DTOs;
 using AuthAPI.Services.Implements;
 using AuthAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AuthAPI.Controllers
 {
@@ -68,29 +70,68 @@ namespace AuthAPI.Controllers
         {
             try
             {
-                var result = await userService.ActivateAccount(loginDto);
+                var result =
+                    await userService.ActivateAccount(loginDto);
 
-                if(!result.success)
+                if (!result.Success)
                 {
-                    return result.message switch
+                    return result.Message switch
                     {
                         "Employee not found"
-                            => NotFound(result.message),
+                            => NotFound(result),
 
                         "Account already activated"
-                            => BadRequest(result.message),
+                            => BadRequest(result),
 
-                        _ => BadRequest(result.message)
+                        _ => BadRequest(result)
                     };
                 }
 
-                return Ok(result.message);
+                return Ok(result);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return Problem(e.Message, "", 500);
+                return StatusCode(
+                    500,
+                    new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = ex.Message
+                    });
             }
         }
+
+        [HttpPost]
+        [Route("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+            var result = await userService.RefreshToken(refreshTokenDto);
+
+            if (!result.Success)
+            {
+                return Unauthorized(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("signOut")]
+        [Authorize]
+        public async Task<IActionResult> SignOut()
+        {
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            var result = await userService.SignOut(email);
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
 
 
 

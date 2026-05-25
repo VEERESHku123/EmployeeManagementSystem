@@ -1,4 +1,5 @@
-﻿using Backend.Services;
+﻿using Backend.Services.Implements;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +10,8 @@ namespace Backend.Controllers
     [ApiController]
     public class ManagerController : ControllerBase
     {
-        private readonly ManagerService managerService;
-        public ManagerController(ManagerService service)
+        private readonly IManagerService managerService;
+        public ManagerController(IManagerService service)
         {
             managerService = service;
         }
@@ -24,7 +25,9 @@ namespace Backend.Controllers
         {
             var result = await managerService.GetAllManagersAsync();
 
-            return (result != null) ? Ok(result) : NoContent();
+            if (!result.Success) return BadRequest(result);
+
+            return Ok(result);
         }
     }
 }

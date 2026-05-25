@@ -1,26 +1,25 @@
 ﻿using AutoMapper;
-using Frontend.ApiServices.Implements;
 using Frontend.ApiServices.Interfaces;
 using Frontend.Models;
-using Frontend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Frontend.Controllers
 {
     public class EmployeeController : Controller
     {
-        private readonly IEmployeeServices empService;
+        private readonly IEmployeeApiService employeeApiService;
         private readonly IDepartmentApiService departmentApi;
         private readonly IManagerApiService managerApi;
         private readonly IMapper mapper;
 
-        public EmployeeController(IEmployeeServices empService, IDepartmentApiService departmentApi, IManagerApiService managerApi, IMapper mapper)
+        public EmployeeController(IEmployeeApiService employeeApiService, IDepartmentApiService departmentApi, IManagerApiService managerApi, IMapper mapper)
         {
             this.departmentApi = departmentApi;
             this.managerApi = managerApi;
             this.mapper = mapper;
-            this.empService = empService;
+            this.employeeApiService = employeeApiService;
         }
 
         
@@ -30,41 +29,53 @@ namespace Frontend.Controllers
         [Route("employee/all")]
         public async Task<IActionResult> GetAllEmployees(string search, int page = 1, int pageSize = 5)
         {
-            var model = await empService.GetAllEmployees(search, page, pageSize);
+            var model = await employeeApiService.GetAllEmployees(search, page, pageSize);
 
-            if (model.StatusCode == 500)
+            // Refresh token expired
+            if (!model.Success && model.Message == "Session expired")
+            {
+                TempData["ErrorMessage"] = "Session expired. Login again.";
+
+                return RedirectToAction("_SignIn","User");
+            }
+
+            if (!model.Success)
             {
                 return RedirectToAction("StatusCode500Page","StatusCode");
             }
 
-            ViewBag.Search = model.Search;
-            ViewBag.PageSize = model.PageSize;
-            ViewBag.CurrentPage = model.CurrentPage;
-            ViewBag.TotalPages = model.TotalPages;
+            ViewBag.Search = search;
+            ViewBag.PageSize = model.Data?.PageSize;
+            ViewBag.CurrentPage = model.Data?.CurrentPage;
+            ViewBag.TotalPages = model.Data?.TotalPages;
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("EmployeeTable", model.Employees);
+                return PartialView("EmployeeTable", model.Data?.Employees);
             }
 
-            return View(model.Employees);
+            return View(model.Data?.Employees);
         }
 
         [HttpGet]
         [Route("employee")]
         public async Task<IActionResult> GetEmployeeById(string id)
         {
-            var result = await empService.GetEmployeeById(id);
-            if (result.StatusCode == 500)
+            var result = await employeeApiService.GetEmployeeById(id);
+
+            if (!result.Success && result.Message == "Session expired")
             {
-                return RedirectToAction("StatusCode500Page", "StatusCode");
-            }
-            else if(result.StatusCode == 404)
-            {
-                return RedirectToAction("StatusCode404Page", "StatusCode");
+                TempData["ErrorMessage"] = "Session expired";
+
+                return RedirectToAction("_SignIn", "User");
             }
 
-            return View(result.Employee);
+            if (result.Data == null)
+            {
+                return RedirectToAction("StatusCode404Page","StatusCode");
+            }
+
+            return View(result.Data);
         }
 
 
@@ -75,9 +86,9 @@ namespace Frontend.Controllers
             var departments = await departmentApi.GetAllDepartments();
             var managers = await managerApi.SendAllManagers();
 
-            ViewBag.Departments = new SelectList(departments, "DepartmentId", "DepartmentName");
+            ViewBag.Departments = new SelectList(departments.Data, "DepartmentId", "DepartmentName");
 
-            ViewBag.Managers = new SelectList(managers, "ManagerId", "ManagerName");
+            ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
 
             return View();
         }
@@ -87,38 +98,40 @@ namespace Frontend.Controllers
         public async Task<IActionResult> AddNewEmployee(EmployeeModel model)
         {
 
-            var isSuccess = await empService.AddNewEmployee(model);
+            var result = await employeeApiService.AddNewEmployee(model);
 
-            if(isSuccess)
+            if (result.Success)
             {
                 TempData["SuccessMessage"] = $"Employee: {model.FirstName} added successfully!";
+
                 return RedirectToAction("GetAllEmployees");
             }
-            else
+
+            // Session expired
+            if (result.Message == "Session expired")
             {
-                TempData["ErrorMessage"] = "Failed to add employee!";
-                return RedirectToAction("StatusCode500Page", "StatusCode");
+                return RedirectToAction("Index", "Home");
             }
+
+            TempData["ErrorMessage"] = result.Message ?? "Unable to create employee";
+
+            return RedirectToAction("AddNewEmployee");
         }
 
         [HttpGet]
         [Route("employee/update")]
         public async Task<IActionResult> UpdateEmployee(string id)
         {
-            var result = await empService.GetEmployeeById(id);
+            var result = await employeeApiService.GetEmployeeById(id);
 
-            if(result.StatusCode == 404)
-            {
-                return RedirectToAction("StatusCode404Page", "StatusCode");
-            }
-            var employee = mapper.Map<UpdateEmployeeModel>(result.Employee);
+            var employee = mapper.Map<UpdateEmployeeModel>(result.Data);
 
             var departments = await departmentApi.GetAllDepartments();
             var managers = await managerApi.SendAllManagers();
 
-            ViewBag.Departments = new SelectList(departments, "DepartmentId", "DepartmentName");
+            ViewBag.Departments = new SelectList(departments.Data, "DepartmentId", "DepartmentName");
 
-            ViewBag.Managers = new SelectList(managers, "ManagerId", "ManagerName");
+            ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
 
             return View(employee);
         }
@@ -128,50 +141,66 @@ namespace Frontend.Controllers
         public async Task<IActionResult> UpdateEmployee(UpdateEmployeeModel model)
         {
 
-            var result = await empService.UpdateEmployee(model.EmployeeId, model);
+            var result = await employeeApiService.UpdateEmployee(model.EmployeeId, model);
 
-
-            if (result == 200)
+            if (result.Success)
             {
                 TempData["SuccessMessage"] = $"Employee: {model.FirstName} updated successfully!";
+
                 return RedirectToAction("GetAllEmployees");
             }
-            else if(result == 404)
+
+            // Session expired
+            if (result.Message == "Session expired")
             {
-                TempData["ErrorMessage"] = "Failed to update employee!";
-                return RedirectToAction("StatusCode404Page", "StatusCode");
+                return RedirectToAction("Index", "Home");
             }
-            else
-            {
-                TempData["ErrorMessage"] = "Failed to update employee!";
-                return RedirectToAction("StatusCode500Page", "StatusCode");
-            }
+
+            TempData["ErrorMessage"] = result.Message ?? "Failed to update employee";
+
+            return RedirectToAction("UpdateEmployee",new { id = model.EmployeeId });
         }
 
         [HttpPost]
         [Route("employee/delete")]
         public async Task<IActionResult> DeleteEmployee([FromBody] string id)
         {
-            var result = await empService.DeleteEmployee(id);
+            var result = await employeeApiService.DeleteEmployee(id);
 
-            if (result == 200)
-                return Ok();
+            if (result.Success)
+            {
+                return Ok(new
+                {
+                    message = "Employee deleted successfully"
+                });
+            }
 
-            return BadRequest();
+            if (result.Message == "Session expired")
+            {
+                return Unauthorized(new
+                {
+                    message = result.Message
+                });
+            }
+
+            return BadRequest(new
+            {
+                message = result.Message
+            });
         }
 
         // validations
         [HttpGet]
         public async Task<JsonResult> IsEmailAvailable(string email)
         {
-            return Json(await empService.IsEmailAvailable(email));
+            return Json(!await employeeApiService.CheckEmailExists(email));
  
         }
 
         [HttpGet]
         public async Task<JsonResult> IsEmployeeIdAvailable(string employeeId)
         {
-            return Json( await empService.IsEmployeeIdAvailable(employeeId));
+            return Json( !await employeeApiService.CheckEmployeeIdExists(employeeId));
 
             
         }
@@ -179,7 +208,7 @@ namespace Frontend.Controllers
         [HttpGet]
         public async Task<JsonResult> IsPhoneAvailable(string phoneNumber, string? employeeId)
         {
-            return Json( await empService.IsPhoneAvailable(phoneNumber, employeeId));
+            return Json( !await employeeApiService.CheckPhoneExists(phoneNumber, employeeId));
         }
     }
 }

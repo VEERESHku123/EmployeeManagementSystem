@@ -1,4 +1,5 @@
-﻿using Backend.Services;
+﻿using Backend.Services.Implements;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +10,8 @@ namespace Backend.Controllers
     [ApiController]
     public class DepartmentController : ControllerBase
     {
-        private readonly DepartmentService departmentService;
-        public DepartmentController(DepartmentService service)
+        private readonly IDepartmentService departmentService;
+        public DepartmentController(IDepartmentService service)
         {
             departmentService = service;
         }
@@ -19,11 +20,13 @@ namespace Backend.Controllers
 
         [HttpGet("all")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> GetAllEmployees()
+        public async Task<IActionResult> GetAllDepartments()
         {
             var result = await departmentService.GetAllManagersAsync();
 
-            return (result != null) ? Ok(result) : NoContent();
+            if (!result.Success) return BadRequest(result);
+
+            return Ok(result);
         }
     }
 }

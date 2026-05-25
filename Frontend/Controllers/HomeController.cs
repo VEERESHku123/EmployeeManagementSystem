@@ -8,8 +8,11 @@ namespace Frontend.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(bool showLogin = false, bool activate = false)
         {
+            ViewBag.ShowLogin = showLogin;
+            ViewBag.ShowActivate = activate;
+
             return View();
         }
 

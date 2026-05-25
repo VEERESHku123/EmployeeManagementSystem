@@ -7,41 +7,60 @@ using System.Net.Http.Headers;
 
 namespace Frontend.ApiServices.Implements
 {
-    public class DepartmentApiService : IDepartmentApiService
+    public class DepartmentApiService : BaseApiService ,IDepartmentApiService
     {
-        private readonly HttpClient client;
         private readonly IMemoryCache cache;
-        private readonly IHttpContextAccessor context;
 
-        public DepartmentApiService(IMemoryCache cache, IHttpClientFactory factory, IHttpContextAccessor context)
+        public DepartmentApiService(IMemoryCache cache, IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor) : base(factory, httpContextAccessor, "Backend") 
         {
-            client = factory.CreateClient("BackEnd");
             this.cache = cache;
-            this.context = context;
 
         }
 
-        public async Task<List<DepartmentModel>> GetAllDepartments()
+        public async Task<ApiResponse<List<DepartmentModel>>> GetAllDepartments()
         {
             try
             {
-                
-
-                if (!cache.TryGetValue("Departments", out List<DepartmentModel> departmentList))
+                if (cache.TryGetValue("Departments", out ApiResponse<List<DepartmentModel>> cachedData))
                 {
-                    var token = context.HttpContext?.Session.GetString("AccessToken");
+                    return cachedData;
+                }
 
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response =await SendAuthorizedRequestAsync(() => client.GetAsync("department/all"));
 
-                    departmentList = await client.GetFromJsonAsync<List<DepartmentModel>>("department/all");
+                if (response == null)
+                {
+                    return new ApiResponse<List<DepartmentModel>>
+                    {
+                        Success = false,
+                        Message = "Session expired"
+                    };
+                }
 
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ApiResponse<List<DepartmentModel>>
+                    {
+                        Success = false,
+                        Message = "Failed to fetch departments"
+                    };
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<DepartmentModel>>>() ?? new ApiResponse<List<DepartmentModel>>
+                    {
+                        Success = false,
+                        Message = "No response"
+                    };
+
+                if (result.Success)
+                {
                     cache.Set(
                         "Departments",
-                        departmentList,
+                        result,
                         TimeSpan.FromHours(1));
                 }
 
-                return departmentList ?? new List<DepartmentModel>();
+                return result;
             }
             catch
             {

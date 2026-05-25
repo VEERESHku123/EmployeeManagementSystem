@@ -1,10 +1,11 @@
 ﻿using Backend.Data.Context;
 using Backend.Data.Models;
+using Backend.Data.Repos.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Data.Repos
+namespace Backend.Data.Repos.Implements
 {
-    public class ManagerRepo
+    public class ManagerRepo : IManagerRepo
     {
         public AppDbContext Context { get; set; }
 
@@ -13,7 +14,7 @@ namespace Backend.Data.Repos
             Context = context;
         }
 
-        
+
 
         public async Task<List<ManagerEntity>> GetAllAsync()
         {
@@ -26,7 +27,7 @@ namespace Backend.Data.Repos
 
                 throw;
             }
-            
+
         }
 
     }

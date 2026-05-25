@@ -4,6 +4,6 @@ namespace Frontend.ApiServices.Interfaces
 {
     public interface IManagerApiService
     {
-        Task<List<ManagerModel>> SendAllManagers();
+        Task<ApiResponse<List<ManagerModel>>> SendAllManagers();
     }
 }

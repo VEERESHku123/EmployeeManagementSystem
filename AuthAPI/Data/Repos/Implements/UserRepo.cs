@@ -21,7 +21,7 @@ namespace AuthAPI.Data.Repos.Implements
                          .FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task SaveRefreshToken(int userId, string refreshToken, DateTime expiry)
+        public async Task SaveRefreshToken(int userId, string? refreshToken, DateTime? expiry)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
 
@@ -39,5 +39,20 @@ namespace AuthAPI.Data.Repos.Implements
             return await context.SaveChangesAsync() > 0;
         }
 
+        public async Task<UserEntity> GetByRefreshToken(string refreshToken)
+        {
+            try
+            {
+                var user = await context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+                return user;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

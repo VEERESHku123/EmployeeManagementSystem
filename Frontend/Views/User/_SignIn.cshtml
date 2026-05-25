@@ -1,0 +1,78 @@
+﻿@model Frontend.Models.SignInModel
+
+<link rel="stylesheet"
+      href="~/css/signin.css"
+      asp-append-version="true" />
+
+<div class="login-card">
+
+    <h2>SignIn</h2>
+
+    <form asp-controller="User"
+          asp-action="SignIn"
+          method="post">
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-2">
+        </div>
+
+
+        <input asp-for="Email"
+               class="form-control"
+               placeholder="Email" />
+
+        <span asp-validation-for="Email"
+              class="text-danger">
+        </span>
+
+
+        <input asp-for="Password"
+               type="password"
+               class="form-control"
+               placeholder="Password" />
+
+        <span asp-validation-for="Password"
+              class="text-danger">
+        </span>
+
+
+        <button class="login-btn">
+            Login
+        </button>
+
+    </form>
+
+
+    <div class="divider">
+        <span>OR</span>
+    </div>
+
+
+    <!-- Microsoft Login -->
+    <a asp-controller="User"
+       asp-action="MicrosoftSignIn"
+       class="microsoft-btn">
+
+        <img src="https://img.icons8.com/color/24/microsoft.png" />
+
+        Continue with Microsoft
+
+    </a>
+
+
+    <div class="bottom-link">
+
+        First time user?
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           asp-route-showLogin="true"
+           asp-route-activate="true">
+
+            Activate Account
+
+        </a>
+
+    </div>
+
+</div>

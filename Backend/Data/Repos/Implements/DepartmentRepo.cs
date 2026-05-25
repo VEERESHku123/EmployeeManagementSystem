@@ -1,10 +1,11 @@
 ﻿using Backend.Data.Context;
 using Backend.Data.Models;
+using Backend.Data.Repos.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Data.Repos
+namespace Backend.Data.Repos.Implements
 {
-    public class DepartmentRepo
+    public class DepartmentRepo : IDepartmentRepo
     {
         public AppDbContext Context { get; set; }
         public DepartmentRepo(AppDbContext context)
@@ -24,7 +25,7 @@ namespace Backend.Data.Repos
 
                 throw;
             }
-            
+
         }
 
     }

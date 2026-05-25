@@ -1,9 +1,9 @@
 ﻿using AuthAPI.Data.Context;
 using AuthAPI.Data.Entitys;
-using AuthAPI.Data.Repos.Implements;
+using AuthAPI.Data.Repos.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthAPI.Data.Repos
+namespace AuthAPI.Data.Repos.Implements
 {
     public class EmployeeRepo : IEmployeeRepo
     {

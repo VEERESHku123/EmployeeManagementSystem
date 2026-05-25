@@ -1,12 +1,11 @@
 ﻿<div class="hero-container">
 
-    <!-- Left Section -->
     <div class="hero-content">
 
-        <h2>Welcome Back!</h2>
+        <h2>Welcome To EMS App!</h2>
 
         <p>
-            Please login to continue and
+            Please signIn to continue and
             access dashboard.
         </p>
 
@@ -15,159 +14,30 @@
            asp-route-showLogin="true"
            class="hero-btn">
 
-            Login →
+            SignIn →
         </a>
 
     </div>
 
-
-
-    <!-- Right Section -->
     <div class="hero-right">
 
-        @if (Context.Request.Query["showLogin"] == "true")
+        @if (ViewBag.ShowActivate == true)
         {
-            bool showActivate =
-            Context.Request.Query["activate"] == "true";
-
-            <div class="login-card">
-
-                <!-- Title -->
-
-                <h3>
-
-                    @(showActivate
-                        ? "Activate Account"
-                        : "Login")
-
-                </h3>
-
-
-                <!-- Form -->
-
-                <form asp-controller="User"
-                      asp-action="@(showActivate
-                                                        ? "ActivateAccount"
-                                                        : "SignIn")"
-                      method="post">
-
-
-                    <!-- Email -->
-
-                    <input type="email"
-                           name="Email"
-                           placeholder="Email"
-                           class="form-control mb-3"
-                           required />
-
-
-                    <!-- Password -->
-
-                    <input type="password"
-                           name="Password"
-                           placeholder="Password"
-                           class="form-control mb-3"
-                           required />
-
-
-                    <!-- Confirm Password only for activation -->
-                    @if (showActivate)
-                    {
-                        <input type="password"
-                               name="ConfirmPassword"
-                               placeholder="Confirm Password"
-                               class="form-control mb-3"
-                               required />
-                    }
-
-
-                    <!-- Submit Button -->
-
-                    <button class="btn btn-primary w-100">
-
-                        @(showActivate
-                            ? "Activate Account"
-                            : "Login")
-
-                    </button>
-
-                </form>
-
-
-
-                <!-- Microsoft Login only in Login mode -->
-                @if (!showActivate)
-                {
-                    <div class="text-center mt-3">
-
-                        OR
-
-                    </div>
-
-
-                    <a asp-controller="User"
-                       asp-action="MicrosoftSignIn"
-                       class="btn btn-outline-dark w-100 mt-3">
-
-                        Continue with Microsoft
-
-                    </a>
-                }
-
-
-
-                <!-- Bottom Links -->
-
-                <div class="text-center mt-3">
-
-                    @if (!showActivate)
-                    {
-                        <small>
-
-                            First time user?
-
-                            <a asp-controller="Home"
-                               asp-action="Index"
-                               asp-route-showLogin="true"
-                               asp-route-activate="true">
-
-                                Activate Account
-
-                            </a>
-
-                        </small>
-                    }
-                    else
-                    {
-                        <small>
-
-                            Already activated?
-
-                            <a asp-controller="Home"
-                               asp-action="Index"
-                               asp-route-showLogin="true">
-
-                                ← Back to Login
-
-                            </a>
-
-                        </small>
-                    }
-
-                </div>
-
-            </div>
+            <partial name="~/Views/User/_ActivateAccount.cshtml"
+                     model="Model" />
+        }
+        else if (ViewBag.ShowLogin == true)
+        {
+            <partial name="~/Views/User/_SignIn.cshtml" />
         }
         else
         {
-
             <video autoplay muted loop>
 
                 <source src="~/videos/ems-animation.mp4"
                         type="video/mp4" />
 
             </video>
-
         }
 
     </div>

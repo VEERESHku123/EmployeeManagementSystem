@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using Backend.Data.Context;
 using Backend.Data.Models;
+using Backend.Data.Repos.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Data.Repos
+namespace Backend.Data.Repos.Implements
 {
     public class EmployeeRepo : IEmployeeRepo
     {
@@ -152,7 +153,7 @@ namespace Backend.Data.Repos
         {
             try
             {
-                var result = await Context.Employees.SingleOrDefaultAsync(e => e.Email == email);
+                var result = await Context.Employees.SingleOrDefaultAsync(e => e.CompanyEmail == email);
 
                 return result != null;
             }

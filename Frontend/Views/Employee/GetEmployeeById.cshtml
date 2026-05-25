@@ -2,8 +2,7 @@
 
 @{
     ViewData["Title"] = "GetEmployeeById";
-    var role = Context.Session.GetString("Role");
-    var email = Context.Session.GetString("Email");
+    var email = User.Identity?.Name;
 }
 
 <link rel="stylesheet" href="~/css/employee-details.css" />
@@ -84,7 +83,7 @@
     </dl>
    
     <div class="mt-4 text-center">
-        @if (role == "Admin" || email == Model.Email)
+        @if (User.IsInRole("Admin") || email == Model.Email)
         {
             <a asp-action="UpdateEmployee"
                asp-route-id="@Model.EmployeeId"
@@ -92,7 +91,7 @@
                 Edit
             </a>
         }
-        @if(role == "Admin")
+        @if (User.IsInRole("Admin"))
         {
             <button id="deleteBtn"
                     data-id="@Model.EmployeeId"
