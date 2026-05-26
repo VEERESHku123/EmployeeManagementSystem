@@ -1,4 +1,6 @@
-﻿namespace Frontend.Models
+﻿using Frontend.Models.Employee;
+
+namespace Frontend.Models.User
 {
     public class SignInResponseModel
     {

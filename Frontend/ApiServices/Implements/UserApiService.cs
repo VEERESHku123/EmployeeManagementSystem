@@ -1,11 +1,19 @@
 ﻿using Frontend.ApiServices.Interfaces;
-using Frontend.Models;
+using Frontend.Models.Common;
+using Frontend.Models.User;
+using System.Net.Http.Headers;
 
 namespace Frontend.ApiServices.Implements
 {
-    public class UserApiService :  BaseApiService, IUserApiService
+    public class UserApiService : IUserApiService
     {
-        public UserApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor) : base(factory, httpContextAccessor, "Auth") { }
+        private readonly HttpClient client;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        public UserApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor)  
+        {
+            client = factory.CreateClient("Auth");
+            this.httpContextAccessor = httpContextAccessor;
+        }
         
 
         public async Task<SignInResponseModel> SignIn(SignInModel model)
@@ -64,10 +72,15 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<ApiResponse<object>> SignOut()
         {
-            var response =
-                await SendAuthorizedRequestAsync(
-                    () => client.PostAsync("signOut", null));
+            var token = httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
 
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",token);
+
+            var response = await client.PostAsync("signOut", null);
+
+            Console.WriteLine("-----------------");
+            Console.WriteLine("token: " + token);
+            Console.WriteLine(response.StatusCode);
             if (response == null)
             {
                 return new ApiResponse<object>

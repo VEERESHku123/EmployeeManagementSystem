@@ -1,5 +1,6 @@
 ﻿using Frontend.ApiServices.Interfaces;
-using Frontend.Models;
+using Frontend.Models.Common;
+using Frontend.Models.Employee;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net.Http.Headers;

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace Frontend.Models
+namespace Frontend.Models.Employee
 {
     public class UpdateEmployeeModel
     {
@@ -21,7 +21,10 @@ namespace Frontend.Models
         [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Enter valid mobile number")]
         [Remote("IsPhoneAvailable", "Employee", AdditionalFields = "EmployeeId", ErrorMessage = "Phone number already exists")]
         public required string PhoneNumber { get; set; }
-        public required string Email { get; set; }
+        public required string CompanyEmail { get; set; }
+
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$", ErrorMessage = "Personal email must end with @gmail.com")]
+        public string? PersonalEmail { get; set; }
 
         [Required(ErrorMessage = "Date of birth is required")]
         public required DateOnly DOB { get; set; }

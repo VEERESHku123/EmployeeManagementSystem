@@ -8,7 +8,6 @@ using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
@@ -80,6 +79,7 @@ builder.Services.AddDbContext<AppDbContext>(
 builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
 builder.Services.AddScoped<IDepartmentRepo, DepartmentRepo>();
 builder.Services.AddScoped<IManagerRepo, ManagerRepo>();
+builder.Services.AddScoped<IEmployeeDocumentRepo, EmployeeDocumentRepo>();
 
 builder.Services.AddControllers(
     options => options.Filters.Add<CommonExceptionFilter>());
@@ -87,6 +87,7 @@ builder.Services.AddControllers(
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
+builder.Services.AddScoped<IEmployeeDocumentService, EmployeeDocumentService>();
 
 builder.Services.AddAutoMapper(
     config => config.AddProfile<MappingProfile>());

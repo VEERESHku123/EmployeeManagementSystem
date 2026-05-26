@@ -1,4 +1,4 @@
-﻿@model Frontend.Models.EmployeeModel
+﻿@model Frontend.Models.Employee.EmployeeModel
 
 @{
     ViewData["Title"] = "GetEmployeeById";
@@ -32,10 +32,17 @@
         </dd>
 
         <dt class="col-sm-3">
-            Email
+            Company Email
         </dt>
         <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Email)
+            @Html.DisplayFor(model => model.CompanyEmail)
+        </dd>
+
+        <dt class="col-sm-3">
+            Personal Email
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.PersonalEmail)
         </dd>
 
         <dt class="col-sm-3">
@@ -83,7 +90,7 @@
     </dl>
    
     <div class="mt-4 text-center">
-        @if (User.IsInRole("Admin") || email == Model.Email)
+        @if (User.IsInRole("Admin") || email == Model.CompanyEmail)
         {
             <a asp-action="UpdateEmployee"
                asp-route-id="@Model.EmployeeId"

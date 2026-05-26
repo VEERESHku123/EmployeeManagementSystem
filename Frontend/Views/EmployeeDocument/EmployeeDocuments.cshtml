@@ -1,0 +1,87 @@
+﻿@using Frontend.Models.EmployeeDocument
+
+@{
+    ViewData["Title"] = "Employee Documents";
+
+    var categories = ViewBag.DocumentCategories as List<DocumentCategoryModel>;
+    var documentTypes = ViewBag.DocumentTypes as List<DocumentTypeModel>;
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Upload Employee Documents</h2>
+
+    <form asp-action="UploadDocuments"
+          asp-controller="Employee"
+          method="post"
+          enctype="multipart/form-data">
+
+        @foreach (var category in categories)
+        {
+            <div class="card mb-4 shadow-sm">
+
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        @category.CategoryName
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    @{
+                        var docs = documentTypes
+                                    .Where(x => x.CategoryId == category.CategoryId)
+                                    .ToList();
+                    }
+
+                    @if (docs.Any())
+                    {
+                        foreach (var doc in docs)
+                        {
+                            <div class="row mb-3 align-items-center">
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">
+                                        @doc.DocumentName
+
+                                        @if (doc.IsMandatory == true)
+                                        {
+                                            <span class="text-danger">*</span>
+                                        }
+                                    </label>
+                                </div>
+
+                                <div class="col-md-8">
+
+                                    <input type="hidden"
+                                           name="DocumentTypeIds"
+                                           value="@doc.DocumentTypeId" />
+
+                                    <input type="file"
+                                           name="Files"
+                                           class="form-control"
+                                    @(doc.IsMandatory == true ? "required" : "") />
+
+                                </div>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>No documents found.</p>
+                    }
+
+                </div>
+
+            </div>
+        }
+
+        <button type="submit"
+                class="btn btn-success">
+            Upload Documents
+        </button>
+
+    </form>
+
+</div>

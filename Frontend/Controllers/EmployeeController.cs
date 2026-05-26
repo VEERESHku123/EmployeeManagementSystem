@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Frontend.ApiServices.Interfaces;
-using Frontend.Models;
+using Frontend.Models.Employee;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;

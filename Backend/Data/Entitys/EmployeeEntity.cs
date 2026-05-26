@@ -9,7 +9,7 @@ namespace Backend.Data.Models
         public required String FirstName { get; set; }
         public required String LastName { get; set; }
         public required String PhoneNumber { get; set; }
-        public required string PersonalEmail { get; set; }
+        public string? PersonalEmail { get; set; }
         public required string CompanyEmail { get; set; }
         public required DateOnly DOB { get; set; }
         public Gender Gender { get; set; }

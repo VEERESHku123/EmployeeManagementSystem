@@ -1,4 +1,5 @@
-﻿using Frontend.Models;
+﻿using Frontend.Models.Common;
+using Frontend.Models.Employee;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Http.Headers;
@@ -19,7 +20,9 @@ namespace Frontend.ApiServices.Interfaces
         protected async Task<HttpResponseMessage?> SendAuthorizedRequestAsync(Func<Task<HttpResponseMessage>> request)
         {
             var token = httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
-
+            Console.WriteLine("---------------");
+            Console.WriteLine(token);
+            Console.WriteLine("---------------");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await request();

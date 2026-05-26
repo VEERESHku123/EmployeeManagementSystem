@@ -1,5 +1,6 @@
 ﻿using Frontend.ApiServices.Interfaces;
-using Frontend.Models;
+using Frontend.Models.Common;
+using Frontend.Models.Employee;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using NuGet.Common;

@@ -1,5 +1,5 @@
 ﻿@using Frontend.Enums
-@model Frontend.Models.UpdateEmployeeModel
+@model Frontend.Models.Employee.UpdateEmployeeModel
 
 @{
     ViewData["Title"] = "Update Employee";
@@ -22,8 +22,16 @@
             </div>
 
             <div class="col-md-6 form-group">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control readonly-field" readonly />
+                <label asp-for="CompanyEmail" class="form-label"></label>
+                <input asp-for="CompanyEmail" class="form-control readonly-field" readonly />
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label asp-for="PersonalEmail" class="form-label"></label>
+                <input asp-for="PersonalEmail" class="form-control" />
+                <span asp-validation-for="PersonalEmail" class="text-danger"></span>
             </div>
         </div>
 

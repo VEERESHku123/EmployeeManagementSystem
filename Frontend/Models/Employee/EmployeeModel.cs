@@ -1,7 +1,7 @@
 ﻿using Frontend.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-namespace Frontend.Models
+namespace Frontend.Models.Employee
 {
     public class EmployeeModel
     {
@@ -23,10 +23,12 @@ namespace Frontend.Models
         [Remote("IsPhoneAvailable", "Employee", ErrorMessage = "Phone number already exists")]
         public required string PhoneNumber { get; set; }
 
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
-        [Remote("IsEmailAvailable", "Employee", ErrorMessage = "Email already exists")]
-        public required string Email { get; set; }
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$", ErrorMessage = "Personal email must end with @gmail.com")]
+        public string? PersonalEmail { get; set; }
+
+        [Required]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@noventiqai\.com$", ErrorMessage = "Company email must end with @noventiqai.com")]
+        public required string CompanyEmail { get; set; }
 
         [Required(ErrorMessage = "Date of birth is required")]
         public required DateOnly DOB { get; set; }

@@ -1,6 +1,6 @@
-﻿namespace Frontend.Models
+﻿namespace Frontend.Models.Employee
 {
-    public class EmployeePaginationData
+    public class EmployeeListViewModel
     {
         public List<EmployeeModel> Employees { get; set; }
 
@@ -9,5 +9,9 @@
         public int PageSize { get; set; }
 
         public int TotalPages { get; set; }
+
+        public int StatusCode { get; set; }
+
+        public string Search { get; set; }
     }
 }

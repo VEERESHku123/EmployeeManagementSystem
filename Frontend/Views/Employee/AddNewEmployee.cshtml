@@ -1,5 +1,5 @@
 ﻿@using Frontend.Enums
-@model Frontend.Models.EmployeeModel
+@model Frontend.Models.Employee.EmployeeModel
 
 @{
     ViewData["Title"] = "Add New Employee";
@@ -23,9 +23,16 @@
             </div>
 
             <div class="col-md-6 form-group">
-                <label asp-for="Email" class="form-label required"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <label asp-for="CompanyEmail" class="form-label required">Company Email</label>
+                <input asp-for="CompanyEmail" class="form-control" />
+                <span asp-validation-for="CompanyEmail" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label asp-for="PersonalEmail" class="form-label">Personal Email</label>
+                <input asp-for="PersonalEmail" class="form-control" />
+                <span asp-validation-for="PersonalEmail" class="text-danger"></span>
             </div>
         </div>
 

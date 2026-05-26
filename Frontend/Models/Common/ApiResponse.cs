@@ -1,4 +1,4 @@
-﻿namespace Frontend.Models
+﻿namespace Frontend.Models.Common
 {
     public class ApiResponse<T>
     {

@@ -105,7 +105,7 @@ namespace Backend.Controllers
             }
 
             // Employee can update only own profile
-            if (loggedInEmail != dto.Email)
+            if (loggedInEmail != dto.CompanyEmail)
             {
                 return Forbid("You can update only your own profile");
             }

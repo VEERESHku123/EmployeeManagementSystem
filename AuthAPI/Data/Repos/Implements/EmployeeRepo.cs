@@ -18,7 +18,7 @@ namespace AuthAPI.Data.Repos.Implements
         {
             try
             {
-                return await context.Employees.FirstOrDefaultAsync(e => e.Email == email);
+                return await context.Employees.FirstOrDefaultAsync(e => e.CompanyEmail == email);
             }
             catch (Exception)
             {

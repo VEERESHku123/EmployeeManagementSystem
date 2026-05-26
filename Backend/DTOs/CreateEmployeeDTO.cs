@@ -18,9 +18,14 @@ namespace Backend.DTOs
         [Required]
         [RegularExpression(@"^[6-9]\d{9}",ErrorMessage = "Enter Valid Mobile Number") ]
         public required string PhoneNumber { get; set; }
+
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$", ErrorMessage = "Personal email must end with @gmail.com")]
+        public string? PersonalEmail { get; set; }
+
         [Required]
-        [EmailAddress(ErrorMessage = "Enter Valid EMail")]
-        public required string Email { get; set; }
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@noventiqai\.com$", ErrorMessage = "Company email must end with @noventiqai.com")]
+        public required string CompanyEmail { get; set; }
+
         [Required]
         public required DateOnly DOB { get; set; }
         [Required]

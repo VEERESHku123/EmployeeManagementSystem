@@ -1,5 +1,6 @@
 ﻿using Frontend.ApiServices.Interfaces;
-using Frontend.Models;
+using Frontend.Models.Common;
+using Frontend.Models.Employee;
 using System.Net;
 using System.Net.Http.Headers;
 namespace Frontend.ApiServices.Implements

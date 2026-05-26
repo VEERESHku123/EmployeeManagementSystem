@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Frontend.Models;
+using Frontend.Models.Employee;
 
 namespace Frontend.Mappers
 {

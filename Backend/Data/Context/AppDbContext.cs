@@ -1,4 +1,5 @@
-﻿using Backend.Data.Models;
+﻿using Backend.Data.Entitys;
+using Backend.Data.Models;
 using Backend.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -13,7 +14,9 @@ namespace Backend.Data.Context
 
         public DbSet<EmployeeEntity> Employees { get; set; }
         public DbSet<DepartmentEntity> Departments { get; set; }
-        public DbSet<ManagerEntity> Managers { get; set; }  
+        public DbSet<ManagerEntity> Managers { get; set; }
+        public DbSet<DocumentCategoryEntity> DocumentCategories { get; set; }
+        public DbSet<DocumentTypeEntity> DocumentTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,10 +57,9 @@ namespace Backend.Data.Context
 
 
             employeeBuilder
-                .Property<string>(e => e.PersonalEmail)
+                .Property<string?>(e => e.PersonalEmail)
                .HasColumnName("personal_email")
-               .HasColumnType("varchar(150)")
-               .IsRequired();
+               .HasColumnType("varchar(150)");
 
             employeeBuilder
                 .HasIndex(e => e.PersonalEmail)

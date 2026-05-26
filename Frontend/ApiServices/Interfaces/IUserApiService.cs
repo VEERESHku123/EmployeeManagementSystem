@@ -1,4 +1,5 @@
-﻿using Frontend.Models;
+﻿using Frontend.Models.Common;
+using Frontend.Models.User;
 
 namespace Frontend.ApiServices.Interfaces
 {

@@ -85,7 +85,7 @@ namespace Backend.Services.Implements
 
             try
             {
-                if (await CheckEmailExistsAsync(employeeDTO.Email))
+                if (await CheckEmailExistsAsync(employeeDTO.CompanyEmail))
                 {
                     return new ApiResponse<CreateEmployeeDTO>
                     {

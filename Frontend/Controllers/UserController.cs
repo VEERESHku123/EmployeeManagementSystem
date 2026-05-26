@@ -1,5 +1,5 @@
 ﻿using Frontend.ApiServices.Interfaces;
-using Frontend.Models;
+using Frontend.Models.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -113,11 +113,10 @@ namespace Frontend.Controllers
 
         public async Task<IActionResult> SignOut()
         {
+            await userApiService.SignOut();
+
             HttpContext.Session.Clear();
 
-            var res = await userApiService.SignOut();
-            Console.WriteLine("---------------");
-            Console.WriteLine(res.Message);
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 

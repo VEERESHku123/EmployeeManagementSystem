@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Frontend.Models
+namespace Frontend.Models.User
 {
     public class ActivateAccountModel
     {

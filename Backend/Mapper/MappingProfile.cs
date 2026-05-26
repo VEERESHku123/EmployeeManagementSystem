@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Backend.Data.Entitys;
 using Backend.Data.Models;
 using Backend.DTOs;
 
@@ -11,6 +12,7 @@ namespace Backend.Mapper
             CreateMap<EmployeeEntity, EmployeeDTO>().ReverseMap();
             CreateMap<EmployeeEntity, CreateEmployeeDTO>().ReverseMap();
             CreateMap<EmployeeEntity, EmployeeEntity>();
+            
         }
     }
 }
