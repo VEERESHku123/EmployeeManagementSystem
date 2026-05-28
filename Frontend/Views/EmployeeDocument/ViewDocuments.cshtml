@@ -1,0 +1,160 @@
+﻿@model IEnumerable<Frontend.Models.EmployeeDocument.EmployeeDocumentModel>
+
+@{
+    ViewData["Title"] = "Employee Documents";
+}
+
+<link rel="stylesheet"
+      href="~/css/view-documents.css" />
+
+
+<div class="document-wrapper">
+
+    <h2 class="document-title">
+        Employee Documents
+    </h2>
+
+
+    <div class="table-container">
+
+        <table class="table">
+
+            <thead>
+
+                <tr>
+                    <th>Document Type</th>
+                    <th>File Name</th>
+                    <th>Status</th>
+                    <th>Uploaded Date</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @item.DocumentTypeId
+                        </td>
+
+                        <td>
+                            @item.FileName
+                        </td>
+
+                        <td>
+                            @item.VerificationStatus
+                        </td>
+
+                        <td>
+                            @(item.UploadedDate?.ToString("dd MMM yyyy"))
+                        </td>
+
+                        <td>
+
+                            <button class="btn-action"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#docModal_@item.EmployeeDocumentId">
+
+                                View
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+
+
+                    <!-- Modal -->
+
+                    <div class="modal fade"
+                         id="docModal_@item.EmployeeDocumentId"
+                         tabindex="-1">
+
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+                            <div class="modal-content custom-modal">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+                                        Document Details
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close btn-close-white"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+
+                                <div class="modal-body">
+
+                                    <div class="doc-details">
+
+                                        <p>
+                                            <strong>Employee Id :</strong>
+                                            @item.EmployeeId
+                                        </p>
+
+                                        <p>
+                                            <strong>Document Type :</strong>
+                                            @item.DocumentTypeId
+                                        </p>
+
+                                        <p>
+                                            <strong>File Name :</strong>
+                                            @item.FileName
+                                        </p>
+
+                                        <p>
+                                            <strong>Status :</strong>
+                                            @item.VerificationStatus
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="document-preview">
+
+                                        <iframe src="@item.FileUrl"
+                                                width="100%"
+                                                height="500px">
+                                        </iframe>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="modal-footer">
+
+                                    <a asp-action="UpdateDocument"
+                                       asp-route-id="@item.EmployeeDocumentId"
+                                       class="btn-update">
+
+                                        Update
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

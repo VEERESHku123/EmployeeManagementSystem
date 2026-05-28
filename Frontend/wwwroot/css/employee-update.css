@@ -1,70 +1,130 @@
 ﻿.page-title {
     font-weight: 600;
-    color: #0a1f44;
-    margin-bottom: 20px;
+    color: black;
+    margin-bottom: 25px;
     text-align: center;
 }
+
+
+
+/* Form card */
 
 .form-card {
     max-width: 800px;
     margin: auto;
-    padding: 25px;
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
     margin-bottom: 30px;
+    padding: 25px;
+    background: rgba(255,255,255,.03);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.10);
+    transition: .25s ease;
 }
+
+
+    .form-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0,0,0,.14);
+    }
+
+
+
+/* Labels */
 
 .form-label {
-    font-weight: 400;
-    color: #0a1f44;
+    color: black;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.form-control:focus {
-    border-color: #0a1f44;
-    box-shadow: 0 0 0 0.15rem rgba(10, 31, 68, 0.2);
+
+
+/* Inputs */
+
+.form-control {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.12);
+    color: black;
+    border-radius: 12px;
+    padding: 8px 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.10);
 }
 
-/* Disabled / Readonly fields styling */
+
+    .form-control:focus {
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,140,0,.45);
+        box-shadow: 0 0 10px rgba(255,140,0,.12);
+        color: black;
+    }
+
+
+
+/* readonly */
+
 .readonly-field {
-    background-color: #f1f3f7 !important;
-    color: #495057;
-    border: 1px solid #d6dbe6;
+    background: rgba(240,240,240,.45) !important;
+    border: 1px solid rgba(255,255,255,.10);
+    color: #555;
     cursor: not-allowed;
 }
+
+
+
+/* section */
 
 .section-title {
     font-size: 13px;
     font-weight: 700;
-    color: #666;
+    color: black;
     margin-top: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
-    border-bottom: 1px solid #0a1f44;
+    letter-spacing: .6px;
+    border-bottom: 1px solid rgba(4,31,69,.30);
+    padding-bottom: 8px;
 }
+
+
+
+/* Buttons */
 
 .btn-navy {
-    background-color: #0a1f44;
-    color: #fff;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 6px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.18);
+    color: black;
+    padding: 10px 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(4,31,69,.20);
+    transition: .3s;
 }
+
 
     .btn-navy:hover {
-        background-color: #122b5c;
-        color: #fff;
+        color: black;
+        transform: translateX(4px) translateY(-2px);
+        border: 1px solid rgba(255,140,0,.45);
+        background: transparent;
+        box-shadow: 0 0 10px rgba(255,140,0,.16), 0 10px 18px rgba(0,0,0,.15);
     }
 
+
 .btn-outline-navy {
-    border: 1px solid #0a1f44;
-    color: #0a1f44;
-    padding: 8px 18px;
-    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.18);
+    color: black;
+    padding: 10px 20px;
+    border-radius: 14px;
     background: transparent;
+    box-shadow: 0 4px 12px rgba(4,31,69,.20);
+    transition: .3s;
 }
 
+
     .btn-outline-navy:hover {
-        background-color: #0a1f44;
-        color: #fff;
+        transform: translateX(4px) translateY(-2px);
+        border: 1px solid rgba(255,140,0,.45);
+        color: black;
+        background: transparent;
+        box-shadow: 0 0 10px rgba(255,140,0,.16), 0 10px 18px rgba(0,0,0,.15);
     }

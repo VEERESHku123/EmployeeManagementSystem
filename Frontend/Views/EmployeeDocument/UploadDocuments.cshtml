@@ -1,0 +1,66 @@
+﻿@using Frontend.Models.EmployeeDocument
+@model Frontend.Models.EmployeeDocument.UploadEmployeeDocumentsModel
+
+@{
+    ViewData["Title"] = "Employee Documents";
+
+    var categories = ViewBag.DocumentCategories as List<DocumentCategoryModel>;
+    var documentTypes = ViewBag.DocumentTypes as List<DocumentTypeModel>;
+
+    int index = 0;
+}
+
+<form asp-action="UploadDocuments"
+      asp-controller="EmployeeDocument"
+      method="post"
+      enctype="multipart/form-data">
+
+    @foreach (var category in categories)
+    {
+        <div class="card mb-4">
+
+            <div class="card-header">
+                <h5>@category.CategoryName</h5>
+            </div>
+
+            <div class="card-body">
+
+                @{
+                    var docs = documentTypes
+                    .Where(x => x.CategoryId == category.CategoryId)
+                    .ToList();
+                }
+
+                @foreach (var doc in docs)
+                {
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            @doc.DocumentName
+                        </label>
+
+                        <!-- IMPORTANT -->
+                        <input type="hidden"
+                               asp-for="DocumentTypeIds[index]"
+                               value="@doc.DocumentTypeId" />
+
+                        <!-- IMPORTANT -->
+                        <input type="file"
+                               asp-for="Files[index]"
+                               class="form-control" />
+
+                    </div>
+
+                    index++;
+                }
+
+            </div>
+
+        </div>
+    }
+
+    <button type="submit" class="btn btn-success">
+        Upload
+    </button>
+
+</form>

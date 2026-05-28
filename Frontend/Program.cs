@@ -79,3 +79,6 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+//pattern: "{controller=Home}/{action=Index}/{id?}")
+//pattern: "{controller=EmployeeDocument}/{action=UploadDocuments}/{id?}")

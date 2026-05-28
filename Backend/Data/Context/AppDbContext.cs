@@ -17,6 +17,7 @@ namespace Backend.Data.Context
         public DbSet<ManagerEntity> Managers { get; set; }
         public DbSet<DocumentCategoryEntity> DocumentCategories { get; set; }
         public DbSet<DocumentTypeEntity> DocumentTypes { get; set; }
+        public DbSet<EmployeeDocumentEntity> EmployeeDocuments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

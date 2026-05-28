@@ -12,6 +12,7 @@ namespace Backend.Mapper
             CreateMap<EmployeeEntity, EmployeeDTO>().ReverseMap();
             CreateMap<EmployeeEntity, CreateEmployeeDTO>().ReverseMap();
             CreateMap<EmployeeEntity, EmployeeEntity>();
+            CreateMap<EmployeeDocumentDto, EmployeeDocumentEntity>().ReverseMap();
             
         }
     }

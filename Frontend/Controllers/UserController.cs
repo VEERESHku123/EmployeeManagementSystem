@@ -186,11 +186,12 @@ namespace Frontend.Controllers
         private async Task AuthenticateUser(string email, string role, string provider, string accessToken, string refreshToken)
         {
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Email,email),
-            new Claim(ClaimTypes.Role,role),
-            new Claim("LoginProvider",provider)
-        };
+            {
+                new Claim(ClaimTypes.Email,email),
+                new Claim(ClaimTypes.Role,role),
+                new Claim("LoginProvider",provider)
+            };
+
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

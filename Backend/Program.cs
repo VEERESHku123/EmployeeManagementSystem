@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Backend.Data.Context;
 using Backend.Data.Repos.Implements;
 using Backend.Data.Repos.Interfaces;
@@ -12,6 +13,22 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Register BlobContainerClient
+builder.Services.AddSingleton(x =>
+{
+    IConfiguration configuration = x.GetRequiredService<IConfiguration>();
+
+    string connectionString = configuration["AzureBlobStorage:ConnectionString"];
+
+    string containerName = configuration["AzureBlobStorage:ContainerName"];
+
+    BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+    return blobServiceClient.GetBlobContainerClient(containerName);
+});
+
+builder.Services.AddScoped<IBlobService, BlobService>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();

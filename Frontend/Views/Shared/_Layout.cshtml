@@ -51,7 +51,7 @@
 
             @if (Context.Session.GetString("AccessToken") != null)
             {
-                <div class="col-md-2 sidebar">
+                <div class="sidebar">
 
                     <div class="sidebar-logo">
                         EMS
@@ -81,6 +81,16 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a class="nav-link"
+                               asp-controller="EmployeeDocument"
+                               asp-action="ViewDocuments">
+
+                                Employees
+
+                            </a>
+                        </li>
+
 
                         @if (User.IsInRole("Admin"))
                         {
@@ -96,7 +106,7 @@
                             <li>
                                 <a class="nav-link"
                                    asp-controller="EmployeeDocument"
-                                   asp-action="EmployeeDocuments">
+                                   asp-action="UploadDocuments">
 
                                     Upload Doc
 
@@ -120,7 +130,7 @@
 
                 </div>
 
-                <div class="col-md-10 main-content">
+                <div class="main-content">
 
                     <main role="main">
 

@@ -1,6 +1,5 @@
 ﻿let debounceTimer;
 
-// SEARCH INPUT
 document.getElementById("searchInput")
     .addEventListener("input", function () {
 
@@ -14,7 +13,6 @@ document.getElementById("searchInput")
 
     });
 
-// PAGE SIZE CHANGE
 document.getElementById("pageSizeSelect")
     .addEventListener("change", function () {
 
@@ -22,7 +20,6 @@ document.getElementById("pageSizeSelect")
 
     });
 
-// COMMON AJAX FUNCTION
 function loadEmployees(page) {
 
     const search = document.getElementById("searchInput").value;
@@ -36,7 +33,7 @@ function loadEmployees(page) {
         .then(response => response.text())
         .then(html => {
 
-            document.getElementById("employeeTableContainer").innerHTML = html;
+            document.getElementById("table-container").innerHTML = html;
 
             attachPaginationEvents();
 
@@ -44,7 +41,6 @@ function loadEmployees(page) {
 
 }
 
-// PAGINATION AJAX
 function attachPaginationEvents() {
 
     const links = document.querySelectorAll(".pagination-link");
@@ -62,5 +58,4 @@ function attachPaginationEvents() {
 
 }
 
-// INITIALIZE PAGINATION
 attachPaginationEvents();

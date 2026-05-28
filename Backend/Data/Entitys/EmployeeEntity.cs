@@ -1,4 +1,5 @@
 ﻿
+using Backend.Data.Entitys;
 using Backend.Enums;
 
 namespace Backend.Data.Models
@@ -25,5 +26,7 @@ namespace Backend.Data.Models
         //Navigation
         public DepartmentEntity Department { get; set; }
         public ManagerEntity Manager { get; set; }
+
+        public EmployeeDocumentEntity EmployeeDocuments { get; set; }
     }
 }

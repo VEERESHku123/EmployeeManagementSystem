@@ -1,4 +1,5 @@
 ﻿using Frontend.ApiServices.Interfaces;
+using Frontend.Models.EmployeeDocument;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Frontend.Controllers
@@ -13,7 +14,7 @@ namespace Frontend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EmployeeDocuments()
+        public async Task<IActionResult> UploadDocuments()
         {
             var documentCategoryResponse = await employeeDocumentApiService.GetAllDocumentCategories();
             var documentTypeResponse = await employeeDocumentApiService.GetAllDocumentTypes();
@@ -22,6 +23,53 @@ namespace Frontend.Controllers
             ViewBag.DocumentTypes = documentTypeResponse.Data;
 
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadDocuments(UploadEmployeeDocumentsModel model)
+        {
+            Console.WriteLine("========== FRONTEND CONTROLLER ==========");
+
+            Console.WriteLine($"DocumentTypeIds Count = {model.DocumentTypeIds.Count}");
+            Console.WriteLine($"Files Count = {model.Files.Count}");
+
+            foreach (var id in model.DocumentTypeIds)
+            {
+                Console.WriteLine($"DocTypeId = {id}");
+            }
+
+            foreach (var file in model.Files)
+            {
+                Console.WriteLine($"File = {file?.FileName}");
+            }
+
+            var response = await employeeDocumentApiService.UploadDocumentsAsync(model);
+
+            if (response.Success)
+            {
+                TempData["success"] = response.Message;
+            }
+            else
+            {
+                TempData["error"] = response.Message;
+            }
+
+            return RedirectToAction("ViewDocuments");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewDocuments()
+        {
+            var result = await employeeDocumentApiService.GetEmployeeDocuments();
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = result.Message;
+
+                return View(new List<EmployeeDocumentModel>());
+            }
+
+            return View(result.Data);
         }
     }
 }

@@ -25,5 +25,7 @@ namespace Backend.Data.Entitys
 
         [InverseProperty(nameof(DocumentCategoryEntity.DocumentTypes))]
         public virtual DocumentCategoryEntity DocumentCategory { get; set; }
+
+        public EmployeeDocumentEntity EmployeeDocuments { get; set; }
     }
 }

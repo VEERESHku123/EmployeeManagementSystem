@@ -8,10 +8,8 @@
 
 <div class="table-wrapper">
 
-    <!-- TOP BAR -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
 
-        <!-- PAGE SIZE -->
         <form id="pageSizeForm"
               method="get"
               asp-action="GetAllEmployees"
@@ -53,8 +51,7 @@
 
     </div>
 
-    <!-- TABLE PARTIAL -->
-    <div id="employeeTableContainer">
+    <div id="table-container" class="table-container">
         @await Html.PartialAsync("EmployeeTable", Model)
     </div>
 
