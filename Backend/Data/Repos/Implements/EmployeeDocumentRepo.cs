@@ -24,11 +24,11 @@ namespace Backend.Data.Repos.Implements
             return await context.DocumentTypes.ToListAsync();
         }
 
-        public async Task SaveDocumentsAsync(List<EmployeeDocumentEntity> documents)
+        public async Task<bool> SaveDocumentAsync(EmployeeDocumentEntity document)
         {
-            await context.EmployeeDocuments.AddRangeAsync(documents);
+            await context.EmployeeDocuments.AddAsync(document);
 
-            await context.SaveChangesAsync();
+            return await context.SaveChangesAsync() > 0;
         }
         
         public async Task<EmployeeDocumentEntity?> GetDocumentByIdAsync(Guid documentId)
@@ -54,6 +54,15 @@ namespace Backend.Data.Repos.Implements
         {
             return await context.EmployeeDocuments.Where(e => e.EmployeeId == employeeId).ToListAsync();
             
+        }
+
+        public async Task<List<EmployeeDocumentEntity>> GetEmployeeDocumentsAsync(string employeeId)
+        {
+            return await context.EmployeeDocuments
+            .Include(x => x.DocumentType)
+            .Where(x => x.EmployeeId == employeeId)
+            .OrderBy(x => x.DocumentTypeId)
+            .ToListAsync();
         }
     }
 }

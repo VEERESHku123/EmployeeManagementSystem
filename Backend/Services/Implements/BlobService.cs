@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using Backend.DTOs;
 using Backend.Services.Interfaces;
 
@@ -14,34 +14,59 @@ namespace Backend.Services.Implements
             this.containerClient = containerClient;
         }
 
-        public async Task<FileUploadResponseDto> UploadFileAsync(IFormFile file)
+        public UploadSasResponse GenerateUploadSas(string fileName, string employeeId)
         {
-            if (file == null || file.Length == 0) throw new Exception("File is empty");
+            var extension =
+                Path.GetExtension(fileName);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var blobName = $"veeresh/employees/{employeeId}/{Guid.NewGuid()}_{fileName}";
 
-            BlobClient blobClient = containerClient.GetBlobClient(fileName);
+            var blobClient =
+                containerClient.GetBlobClient(blobName);
 
-            using (var stream = file.OpenReadStream())
-            {
-                await blobClient.UploadAsync(stream, new BlobHttpHeaders
+            var sasBuilder =
+                new BlobSasBuilder
                 {
-                    ContentType = file.ContentType
-                });
+                    BlobContainerName = containerClient.Name,
+                    BlobName = blobName,
+                    Resource = "b",
+                    ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(10)
+                };
 
-            }
-            return new FileUploadResponseDto
+            sasBuilder.SetPermissions(
+                BlobSasPermissions.Write |
+                BlobSasPermissions.Create);
+
+            var sasUri =
+                blobClient.GenerateSasUri(sasBuilder);
+            return new UploadSasResponse
             {
-                FileName = fileName,
-                FileUrl = blobClient.Uri.ToString()
+                BlobName = blobName,
+                UploadUrl = sasUri.ToString()
             };
         }
 
-        public async Task<bool> DeleteFileAsync(string fileName)
+        public string GenerateReadSas(string blobName)
         {
-            BlobClient blobClient = containerClient.GetBlobClient(fileName);
+            var blobClient =
+                containerClient.GetBlobClient(blobName);
 
-            return await blobClient.DeleteIfExistsAsync();
+            var sasBuilder =
+                new BlobSasBuilder
+                {
+                    BlobContainerName = containerClient.Name,
+                    BlobName = blobName,
+                    Resource = "b",
+                    ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(5)
+                };
+
+            sasBuilder.SetPermissions(
+                BlobSasPermissions.Read);
+
+            return blobClient
+                .GenerateSasUri(sasBuilder)
+                .ToString();
         }
+
     }
 }

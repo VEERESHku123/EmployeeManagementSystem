@@ -1,160 +1,93 @@
-﻿@model IEnumerable<Frontend.Models.EmployeeDocument.EmployeeDocumentModel>
+﻿@model List<Frontend.Models.EmployeeDocument.EmployeeDocumentModel>
 
 @{
-    ViewData["Title"] = "Employee Documents";
+    ViewData["Title"] = "My Documents";
 }
 
-<link rel="stylesheet"
-      href="~/css/view-documents.css" />
+<div class="container mt-4">
 
+    <h2 class="mb-4">My Documents</h2>
 
-<div class="document-wrapper">
+    <div class="row">
+        <h3>Count = @(Model?.Count ?? 0)</h3>
+        <!-- Document Types -->
+        <div class="col-md-3">
 
-    <h2 class="document-title">
-        Employee Documents
-    </h2>
+            <div class="list-group">
 
-
-    <div class="table-container">
-
-        <table class="table">
-
-            <thead>
-
-                <tr>
-                    <th>Document Type</th>
-                    <th>File Name</th>
-                    <th>Status</th>
-                    <th>Uploaded Date</th>
-                    <th>Action</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                @foreach (var item in Model)
+                @foreach (var document in Model)
                 {
-                    <tr>
+                    <button type="button"
+                            class="list-group-item list-group-item-action"
+                            onclick="showDocument('@document.DownloadUrl',
+                        '@document.DocumentTypeName')">
 
-                        <td>
-                            @item.DocumentTypeId
-                        </td>
+                        <strong>
+                            @document.DocumentTypeName
+                        </strong>
 
-                        <td>
-                            @item.FileName
-                        </td>
+                        <br />
 
-                        <td>
-                            @item.VerificationStatus
-                        </td>
-
-                        <td>
-                            @(item.UploadedDate?.ToString("dd MMM yyyy"))
-                        </td>
-
-                        <td>
-
-                            <button class="btn-action"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#docModal_@item.EmployeeDocumentId">
-
-                                View
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-
-
-                    <!-- Modal -->
-
-                    <div class="modal fade"
-                         id="docModal_@item.EmployeeDocumentId"
-                         tabindex="-1">
-
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-
-                            <div class="modal-content custom-modal">
-
-                                <div class="modal-header">
-
-                                    <h5 class="modal-title">
-                                        Document Details
-                                    </h5>
-
-                                    <button type="button"
-                                            class="btn-close btn-close-white"
-                                            data-bs-dismiss="modal">
-                                    </button>
-
-                                </div>
-
-
-                                <div class="modal-body">
-
-                                    <div class="doc-details">
-
-                                        <p>
-                                            <strong>Employee Id :</strong>
-                                            @item.EmployeeId
-                                        </p>
-
-                                        <p>
-                                            <strong>Document Type :</strong>
-                                            @item.DocumentTypeId
-                                        </p>
-
-                                        <p>
-                                            <strong>File Name :</strong>
-                                            @item.FileName
-                                        </p>
-
-                                        <p>
-                                            <strong>Status :</strong>
-                                            @item.VerificationStatus
-                                        </p>
-
-                                    </div>
-
-
-                                    <div class="document-preview">
-
-                                        <iframe src="@item.FileUrl"
-                                                width="100%"
-                                                height="500px">
-                                        </iframe>
-
-                                    </div>
-
-                                </div>
-
-
-                                <div class="modal-footer">
-
-                                    <a asp-action="UpdateDocument"
-                                       asp-route-id="@item.EmployeeDocumentId"
-                                       class="btn-update">
-
-                                        Update
-
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
+                        <small>
+                            Status: @document.VerificationStatus
+                        </small>
+                    </button>
                 }
 
-            </tbody>
+            </div>
 
-        </table>
+        </div>
+
+        <!-- Document Viewer -->
+        <div class="col-md-9">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h5 id="documentTitle">
+                        Select a document
+                    </h5>
+                </div>
+
+                <div class="card-body p-0">
+
+                    <iframe id="documentViewer"
+                            width="100%"
+                            height="700"
+                            style="border:none;">
+                    </iframe>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
 </div>
+
+<script>
+
+    function showDocument(url, title) {
+
+        document.getElementById("documentViewer").src = url;
+        document.getElementById("documentTitle").innerText = title;
+
+    }
+
+    window.onload = function () {
+
+        @if (Model != null && Model.Any())
+        {
+                <text>
+                        showDocument(
+                            '@Model.First().DownloadUrl',
+                            '@Model.First().DocumentTypeName'
+                        );
+                </text>
+        }
+
+    };
+
+</script>

@@ -43,109 +43,58 @@ namespace Backend.Services.Implements
                 Data = data
             };
         }
-
-        public async Task<ApiResponse<string>> UploadEmployeeDocumentsAsync(UploadEmployeeDocumentsModel model, string employeeId)
+        
+        public async Task<ApiResponse<bool>> SaveDocument(string employeeId, SaveDocumentRequest request)
         {
-            if (model.Files == null || model.Files.Count == 0)
-            {
-                return new ApiResponse<string>
+            var entity =
+                new EmployeeDocumentEntity
                 {
-                    Success = false,
-                    Message = "No files uploaded",
-                    Data = null
-                };
-            }
-
-            if (model.DocumentTypeIds == null || model.DocumentTypeIds.Count != model.Files.Count)
-            {
-                return new ApiResponse<string>
-                {
-                    Success = false,
-                    Message = "Document types count must match files count",
-                    Data = null
-                }; 
-            }
-
-            List<EmployeeDocumentEntity> documents = new List<EmployeeDocumentEntity>();
-
-            for (int i = 0; i < model.Files.Count; i++)
-            {
-                var file = model.Files[i];
-
-                // Upload to Blob Storage
-                FileUploadResponseDto uploadedFile = await blobService.UploadFileAsync(file);
-
-                // Save metadata
-                EmployeeDocumentEntity document = new EmployeeDocumentEntity
-                {
-                    EmployeeId =employeeId,
-                    DocumentTypeId = model.DocumentTypeIds[i],
-
-                    FileName = uploadedFile.FileName,
-                    FileUrl = uploadedFile.FileUrl,
-
-                    UploadedDate = DateTime.Now
+                    EmployeeId = employeeId!,
+                    DocumentTypeId = request.DocumentTypeId,
+                    BlobName = request.BlobName,
+                    UploadedDate = DateTime.Now,
+                    VerificationStatus = "Pending"
                 };
 
-                documents.Add(document);
-            }
-            
-            await employeeDocumentRepo.SaveDocumentsAsync(documents);
+            var result = await employeeDocumentRepo.SaveDocumentAsync(entity);
 
-            return new ApiResponse<string>
+            return new ApiResponse<bool>
             {
-                Success = true,
-                Message = "Documents uploaded successfully",
-                Data = null
+                Success = result,
+                Message = result
+                        ? "Document saved successfully."
+                        : "Failed to save document.",
+                Data = result
             };
         }
 
-        public async Task<ApiResponse<string>> DeleteEmployeeDocumentAsync(Guid documentId)
+        public async Task<ApiResponse< List<EmployeeDocumentDto>>> GetEmployeeDocumentsAsync(string employeeId)
         {
-            var result = await employeeDocumentRepo.DeleteDocumentAsync(documentId);
+            var documents = await employeeDocumentRepo.GetEmployeeDocumentsAsync(employeeId);
 
-            if(result)
-            {
-                return new ApiResponse<string>
-                {
-                    Success = true,
-                    Message = "Document deleted successfully",
-                    Data = null
-                };
-            }
-            else
-            {
-                return new ApiResponse<string>
-                {
-                    Success = false,
-                    Message = "Document not found",
-                    Data = null
-                };
-            }
-        }
-
-        public async Task<ApiResponse<List<EmployeeDocumentDto>>> GetEmployeeDocuments(string employeeId)
-        {
-            var result = await employeeDocumentRepo
-                .GetEmployeeDocuments(employeeId);
-
-            if (result == null || !result.Any())
+            if (documents == null || !documents.Any())
             {
                 return new ApiResponse<List<EmployeeDocumentDto>>
                 {
                     Success = false,
-                    Message = "No documents found",
-                    Data = null
+                    Message = "No documents found.",
+                    Data = new List<EmployeeDocumentDto>()
                 };
             }
 
-            var documents = mapper.Map<List<EmployeeDocumentDto>>(result);
+            var result = mapper.Map<List<EmployeeDocumentDto>>(documents);
+
+            foreach (var document in result)
+            {
+                document.DownloadUrl =
+                    blobService.GenerateReadSas(document.BlobName);
+            }
 
             return new ApiResponse<List<EmployeeDocumentDto>>
             {
                 Success = true,
-                Message = "Documents fetched successfully",
-                Data = documents
+                Message = "Documents retrieved successfully.",
+                Data = result
             };
         }
     }

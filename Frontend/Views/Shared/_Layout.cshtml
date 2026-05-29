@@ -69,29 +69,7 @@
 
                             </a>
                         </li>
-
-
-                        <li>
-                            <a class="nav-link"
-                               asp-controller="Employee"
-                               asp-action="GetAllEmployees">
-
-                                Employees
-
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="nav-link"
-                               asp-controller="EmployeeDocument"
-                               asp-action="ViewDocuments">
-
-                                Employees
-
-                            </a>
-                        </li>
-
-
+              
                         @if (User.IsInRole("Admin"))
                         {
                             <li>
@@ -112,8 +90,18 @@
 
                                 </a>
                             </li>
-                        }
+                            <li>
+                                <a class="nav-link"
+                                   asp-controller="EmployeeDocument"
+                                   asp-action="MyDocuments">
 
+                                    View Doc
+
+                                </a>
+                            </li>
+
+                        }
+                        
                         <li class="logout-link">
 
                             <a class="nav-link"

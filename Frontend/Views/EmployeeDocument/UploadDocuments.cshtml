@@ -1,57 +1,92 @@
 ﻿@using Frontend.Models.EmployeeDocument
-@model Frontend.Models.EmployeeDocument.UploadEmployeeDocumentsModel
 
 @{
-    ViewData["Title"] = "Employee Documents";
-
     var categories = ViewBag.DocumentCategories as List<DocumentCategoryModel>;
     var documentTypes = ViewBag.DocumentTypes as List<DocumentTypeModel>;
-
-    int index = 0;
 }
 
-<form asp-action="UploadDocuments"
-      asp-controller="EmployeeDocument"
-      method="post"
-      enctype="multipart/form-data">
+<link rel="stylesheet" href="~/css/employee-document-upload.css" />
+
+<div class="container">
+
+    <div class="category-nav">
+        @foreach (var category in categories)
+        {
+            <button type="button"
+                    class="category-btn"
+                    onclick="showCategory(@category.CategoryId,this)">
+                @category.CategoryName
+            </button>
+        }
+    </div>
 
     @foreach (var category in categories)
     {
-        <div class="card mb-4">
+        <div id="category-@category.CategoryId"
+             class="category-section"
+             style="display:none;">
 
-            <div class="card-header">
-                <h5>@category.CategoryName</h5>
-            </div>
+            <div class="row">
 
-            <div class="card-body">
-
-                @{
-                    var docs = documentTypes
-                    .Where(x => x.CategoryId == category.CategoryId)
-                    .ToList();
-                }
-
-                @foreach (var doc in docs)
+                @foreach (var docType in documentTypes.Where(x => x.CategoryId == category.CategoryId))
                 {
-                    <div class="mb-3">
+                    <div class="col-md-6 mb-4">
 
-                        <label class="form-label">
-                            @doc.DocumentName
-                        </label>
+                        <div class="document-card">
 
-                        <!-- IMPORTANT -->
-                        <input type="hidden"
-                               asp-for="DocumentTypeIds[index]"
-                               value="@doc.DocumentTypeId" />
+                            <div id="cardBody_@docType.DocumentTypeId">
 
-                        <!-- IMPORTANT -->
-                        <input type="file"
-                               asp-for="Files[index]"
-                               class="form-control" />
+                                <h5 class="document-title">
+                                    @docType.DocumentName
+
+                                    @if (docType.IsMandatory == true)
+                                    {
+                                        <span class="required">*</span>
+                                    }
+                                </h5>
+
+                                <input type="file"
+                                       id="file_@docType.DocumentTypeId"
+                                       class="form-control"
+                                       onchange="showFileName(this,@docType.DocumentTypeId)" />
+
+                                <div id="fileName_@docType.DocumentTypeId"
+                                     class="selected-file">
+                                </div>
+
+                                <div class="mt-3">
+
+                                    <button type="button"
+                                            class="btn-view"
+                                            onclick="previewFile(@docType.DocumentTypeId)">
+                                        View
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn-upload"
+                                            onclick="uploadDocument(@docType.DocumentTypeId)">
+                                        Upload
+                                    </button>
+
+                                </div>
+
+                                <iframe id="preview_@docType.DocumentTypeId"
+                                        class="preview-frame">
+                                </iframe>
+
+                            </div>
+
+                            <div id="uploaded_@docType.DocumentTypeId"
+                                 class="uploaded-badge"
+                                 style="display:none;">
+
+                                ✓ Document Uploaded Successfully
+
+                            </div>
+
+                        </div>
 
                     </div>
-
-                    index++;
                 }
 
             </div>
@@ -59,8 +94,9 @@
         </div>
     }
 
-    <button type="submit" class="btn btn-success">
-        Upload
-    </button>
+</div>
 
-</form>
+@section Scripts
+{
+    <script src="~/js/employee-document-upload.js"></script>
+}

@@ -4,7 +4,7 @@ namespace Backend.Services.Interfaces
 {
     public interface IBlobService
     {
-        Task<bool> DeleteFileAsync(string fileName);
-        Task<FileUploadResponseDto> UploadFileAsync(IFormFile file);
+        UploadSasResponse GenerateUploadSas(string fileName, string employeeId);
+        string GenerateReadSas(string blobName);
     }
 }

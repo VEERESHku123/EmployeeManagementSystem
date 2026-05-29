@@ -1,4 +1,5 @@
-﻿using Frontend.Models.Common;
+﻿using Frontend.Models;
+using Frontend.Models.Common;
 using Frontend.Models.EmployeeDocument;
 
 namespace Frontend.ApiServices.Interfaces
@@ -7,7 +8,11 @@ namespace Frontend.ApiServices.Interfaces
     {
         Task<ApiResponse<List<DocumentCategoryModel>>> GetAllDocumentCategories();
         Task<ApiResponse<List<DocumentTypeModel>>> GetAllDocumentTypes();
-        Task<ApiResponse<string>> UploadDocumentsAsync(UploadEmployeeDocumentsModel model);
         Task<ApiResponse<List<EmployeeDocumentModel>>> GetEmployeeDocuments();
+        Task<ApiResponse<UploadSasResponse>> GenerateUploadSasAsync(GenerateUploadSasRequest model);
+        Task<ApiResponse<bool>> UploadDocumentsAsync(int documentTypeId, IFormFile file);
+
+        Task<ApiResponse<List<EmployeeDocumentModel>>> GetEmployeeDocumentsAsync();
+
     }
 }

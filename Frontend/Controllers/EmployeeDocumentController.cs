@@ -1,6 +1,7 @@
 ﻿using Frontend.ApiServices.Interfaces;
 using Frontend.Models.EmployeeDocument;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Frontend.Controllers
 {
@@ -17,6 +18,7 @@ namespace Frontend.Controllers
         public async Task<IActionResult> UploadDocuments()
         {
             var documentCategoryResponse = await employeeDocumentApiService.GetAllDocumentCategories();
+
             var documentTypeResponse = await employeeDocumentApiService.GetAllDocumentTypes();
 
             ViewBag.DocumentCategories = documentCategoryResponse.Data;
@@ -28,33 +30,30 @@ namespace Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadDocuments(UploadEmployeeDocumentsModel model)
         {
-            Console.WriteLine("========== FRONTEND CONTROLLER ==========");
-
-            Console.WriteLine($"DocumentTypeIds Count = {model.DocumentTypeIds.Count}");
-            Console.WriteLine($"Files Count = {model.Files.Count}");
-
-            foreach (var id in model.DocumentTypeIds)
+            if (model.File == null)
             {
-                Console.WriteLine($"DocTypeId = {id}");
+                return Json(new
+                {
+                    Success = false,
+                    Message = "Please select a file."
+                });
             }
 
-            foreach (var file in model.Files)
+            var response =
+                await employeeDocumentApiService.UploadDocumentsAsync(
+                    model.DocumentTypeId,
+                    model.File);
+
+            if (response == null)
             {
-                Console.WriteLine($"File = {file?.FileName}");
+                return Json(new
+                {
+                    Success = false,
+                    Message = "No response received."
+                });
             }
 
-            var response = await employeeDocumentApiService.UploadDocumentsAsync(model);
-
-            if (response.Success)
-            {
-                TempData["success"] = response.Message;
-            }
-            else
-            {
-                TempData["error"] = response.Message;
-            }
-
-            return RedirectToAction("ViewDocuments");
+            return Json(response);
         }
 
         [HttpGet]
@@ -70,6 +69,22 @@ namespace Frontend.Controllers
             }
 
             return View(result.Data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyDocuments()
+        {
+            var response = await employeeDocumentApiService.GetEmployeeDocumentsAsync();
+
+            if (!response.Success)
+            {
+                TempData["ErrorMessage"] = response.Message;
+
+                return View(
+                    new List<EmployeeDocumentModel>());
+            }
+
+            return View(response.Data);
         }
     }
 }

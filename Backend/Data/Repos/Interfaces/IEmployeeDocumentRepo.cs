@@ -6,9 +6,10 @@ namespace Backend.Data.Repos.Interfaces
     {
         Task<List<DocumentCategoryEntity>> GetAllDocumentCategoriesAsync();
         Task<List<DocumentTypeEntity>> GetAllDocumentTypesAsync();
-        Task SaveDocumentsAsync(List<EmployeeDocumentEntity> documents);
+        Task<bool> SaveDocumentAsync(EmployeeDocumentEntity document);
         Task<bool> DeleteDocumentAsync(Guid documentId);
         Task<EmployeeDocumentEntity?> GetDocumentByIdAsync(Guid documentId);
         Task<List<EmployeeDocumentEntity>> GetEmployeeDocuments(string employeeId);
+        Task<List<EmployeeDocumentEntity>>GetEmployeeDocumentsAsync(string employeeId);
     }
 }

@@ -8,8 +8,8 @@ namespace Backend.Services.Interfaces
     {
         Task<ApiResponse<List<DocumentCategoryEntity>>> GetAllDocumentCategories();
         Task<ApiResponse<List<DocumentTypeEntity>>> GetAllDocumentTypes();
-        Task<ApiResponse<string>> UploadEmployeeDocumentsAsync(UploadEmployeeDocumentsModel model, string employeeId);
-        Task<ApiResponse<string>> DeleteEmployeeDocumentAsync(Guid documentId);
-        Task<ApiResponse<List<EmployeeDocumentDto>>> GetEmployeeDocuments(string employeeId);
+        Task<ApiResponse<bool>> SaveDocument(string employeeId, SaveDocumentRequest request);
+
+        Task<ApiResponse< List<EmployeeDocumentDto>>> GetEmployeeDocumentsAsync(string employeeId);
     }
 }

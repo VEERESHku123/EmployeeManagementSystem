@@ -1,7 +1,6 @@
 ﻿using Backend.Data.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml.Linq;
 
 namespace Backend.Data.Entitys
 {
@@ -9,8 +8,8 @@ namespace Backend.Data.Entitys
     public class EmployeeDocumentEntity
     {
         [Key]
-        [Column("employee_document_id")]
-        public Guid EmployeeDocumentId { get; set; }
+        [Column("document_id")]
+        public int DocumentId { get; set; }
 
         [Required]
         [Column("employee_id")]
@@ -22,23 +21,16 @@ namespace Backend.Data.Entitys
         public int DocumentTypeId { get; set; }
 
         [Required]
-        [Column("file_name")]
-        [StringLength(255)]
-        public string FileName { get; set; } = string.Empty;
-
-        [Required]
-        [Column("file_url")]
-        public string FileUrl { get; set; } = string.Empty;
+        [Column("blob_name")]
+        [StringLength(500)]
+        public string BlobName { get; set; } = string.Empty;
 
         [Column("uploaded_date")]
-        public DateTime? UploadedDate { get; set; }
-
-        [Column("expiry_date")]
-        public DateTime? ExpiryDate { get; set; }
+        public DateTime UploadedDate { get; set; }
 
         [Column("verification_status")]
-        [StringLength(20)]
-        public string? VerificationStatus { get; set; } = "Pending";
+        [StringLength(50)]
+        public string VerificationStatus { get; set; } = "Pending";
 
         [Column("remarks")]
         [StringLength(500)]
@@ -46,11 +38,11 @@ namespace Backend.Data.Entitys
 
         // Navigation Properties
 
-        [ForeignKey("EmployeeId")]
+        [ForeignKey(nameof(EmployeeId))]
         [InverseProperty(nameof(EmployeeEntity.EmployeeDocuments))]
         public virtual EmployeeEntity? Employee { get; set; }
 
-        [ForeignKey("DocumentTypeId")]
+        [ForeignKey(nameof(DocumentTypeId))]
         [InverseProperty(nameof(DocumentTypeEntity.EmployeeDocuments))]
         public virtual DocumentTypeEntity? DocumentType { get; set; }
     }

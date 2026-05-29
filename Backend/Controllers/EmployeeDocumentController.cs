@@ -1,9 +1,6 @@
-﻿using Backend.Data.Entitys;
-using Backend.DTOs;
-using Backend.DTOs.EmployeeDocument;
+﻿using Backend.DTOs;
 using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
@@ -13,15 +10,17 @@ namespace Backend.Controllers
     public class EmployeeDocumentController : ControllerBase
     {
         private readonly IEmployeeDocumentService employeeDocumentService;
+        private readonly IBlobService blobService;
 
-        public EmployeeDocumentController(IEmployeeDocumentService employeeDocumentService)
+        public EmployeeDocumentController(IEmployeeDocumentService employeeDocumentService, IBlobService blobService)
         {
             this.employeeDocumentService = employeeDocumentService;
+            this.blobService = blobService;
         }
 
         [HttpGet]
         [Route("types")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllDocumentTypes()
         {
             var result = await employeeDocumentService.GetAllDocumentTypes();
@@ -36,69 +35,65 @@ namespace Backend.Controllers
             return Ok(result);
         }
 
-        [HttpPost("upload")]
+ 
+        //blob
+        [HttpPost("generate-upload-sas")]
         [Authorize]
-        public async Task<IActionResult> UploadDocuments(
-    [FromForm] UploadEmployeeDocumentsModel model)
+        public IActionResult GenerateUploadSas(GenerateUploadSasRequest request)
         {
-            Console.WriteLine("----------------------");
+            var employeeId = User.FindFirst("employeeId")?.Value;
 
-            Console.WriteLine($"Files Count = {model.Files.Count}");
-            Console.WriteLine($"DocumentTypeIds Count = {model.DocumentTypeIds.Count}");
+            var response =blobService.GenerateUploadSas(request.FileName, employeeId);
 
-            foreach (var file in model.Files)
-            {
-                Console.WriteLine(file.FileName);
-            }
+            return Ok(
+                new ApiResponse<UploadSasResponse>
+                {
+                    Success = true,
+                    Data = response
+                });
+        }
 
-            foreach (var id in model.DocumentTypeIds)
-            {
-                Console.WriteLine(id);
-            }
-
+        [HttpPost("save")]
+        [Authorize]
+        public async Task<IActionResult> SaveDocument(SaveDocumentRequest request)
+        {
             var employeeId = User.FindFirst("employeeId")?.Value;
 
             if (string.IsNullOrEmpty(employeeId))
             {
-                return Unauthorized(new ApiResponse<string>
+                return Unauthorized(new ApiResponse<bool>
                 {
                     Success = false,
-                    Message = "Invalid token"
+                    Message = "Invalid token",
+                    Data = false
                 });
             }
 
-            var response = await employeeDocumentService
-                .UploadEmployeeDocumentsAsync(model, employeeId);
+            var result = await employeeDocumentService.SaveDocument(employeeId, request);
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("my-documents")]
+        [Authorize]
+        public async Task<IActionResult> GetMyDocuments()
+        {
+            var employeeId =
+                User.FindFirst("employeeId")?.Value;
+
+            if (string.IsNullOrEmpty(employeeId))
+            {
+                return Unauthorized();
+            }
+
+            var response = await employeeDocumentService.GetEmployeeDocumentsAsync(employeeId);
 
             return Ok(response);
         }
-
-        [HttpDelete]
-        [Route("delete/{documentId}")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteEmployeeDocument(Guid documentId)
-        {
-            var response = await employeeDocumentService.DeleteEmployeeDocumentAsync(documentId);
-            if (response.Success)
-                return Ok(response);
-            else
-                return NotFound(response);
-        }
-
-        [HttpGet]
-        [Route("all")]
-        //[Authorize]
-        public async Task<IActionResult> GetEmployeeDocuments()
-        {
-            var employeeId = User.FindFirst("employeeId")?.Value;
-
-            var response = await employeeDocumentService.GetEmployeeDocuments(employeeId);
-
-            if (response.Success)
-                return Ok(response);
-            else
-                return NotFound(response);
-        }
-
     }
 }

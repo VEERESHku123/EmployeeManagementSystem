@@ -2,8 +2,8 @@
 {
     public class UploadEmployeeDocumentsModel
     {
-        public List<Guid> DocumentTypeIds { get; set; } = new();
+        public int DocumentTypeId { get; set; }
 
-        public List<IFormFile> Files { get; set; } = new();
+        public IFormFile File { get; set; } = null!;
     }
 }
