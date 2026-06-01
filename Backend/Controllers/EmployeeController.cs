@@ -1,5 +1,6 @@
-﻿using Backend.DTOs;
-using Backend.Services.Interfaces;
+﻿using Backend.DTOs.Common;
+using Backend.DTOs.Employee;
+using Backend.Services.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

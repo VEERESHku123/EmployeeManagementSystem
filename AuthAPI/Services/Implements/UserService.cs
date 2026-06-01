@@ -1,7 +1,7 @@
 ﻿using AuthAPI.Data.Entitys;
-using AuthAPI.Data.Repos.Interfaces;
+using AuthAPI.Data.Repos.Abstracts;
 using AuthAPI.DTOs;
-using AuthAPI.Services.Interfaces;
+using AuthAPI.Services.Abstracts;
 
 namespace AuthAPI.Services.Implements
 {

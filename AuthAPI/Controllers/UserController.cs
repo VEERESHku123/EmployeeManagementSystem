@@ -1,6 +1,6 @@
 ﻿using AuthAPI.DTOs;
 using AuthAPI.Services.Implements;
-using AuthAPI.Services.Interfaces;
+using AuthAPI.Services.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

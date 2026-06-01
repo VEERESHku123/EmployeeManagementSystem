@@ -1,4 +1,4 @@
-﻿using Frontend.ApiServices.Interfaces;
+﻿using Frontend.ApiServices.Abstracts;
 using Frontend.Models.Common;
 using Frontend.Models.Employee;
 using System.Net;

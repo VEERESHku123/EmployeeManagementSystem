@@ -1,7 +1,7 @@
-﻿using Backend.Data.Models;
-using Backend.Data.Repos.Interfaces;
-using Backend.DTOs;
-using Backend.Services.Interfaces;
+﻿using Backend.Data.Entities;
+using Backend.Data.Repos.Abstracts;
+using Backend.DTOs.Common;
+using Backend.Services.Abstracts;
 
 namespace Backend.Services.Implements
 {
@@ -17,21 +17,14 @@ namespace Backend.Services.Implements
 
         public async Task<ApiResponse<List<ManagerEntity>>> GetAllManagersAsync()
         {
-            try
-            {
-                var managers = await managerRepo.GetAllAsync();
+            var managers = await managerRepo.GetAllAsync();
 
-                return new ApiResponse<List<ManagerEntity>>
-                {
-                    Success = managers != null,
-                    Message = "Managers fetched successfully",
-                    Data = managers
-                };
-            }
-            catch (Exception)
+            return new ApiResponse<List<ManagerEntity>>
             {
-                throw;
-            }
+                Success = true,
+                Message = "Managers fetched successfully",
+                Data = managers
+            };
         }
     }
 }

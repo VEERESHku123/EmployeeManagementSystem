@@ -1,34 +1,33 @@
 ﻿using AutoMapper;
 using Backend.Data.Context;
-using Backend.Data.Models;
-using Backend.Data.Repos.Interfaces;
+using Backend.Data.Entities;
+using Backend.Data.Repos.Abstracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data.Repos.Implements
 {
     public class EmployeeRepo : IEmployeeRepo
     {
-        public AppDbContext Context { get; set; }
-        public IMapper Mapper { get; set; }
+        private readonly AppDbContext context;
+        private readonly IMapper mapper;
         public EmployeeRepo(AppDbContext context, IMapper mapper)
         {
-            Context = context;
-            Mapper = mapper;
+            this.context = context;
+            this.mapper = mapper;
         }
 
-        public async Task<(List<EmployeeEntity> Data, int TotalCount)> GetAllAsync(string searchTerm, int page, int pageSize)
+        public async Task<(List<EmployeeEntity> Data, int TotalCount)> GetPagedEmployeesAsync(string searchTerm, int page, int pageSize)
         {
             page = page < 1 ? 1 : page;
             pageSize = pageSize < 1 ? 5 : pageSize;
 
             try
             {
-                IQueryable<EmployeeEntity> query = Context.Employees;
+                IQueryable<EmployeeEntity> query = context.Employees;
 
                 if (!string.IsNullOrWhiteSpace(searchTerm))
                 {
-                    var terms = searchTerm
-                                    .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var terms = searchTerm.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                     query = query.Where(e =>
                                 terms.All(t =>
@@ -39,7 +38,7 @@ namespace Backend.Data.Repos.Implements
                             );
                 }
 
-                query = query.Where(e => e.IsActive == true);
+                query = query.Where(e => e.IsActive);
 
                 var totalCount = await query.CountAsync();
 
@@ -63,7 +62,7 @@ namespace Backend.Data.Repos.Implements
         {
             try
             {
-                var found = await Context.Employees.FindAsync(id);
+                var found = await context.Employees.FindAsync(id);
 
                 return found;
             }
@@ -79,7 +78,7 @@ namespace Backend.Data.Repos.Implements
         {
             try
             {
-                var found = await Context.Employees.FindAsync(id);
+                var found = await context.Employees.FindAsync(id);
 
                 if (found == null)
                 {
@@ -87,9 +86,9 @@ namespace Backend.Data.Repos.Implements
                 }
 
 
-                Mapper.Map(entity, found);
+                mapper.Map(entity, found);
 
-                await Context.SaveChangesAsync();
+                await context.SaveChangesAsync();
 
                 return true;
             }
@@ -105,7 +104,7 @@ namespace Backend.Data.Repos.Implements
         {
             try
             {
-                var found = await Context.Employees.FindAsync(id);
+                var found = await context.Employees.FindAsync(id);
 
                 if (found == null)
                 {
@@ -113,9 +112,13 @@ namespace Backend.Data.Repos.Implements
                 }
 
                 found.IsActive = false;
-                //Context.Employees.Remove(found);
 
-                await Context.SaveChangesAsync();
+                var user = await context.Users.FirstOrDefaultAsync(u => u.Email == found.CompanyEmail);
+
+                context.Users.Remove(user);
+
+
+                await context.SaveChangesAsync();
 
                 return true;
             }
@@ -137,8 +140,8 @@ namespace Backend.Data.Repos.Implements
                     entity.IsActive = true;
                 }
 
-                await Context.AddAsync(entity);
-                var result = await Context.SaveChangesAsync();
+                await context.AddAsync(entity);
+                var result = await context.SaveChangesAsync();
                 return result > 0;
             }
             catch (Exception)
@@ -153,7 +156,7 @@ namespace Backend.Data.Repos.Implements
         {
             try
             {
-                var result = await Context.Employees.SingleOrDefaultAsync(e => e.CompanyEmail == email);
+                var result = await context.Employees.SingleOrDefaultAsync(e => e.CompanyEmail == email);
 
                 return result != null;
             }
@@ -169,7 +172,7 @@ namespace Backend.Data.Repos.Implements
         {
             try
             {
-                var result = await Context.Employees.SingleOrDefaultAsync(e => e.EmployeeId == id);
+                var result = await context.Employees.SingleOrDefaultAsync(e => e.EmployeeId == id);
 
                 return result != null;
             }
@@ -185,7 +188,7 @@ namespace Backend.Data.Repos.Implements
         {
             try
             {
-                return await Context.Employees
+                return await context.Employees
                 .AnyAsync(e => e.PhoneNumber == phoneNumber
                              && (id == null || e.EmployeeId != id));
             }

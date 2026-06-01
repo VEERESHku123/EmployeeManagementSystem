@@ -1,6 +1,6 @@
 ﻿using Backend.Data.Context;
-using Backend.Data.Models;
-using Backend.Data.Repos.Interfaces;
+using Backend.Data.Entities;
+using Backend.Data.Repos.Abstracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data.Repos.Implements

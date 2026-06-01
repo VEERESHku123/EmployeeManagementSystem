@@ -81,26 +81,28 @@
 
                                 </a>
                             </li>
+
                             <li>
                                 <a class="nav-link"
                                    asp-controller="EmployeeDocument"
-                                   asp-action="UploadDocuments">
+                                   asp-action="PendingDocuments">
 
-                                    Upload Doc
-
-                                </a>
-                            </li>
-                            <li>
-                                <a class="nav-link"
-                                   asp-controller="EmployeeDocument"
-                                   asp-action="MyDocuments">
-
-                                    View Doc
+                                    Verify Documents
 
                                 </a>
                             </li>
 
                         }
+
+                        <li>
+                            <a class="nav-link"
+                               asp-controller="EmployeeDocument"
+                               asp-action="UploadDocument">
+
+                                Upload Doc
+
+                            </a>
+                        </li>
                         
                         <li class="logout-link">
 

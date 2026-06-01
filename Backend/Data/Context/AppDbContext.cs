@@ -1,5 +1,5 @@
-﻿using Backend.Data.Entitys;
-using Backend.Data.Models;
+﻿using Backend.Data.Entities;
+using Backend.Data.Entities.User;
 using Backend.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,9 +8,8 @@ namespace Backend.Data.Context
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions options) : base(options)
-        {
-        }
+        public AppDbContext(DbContextOptions options) : base(options) { }
+       
 
         public DbSet<EmployeeEntity> Employees { get; set; }
         public DbSet<DepartmentEntity> Departments { get; set; }
@@ -18,6 +17,7 @@ namespace Backend.Data.Context
         public DbSet<DocumentCategoryEntity> DocumentCategories { get; set; }
         public DbSet<DocumentTypeEntity> DocumentTypes { get; set; }
         public DbSet<EmployeeDocumentEntity> EmployeeDocuments { get; set; }
+        public DbSet<UserEntity> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -137,6 +137,7 @@ namespace Backend.Data.Context
                 .WithMany(m => m.Employees)
                 .HasForeignKey(e => e.ManagerId)
                 .OnDelete(DeleteBehavior.Restrict);
+          
 
             #endregion
 

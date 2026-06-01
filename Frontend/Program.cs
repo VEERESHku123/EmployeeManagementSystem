@@ -1,5 +1,5 @@
 using Frontend.ApiServices.Implements;
-using Frontend.ApiServices.Interfaces;
+using Frontend.ApiServices.Abstracts;
 using Frontend.Mappers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;

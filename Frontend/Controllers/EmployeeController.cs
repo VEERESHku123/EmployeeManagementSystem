@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Frontend.ApiServices.Interfaces;
+using Frontend.ApiServices.Abstracts;
 using Frontend.Models.Employee;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

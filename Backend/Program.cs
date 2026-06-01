@@ -1,11 +1,11 @@
 using Azure.Storage.Blobs;
 using Backend.Data.Context;
 using Backend.Data.Repos.Implements;
-using Backend.Data.Repos.Interfaces;
+using Backend.Data.Repos.Abstracts;
 using Backend.Fillters;
 using Backend.Mapper;
 using Backend.Services.Implements;
-using Backend.Services.Interfaces;
+using Backend.Services.Abstracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

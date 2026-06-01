@@ -1,34 +1,42 @@
 ﻿using AutoMapper;
-using Backend.Data.Models;
-using Backend.Data.Repos.Interfaces;
-using Backend.DTOs;
-using Backend.Services.Interfaces;
+using Backend.Data.Entities;
+using Backend.Data.Repos.Abstracts;
+using Backend.DTOs.Common;
+using Backend.DTOs.Employee;
+using Backend.Services.Abstracts;
 
 namespace Backend.Services.Implements
 {
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepo employeeRepo;
+        private readonly ILogger<EmployeeService> logger;
         private readonly IMapper mapper;
-        public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper)
+        public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper, ILogger<EmployeeService> logger)
         {
             this.employeeRepo = employeeRepo;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
-        
+
 
         public async Task<ApiResponse<object>> GetAllEmployeeAsync(string searchTerm, int page, int pageSize)
         {
             try
             {
-                var result = await employeeRepo.GetAllAsync(searchTerm, page, pageSize);
+                logger.LogInformation(
+                    "Fetching employees. SearchTerm: {SearchTerm}, Page: {Page}, PageSize: {PageSize}",
+                    searchTerm,
+                    page,
+                    pageSize);
 
-                var response = new ApiResponse<object>
+                var result = await employeeRepo.GetPagedEmployeesAsync(searchTerm, page, pageSize);
+
+                return new ApiResponse<object>
                 {
                     Success = true,
                     Message = "Employees fetched successfully",
-
                     Data = new
                     {
                         Employees = result.Data,
@@ -37,25 +45,32 @@ namespace Backend.Services.Implements
                         TotalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize)
                     }
                 };
-
-                return response;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(
+                    ex,
+                    "Error occurred while fetching employees. SearchTerm: {SearchTerm}, Page: {Page}, PageSize: {PageSize}",
+                    searchTerm,
+                    page,
+                    pageSize);
 
                 throw;
             }
-            
         }
 
         public async Task<ApiResponse<EmployeeDTO>> GetEmployeeByIdAsync(string id)
         {
             try
             {
+                logger.LogInformation("Fetching employee with Id: {EmployeeId}", id);
+
                 var result = await employeeRepo.GetById(id);
 
                 if (result == null)
                 {
+                    logger.LogWarning("Employee not found. Id: {EmployeeId}", id);
+
                     return new ApiResponse<EmployeeDTO>
                     {
                         Success = false,
@@ -64,6 +79,8 @@ namespace Backend.Services.Implements
                     };
                 }
 
+                logger.LogInformation("Employee fetched successfully. Id: {EmployeeId}", id);
+
                 return new ApiResponse<EmployeeDTO>
                 {
                     Success = true,
@@ -71,12 +88,12 @@ namespace Backend.Services.Implements
                     Data = mapper.Map<EmployeeDTO>(result)
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Error occurred while fetching employee. Id: {EmployeeId}", id);
 
                 throw;
             }
-           
         }
 
         public async Task<ApiResponse<CreateEmployeeDTO>> AddEmployeeAsync(CreateEmployeeDTO employeeDTO)
@@ -85,8 +102,16 @@ namespace Backend.Services.Implements
 
             try
             {
+                logger.LogInformation(
+                    "Adding employee. Email: {Email}",
+                    employeeDTO.CompanyEmail);
+
                 if (await CheckEmailExistsAsync(employeeDTO.CompanyEmail))
                 {
+                    logger.LogWarning(
+                        "Employee creation failed. Email already exists: {Email}",
+                        employeeDTO.CompanyEmail);
+
                     return new ApiResponse<CreateEmployeeDTO>
                     {
                         Success = false,
@@ -105,20 +130,31 @@ namespace Backend.Services.Implements
                     Data = employeeDTO
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(
+                    ex,
+                    "Error occurred while adding employee. Email: {Email}",
+                    employeeDTO.CompanyEmail);
 
                 throw;
             }
-            
         }
 
         public async Task<ApiResponse<CreateEmployeeDTO>> UpdateEmployeeAsync(string id, CreateEmployeeDTO employeeDTO)
         {
             try
             {
+                logger.LogInformation(
+                    "Updating employee. EmployeeId: {EmployeeId}",
+                    id);
+
                 if (await CheckPhoneExistsAsync(employeeDTO.PhoneNumber, employeeDTO.EmployeeId))
                 {
+                    logger.LogWarning(
+                        "Employee update failed. Phone number already exists: {PhoneNumber}",
+                        employeeDTO.PhoneNumber);
+
                     return new ApiResponse<CreateEmployeeDTO>
                     {
                         Success = false,
@@ -126,10 +162,16 @@ namespace Backend.Services.Implements
                     };
                 }
 
-                var updated = await employeeRepo.UpdateAsync(id, mapper.Map<EmployeeEntity>(employeeDTO));
+                var updated = await employeeRepo.UpdateAsync(
+                    id,
+                    mapper.Map<EmployeeEntity>(employeeDTO));
 
                 if (!updated)
                 {
+                    logger.LogWarning(
+                        "Employee update failed. Employee not found. EmployeeId: {EmployeeId}",
+                        id);
+
                     return new ApiResponse<CreateEmployeeDTO>
                     {
                         Success = false,
@@ -143,24 +185,34 @@ namespace Backend.Services.Implements
                     Message = "Employee updated successfully",
                     Data = employeeDTO
                 };
-
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(
+                    ex,
+                    "Error occurred while updating employee. EmployeeId: {EmployeeId}",
+                    id);
 
                 throw;
             }
-           
         }
 
         public async Task<ApiResponse<bool>> DeleteEmployeeAsync(string id)
         {
             try
             {
+                logger.LogInformation(
+                    "Deleting employee. EmployeeId: {EmployeeId}",
+                    id);
+
                 var deleted = await employeeRepo.DeleteByIdAsync(id);
 
                 if (!deleted)
                 {
+                    logger.LogWarning(
+                        "Employee deletion failed. Employee not found. EmployeeId: {EmployeeId}",
+                        id);
+
                     return new ApiResponse<bool>
                     {
                         Success = false,
@@ -176,12 +228,15 @@ namespace Backend.Services.Implements
                     Data = true
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(
+                    ex,
+                    "Error occurred while deleting employee. EmployeeId: {EmployeeId}",
+                    id);
 
                 throw;
             }
-            
         }
 
         public async Task<bool> CheckEmailExistsAsync(string email)

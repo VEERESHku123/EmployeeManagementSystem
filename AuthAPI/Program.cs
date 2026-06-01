@@ -1,9 +1,9 @@
 using AuthAPI.Data.Context;
 using AuthAPI.Data.Repos.Implements;
-using AuthAPI.Data.Repos.Interfaces;
+using AuthAPI.Data.Repos.Abstracts;
 using AuthAPI.Services;
 using AuthAPI.Services.Implements;
-using AuthAPI.Services.Interfaces;
+using AuthAPI.Services.Abstracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

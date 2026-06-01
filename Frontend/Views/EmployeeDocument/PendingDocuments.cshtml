@@ -1,0 +1,80 @@
+﻿@using Frontend.Models.EmployeeDocument
+@model List<PendingDocumentModel>
+
+<link rel="stylesheet" href="~/css/pending-documents.css" />
+
+<div class="container mt-4">
+
+    <div class="page-header">
+        <h2>Pending Document Verifications</h2>
+        <p>Employees waiting for document verification</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-success">
+            No pending documents found.
+        </div>
+    }
+    else
+    {
+        <div class="table-container">
+
+            <table class="table pending-table">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Employee ID</th>
+                        <th>Employee Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @{
+                        int count = 1;
+                    }
+
+                    @foreach (var employee in Model)
+                    {
+                        <tr class="clickable-row"
+                            onclick="reviewDocuments('@employee.EmployeeId')">
+
+                            <td>@count</td>
+                            <td>@employee.EmployeeId</td>
+                            <td>@employee.EmployeeName</td>
+
+                            <td>
+                                <button type="button"
+                                        class="btn btn-sm btn-primary">
+                                    Review Documents
+                                </button>
+                            </td>
+
+                        </tr>
+
+                        count++;
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+</div>
+
+@section Scripts
+{
+    <script>
+        function reviewDocuments(employeeId) {
+
+            window.location.href =
+                '/EmployeeDocument/VerifyDocuments?employeeId='
+                + employeeId;
+        }
+    </script>
+}

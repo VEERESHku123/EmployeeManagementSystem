@@ -1,0 +1,65 @@
+﻿.page-header {
+    margin-bottom: 25px;
+}
+
+    .page-header h2 {
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .page-header p {
+        color: #6b7280;
+        margin-top: 5px;
+    }
+
+.table-container {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.pending-table {
+    margin-bottom: 0;
+}
+
+    .pending-table thead {
+        background: #2563eb;
+        color: white;
+    }
+
+        .pending-table thead th {
+            padding: 16px;
+            border: none;
+            font-weight: 600;
+        }
+
+    .pending-table tbody td {
+        padding: 16px;
+        vertical-align: middle;
+    }
+
+.clickable-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .clickable-row:hover {
+        background-color: #eff6ff;
+        transform: scale(1.002);
+    }
+
+.pending-table tbody tr:not(:last-child) {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.btn-primary {
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.alert-success {
+    border-radius: 12px;
+}

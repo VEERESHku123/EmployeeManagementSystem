@@ -8,7 +8,7 @@ namespace AuthAPI.Data.Entitys
     {
         [Key]
         [Column("user_id")]
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         [Column("email")]
         public required string Email { get; set; }

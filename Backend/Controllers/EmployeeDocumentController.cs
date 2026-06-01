@@ -1,5 +1,6 @@
-﻿using Backend.DTOs;
-using Backend.Services.Interfaces;
+﻿using Backend.DTOs.Common;
+using Backend.DTOs.EmployeeDocument;
+using Backend.Services.Abstracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +30,7 @@ namespace Backend.Controllers
 
         [HttpGet]
         [Route("categories")]
+        [Authorize]
         public async Task<IActionResult> GetAllDocumentCategories()
         {
             var result = await employeeDocumentService.GetAllDocumentCategories();
@@ -43,7 +45,7 @@ namespace Backend.Controllers
         {
             var employeeId = User.FindFirst("employeeId")?.Value;
 
-            var response =blobService.GenerateUploadSas(request.FileName, employeeId);
+            var response = blobService.GenerateUploadSas(request.FileName, request.DocumentTypeId, employeeId);
 
             return Ok(
                 new ApiResponse<UploadSasResponse>
@@ -79,12 +81,11 @@ namespace Backend.Controllers
             return Ok(result);
         }
 
-        [HttpGet("my-documents")]
+        [HttpGet("my-documents/{employeeId?}")]
         [Authorize]
-        public async Task<IActionResult> GetMyDocuments()
+        public async Task<IActionResult> GetMyDocuments(string? employeeId)
         {
-            var employeeId =
-                User.FindFirst("employeeId")?.Value;
+            if(employeeId == null) employeeId = User.FindFirst("employeeId")?.Value;
 
             if (string.IsNullOrEmpty(employeeId))
             {
@@ -95,5 +96,49 @@ namespace Backend.Controllers
 
             return Ok(response);
         }
+
+        [HttpDelete("delete/{employeeId}/{documentId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteDocument(string employeeId, Guid documentId)
+        {
+            var result = await employeeDocumentService.DeleteDocumentAsync(employeeId, documentId);
+
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("update/{documentId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateDocument(Guid documentId, UpdateDocumentRequest request)
+        {
+            var employeeId = User.IsInRole("Admin")
+                ? request.EmployeeId
+                : User.FindFirst("employeeId")?.Value;
+
+            if (string.IsNullOrEmpty(employeeId))
+            {
+                return Unauthorized(new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "Invalid employee"
+                });
+            }
+
+            var result = await employeeDocumentService
+                .UpdateDocumentAsync(
+                    employeeId,
+                    documentId,
+                    request);
+
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("pending-actions")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetPendingActionDocuments()
+        {
+            var documents = await employeeDocumentService.GetPendingActionDocumentsAsync();
+            return Ok(documents);
+        }
+
     }
 }

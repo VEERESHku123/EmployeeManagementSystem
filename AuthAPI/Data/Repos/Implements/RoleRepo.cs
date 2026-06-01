@@ -1,6 +1,6 @@
 ﻿using AuthAPI.Data.Context;
 using AuthAPI.Data.Entitys;
-using AuthAPI.Data.Repos.Interfaces;
+using AuthAPI.Data.Repos.Abstracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Data.Repos.Implements

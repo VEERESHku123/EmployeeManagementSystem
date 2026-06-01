@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using Backend.Data.Entitys;
-using Backend.Data.Repos.Interfaces;
-using Backend.DTOs;
+using Backend.Data.Entities;
+using Backend.Data.Repos.Abstracts;
+using Backend.DTOs.Common;
 using Backend.DTOs.EmployeeDocument;
-using Backend.Services.Interfaces;
+using Backend.Services.Abstracts;
 
 namespace Backend.Services.Implements
 {
@@ -11,13 +11,15 @@ namespace Backend.Services.Implements
     {
         private readonly IEmployeeDocumentRepo employeeDocumentRepo;
         private readonly IBlobService blobService;
+        private readonly ILogger<EmployeeDocumentService> logger;
         private readonly IMapper mapper;
 
-        public EmployeeDocumentService(IEmployeeDocumentRepo employeeDocumentRepo, IMapper mapper, IBlobService blobService)
+        public EmployeeDocumentService(IEmployeeDocumentRepo employeeDocumentRepo, IMapper mapper, IBlobService blobService, ILogger<EmployeeDocumentService> logger)
         {
             this.employeeDocumentRepo = employeeDocumentRepo;
             this.blobService = blobService;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
         public async Task<ApiResponse<List<DocumentTypeEntity>>> GetAllDocumentTypes()
@@ -43,58 +45,226 @@ namespace Backend.Services.Implements
                 Data = data
             };
         }
-        
+
         public async Task<ApiResponse<bool>> SaveDocument(string employeeId, SaveDocumentRequest request)
         {
-            var entity =
-                new EmployeeDocumentEntity
+            try
+            {
+                logger.LogInformation(
+                    "Saving document for EmployeeId {EmployeeId}, DocumentTypeId {DocumentTypeId}",
+                    employeeId,
+                    request.DocumentTypeId);
+
+                var entity = new EmployeeDocumentEntity
                 {
-                    EmployeeId = employeeId!,
+                    EmployeeId = employeeId,
                     DocumentTypeId = request.DocumentTypeId,
                     BlobName = request.BlobName,
-                    UploadedDate = DateTime.Now,
+                    UploadedDate = DateTime.UtcNow,
                     VerificationStatus = "Pending"
                 };
 
-            var result = await employeeDocumentRepo.SaveDocumentAsync(entity);
+                var result = await employeeDocumentRepo.SaveDocumentAsync(entity);
 
-            return new ApiResponse<bool>
-            {
-                Success = result,
-                Message = result
+                logger.LogInformation(
+                    "Document save operation completed for EmployeeId {EmployeeId}. Result: {Result}",
+                    employeeId,
+                    result);
+
+                return new ApiResponse<bool>
+                {
+                    Success = result,
+                    Message = result
                         ? "Document saved successfully."
                         : "Failed to save document.",
-                Data = result
-            };
-        }
-
-        public async Task<ApiResponse< List<EmployeeDocumentDto>>> GetEmployeeDocumentsAsync(string employeeId)
-        {
-            var documents = await employeeDocumentRepo.GetEmployeeDocumentsAsync(employeeId);
-
-            if (documents == null || !documents.Any())
-            {
-                return new ApiResponse<List<EmployeeDocumentDto>>
-                {
-                    Success = false,
-                    Message = "No documents found.",
-                    Data = new List<EmployeeDocumentDto>()
+                    Data = result
                 };
             }
-
-            var result = mapper.Map<List<EmployeeDocumentDto>>(documents);
-
-            foreach (var document in result)
+            catch (Exception ex)
             {
-                document.DownloadUrl =
-                    blobService.GenerateReadSas(document.BlobName);
-            }
+                logger.LogError(
+                    ex,
+                    "Error occurred while saving document for EmployeeId {EmployeeId}",
+                    employeeId);
 
-            return new ApiResponse<List<EmployeeDocumentDto>>
+                throw;
+            }
+        }
+
+        public async Task<ApiResponse<List<EmployeeDocumentDto>>> GetEmployeeDocumentsAsync(string employeeId)
+        {
+            try
+            {
+                logger.LogInformation(
+                    "Retrieving documents for EmployeeId {EmployeeId}",
+                    employeeId);
+
+                var documents = await employeeDocumentRepo.GetEmployeeDocumentsAsync(employeeId);
+
+                if (documents == null || !documents.Any())
+                {
+                    logger.LogWarning(
+                        "No documents found for EmployeeId {EmployeeId}",
+                        employeeId);
+
+                    return new ApiResponse<List<EmployeeDocumentDto>>
+                    {
+                        Success = false,
+                        Message = "No documents found.",
+                        Data = new List<EmployeeDocumentDto>()
+                    };
+                }
+
+                var result = mapper.Map<List<EmployeeDocumentDto>>(documents);
+
+                foreach (var document in result)
+                {
+                    document.DownloadUrl =
+                        blobService.GenerateReadSas(document.BlobName);
+                }
+
+                logger.LogInformation(
+                    "Retrieved {DocumentCount} documents for EmployeeId {EmployeeId}",
+                    result.Count,
+                    employeeId);
+
+                return new ApiResponse<List<EmployeeDocumentDto>>
+                {
+                    Success = true,
+                    Message = "Documents retrieved successfully.",
+                    Data = result
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error occurred while retrieving documents for EmployeeId {EmployeeId}",
+                    employeeId);
+
+                throw;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> DeleteDocumentAsync(string employeeId,Guid documentId)
+        {
+            try
+            {
+                logger.LogInformation(
+                    "Deleting document {DocumentId} for employee {EmployeeId}",
+                    documentId,
+                    employeeId);
+
+                var document = await employeeDocumentRepo
+                    .GetDocumentAsync(employeeId, documentId);
+
+                if (document == null)
+                {
+                    logger.LogWarning(
+                        "Document {DocumentId} not found for employee {EmployeeId}",
+                        documentId,
+                        employeeId);
+
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Document not found",
+                        Data = false
+                    };
+                }
+
+                await blobService.DeleteBlobAsync(document.BlobName);
+
+                await employeeDocumentRepo.DeleteAsync(document);
+
+                logger.LogInformation(
+                    "Document {DocumentId} deleted successfully",
+                    documentId);
+
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    Message = "Document deleted successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error deleting document {DocumentId} for employee {EmployeeId}",
+                    documentId,
+                    employeeId);
+
+                throw;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> UpdateDocumentAsync(string employeeId, Guid documentId, UpdateDocumentRequest request)
+        {
+            try
+            {
+                logger.LogInformation(
+                    "Updating document {DocumentId} for employee {EmployeeId}",
+                    documentId,
+                    employeeId);
+
+                var document = await employeeDocumentRepo
+                    .GetDocumentAsync(employeeId, documentId);
+
+                if (document == null)
+                {
+                    logger.LogWarning(
+                        "Document {DocumentId} not found for employee {EmployeeId}",
+                        documentId,
+                        employeeId);
+
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Document not found",
+                        Data = false
+                    };
+                }
+
+                await blobService.DeleteBlobAsync(document.BlobName);
+
+                await employeeDocumentRepo.UpdateDocumentAsync(
+                    document,
+                    request.BlobName);
+
+                logger.LogInformation(
+                    "Document {DocumentId} updated successfully",
+                    documentId);
+
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    Message = "Document updated successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error updating document {DocumentId} for employee {EmployeeId}",
+                    documentId,
+                    employeeId);
+
+                throw;
+            }
+        }
+
+        public async Task<ApiResponse<List<PendingDocumentDto>>> GetPendingActionDocumentsAsync()
+        {
+            var documents = await employeeDocumentRepo.GetPendingActionDocumentsAsync();
+
+            return new ApiResponse<List<PendingDocumentDto>>
             {
                 Success = true,
-                Message = "Documents retrieved successfully.",
-                Data = result
+                Message = "Pending action documents fetched successfully.",
+                Data = documents
             };
         }
     }

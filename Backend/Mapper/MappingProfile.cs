@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Backend.Data.Entitys;
-using Backend.Data.Models;
-using Backend.DTOs;
+using Backend.Data.Entities;
+using Backend.DTOs.Employee;
+using Backend.DTOs.EmployeeDocument;
 
 namespace Backend.Mapper
 {

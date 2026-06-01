@@ -1,7 +1,6 @@
-﻿using Frontend.ApiServices.Interfaces;
+﻿using Frontend.ApiServices.Abstracts;
 using Frontend.Models.EmployeeDocument;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Frontend.Controllers
 {
@@ -9,26 +8,32 @@ namespace Frontend.Controllers
     {
         private readonly IEmployeeDocumentApiService employeeDocumentApiService;
 
-        public EmployeeDocumentController(IEmployeeDocumentApiService employeeDocumentApiService)
+        public EmployeeDocumentController(
+            IEmployeeDocumentApiService employeeDocumentApiService)
         {
             this.employeeDocumentApiService = employeeDocumentApiService;
         }
 
+        #region Employee
+
         [HttpGet]
-        public async Task<IActionResult> UploadDocuments()
+        public async Task<IActionResult> UploadDocument(string? employeeId)
         {
-            var documentCategoryResponse = await employeeDocumentApiService.GetAllDocumentCategories();
+            var categoryResponse = await employeeDocumentApiService.GetAllDocumentCategories();
 
-            var documentTypeResponse = await employeeDocumentApiService.GetAllDocumentTypes();
+            var typeResponse = await employeeDocumentApiService.GetAllDocumentTypes();
 
-            ViewBag.DocumentCategories = documentCategoryResponse.Data;
-            ViewBag.DocumentTypes = documentTypeResponse.Data;
+            var uploadedResponse = await employeeDocumentApiService.GetEmployeeDocumentsAsync(employeeId);
+
+            ViewBag.DocumentCategories = categoryResponse.Data;
+            ViewBag.DocumentTypes = typeResponse.Data;
+            ViewBag.UploadedDocuments = uploadedResponse.Data;
 
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadDocuments(UploadEmployeeDocumentsModel model)
+        public async Task<IActionResult> UploadDocument(UploadEmployeeDocumentsModel model)
         {
             if (model.File == null)
             {
@@ -44,47 +49,88 @@ namespace Frontend.Controllers
                     model.DocumentTypeId,
                     model.File);
 
-            if (response == null)
-            {
-                return Json(new
-                {
-                    Success = false,
-                    Message = "No response received."
-                });
-            }
-
             return Json(response);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ViewDocuments()
+        [HttpPost]
+        public async Task<IActionResult> UpdateDocument(string employeeId,Guid documentId,int documentTypeId,IFormFile file)
         {
-            var result = await employeeDocumentApiService.GetEmployeeDocuments();
+            var result =
+                await employeeDocumentApiService.UpdateDocumentAsync(
+                    documentId,
+                    documentTypeId,
+                    file,
+                    employeeId);
 
             if (!result.Success)
             {
                 TempData["ErrorMessage"] = result.Message;
-
-                return View(new List<EmployeeDocumentModel>());
+            }
+            else
+            {
+                TempData["SuccessMessage"] = result.Message;
             }
 
-            return View(result.Data);
+            return RedirectToAction(nameof(UploadDocument),
+                new { employeeId });
         }
 
+        #endregion
+
+        #region Admin
+
         [HttpGet]
-        public async Task<IActionResult> MyDocuments()
+        public async Task<IActionResult> PendingDocuments()
         {
-            var response = await employeeDocumentApiService.GetEmployeeDocumentsAsync();
+            var response = await employeeDocumentApiService.GetPendingDocumentsAsync();
 
             if (!response.Success)
             {
                 TempData["ErrorMessage"] = response.Message;
 
-                return View(
-                    new List<EmployeeDocumentModel>());
+                return View(new List<PendingDocumentModel>());
             }
 
             return View(response.Data);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> VerifyDocuments(string employeeId)
+        {
+            var categoryResponse =
+                await employeeDocumentApiService.GetAllDocumentCategories();
+
+            var typeResponse =
+                await employeeDocumentApiService.GetAllDocumentTypes();
+
+            var uploadedResponse =
+                await employeeDocumentApiService.GetEmployeeDocumentsAsync(employeeId);
+
+            ViewBag.EmployeeId = employeeId;
+            ViewBag.DocumentCategories = categoryResponse.Data;
+            ViewBag.DocumentTypes = typeResponse.Data;
+            ViewBag.UploadedDocuments = uploadedResponse.Data;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteDocument(string employeeId,Guid documentId)
+        {
+            var result = await employeeDocumentApiService.DeleteDocumentAsync(employeeId,documentId);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = result.Message;
+            }
+            else
+            {
+                TempData["SuccessMessage"] = result.Message;
+            }
+
+            return RedirectToAction(nameof(VerifyDocuments),new { employeeId });
+        }
+
+        #endregion
     }
 }

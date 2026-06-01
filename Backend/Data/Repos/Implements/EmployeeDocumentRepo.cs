@@ -1,6 +1,7 @@
 ﻿using Backend.Data.Context;
-using Backend.Data.Entitys;
-using Backend.Data.Repos.Interfaces;
+using Backend.Data.Entities;
+using Backend.Data.Repos.Abstracts;
+using Backend.DTOs.EmployeeDocument;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data.Repos.Implements
@@ -50,12 +51,6 @@ namespace Backend.Data.Repos.Implements
            return await context.SaveChangesAsync() > 0;
         }
 
-        public async Task<List<EmployeeDocumentEntity>> GetEmployeeDocuments(string employeeId)
-        {
-            return await context.EmployeeDocuments.Where(e => e.EmployeeId == employeeId).ToListAsync();
-            
-        }
-
         public async Task<List<EmployeeDocumentEntity>> GetEmployeeDocumentsAsync(string employeeId)
         {
             return await context.EmployeeDocuments
@@ -63,6 +58,46 @@ namespace Backend.Data.Repos.Implements
             .Where(x => x.EmployeeId == employeeId)
             .OrderBy(x => x.DocumentTypeId)
             .ToListAsync();
+        }
+
+        public async Task<EmployeeDocumentEntity?> GetDocumentAsync(string employeeId, Guid documentId)
+        {
+            return await context.EmployeeDocuments.FirstOrDefaultAsync(x => x.EmployeeId == employeeId && x.DocumentId == documentId);
+        }
+
+        public async Task<bool> DeleteAsync(EmployeeDocumentEntity document)
+        {
+            context.EmployeeDocuments.Remove(document);
+
+            return  await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateDocumentAsync(EmployeeDocumentEntity document, string blobName)
+        {
+            document.BlobName = blobName;
+            document.Remarks = null;
+            document.UploadedDate = DateTime.Now;
+
+            context.EmployeeDocuments.Update(document);
+
+            return await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<List<PendingDocumentDto>> GetPendingActionDocumentsAsync()
+        {
+            return await context.EmployeeDocuments
+                .Where(d => d.VerificationStatus == "Pending")
+                .GroupBy(d => new
+                {
+                    d.EmployeeId,
+                    EmployeeName = d.Employee.FirstName + " " + d.Employee.LastName
+                })
+                .Select(g => new PendingDocumentDto
+                {
+                    EmployeeId = g.Key.EmployeeId,
+                    EmployeeName = g.Key.EmployeeName
+                })
+                .ToListAsync();
         }
     }
 }

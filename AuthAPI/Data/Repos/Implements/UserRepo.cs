@@ -1,6 +1,6 @@
 ﻿using AuthAPI.Data.Context;
 using AuthAPI.Data.Entitys;
-using AuthAPI.Data.Repos.Interfaces;
+using AuthAPI.Data.Repos.Abstracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Data.Repos.Implements
@@ -21,7 +21,7 @@ namespace AuthAPI.Data.Repos.Implements
                          .FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task SaveRefreshToken(int userId, string? refreshToken, DateTime? expiry)
+        public async Task SaveRefreshToken(Guid userId, string? refreshToken, DateTime? expiry)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
 

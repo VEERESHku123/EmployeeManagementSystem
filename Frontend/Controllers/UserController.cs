@@ -1,4 +1,4 @@
-﻿using Frontend.ApiServices.Interfaces;
+﻿using Frontend.ApiServices.Abstracts;
 using Frontend.Models.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;

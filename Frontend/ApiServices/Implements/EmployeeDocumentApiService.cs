@@ -1,16 +1,15 @@
-﻿using Frontend.ApiServices.Interfaces;
+﻿using Frontend.ApiServices.Abstracts;
 using Frontend.Models;
 using Frontend.Models.Common;
 using Frontend.Models.EmployeeDocument;
-using System.Text.Json;
 
 namespace Frontend.ApiServices.Implements
 {
     public class EmployeeDocumentApiService : BaseApiService, IEmployeeDocumentApiService
     {
-        public EmployeeDocumentApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor) : base(factory, httpContextAccessor, "Backend")
-        {
-        }
+        public EmployeeDocumentApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor) : 
+            base(factory, httpContextAccessor, "Backend") { }
+  
 
         public async Task<ApiResponse<List<DocumentTypeModel>>> GetAllDocumentTypes()
         {
@@ -128,11 +127,7 @@ namespace Frontend.ApiServices.Implements
         {
             var content = JsonContent.Create(model);
 
-            var response =
-                await SendAuthorizedRequestAsync(
-                    () => client.PostAsync(
-                        "api/employeeDocuments/generate-upload-sas",
-                        content));
+            var response = await SendAuthorizedRequestAsync(() => client.PostAsync("api/employeeDocuments/generate-upload-sas",content));
 
             return await response.Content.ReadFromJsonAsync<ApiResponse<UploadSasResponse>>();
         }
@@ -141,8 +136,7 @@ namespace Frontend.ApiServices.Implements
         {
             // STEP 1: Generate SAS
 
-            var sasResponse =
-                await GenerateUploadSasAsync(
+            var sasResponse = await GenerateUploadSasAsync(
                     new GenerateUploadSasRequest
                     {
                         DocumentTypeId = documentTypeId,
@@ -167,6 +161,7 @@ namespace Frontend.ApiServices.Implements
             using var content = new StreamContent(stream);
 
             content.Headers.Add("x-ms-blob-type", "BlockBlob");
+
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
 
             var uploadResult = await blobClient.PutAsync(sasResponse.Data.UploadUrl,content);
@@ -188,19 +183,7 @@ namespace Frontend.ApiServices.Implements
                 BlobName = sasResponse.Data.BlobName
             };
 
-            var saveContent = JsonContent.Create(saveModel);
-
-            var saveResponse =
-                await SendAuthorizedRequestAsync(
-                    () => client.PostAsync(
-                        "api/employeeDocuments/save",
-                        saveContent));
-
-            var responseText =
-                await saveResponse.Content.ReadAsStringAsync();
-
-            Console.WriteLine($"Status: {saveResponse.StatusCode}");
-            Console.WriteLine($"Response: {responseText}");
+            var saveResponse = await SendAuthorizedRequestAsync(() => client.PostAsJsonAsync("api/employeeDocuments/save", saveModel));
 
             if (!saveResponse.IsSuccessStatusCode)
             {
@@ -211,23 +194,12 @@ namespace Frontend.ApiServices.Implements
                 };
             }
 
-            var apiResponse = System.Text.Json.JsonSerializer.Deserialize<ApiResponse<bool>>(
-    responseText,
-    new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true
-    });
-
-            Console.WriteLine($"Success: {apiResponse?.Success}");
-            Console.WriteLine($"Message: {apiResponse?.Message}");
-            Console.WriteLine($"Data: {apiResponse?.Data}");
-
-            return apiResponse!;
+            return await saveResponse.Content.ReadFromJsonAsync<ApiResponse<bool>>();
         }
 
-        public async Task<ApiResponse<List<EmployeeDocumentModel>>> GetEmployeeDocumentsAsync()
+        public async Task<ApiResponse<List<EmployeeDocumentModel>>> GetEmployeeDocumentsAsync(string? employeeId)
         {
-            var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"api/employeeDocuments/my-documents"));
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"api/employeeDocuments/my-documents/{employeeId}"));
 
             if (response == null)
             {
@@ -237,11 +209,11 @@ namespace Frontend.ApiServices.Implements
                     Message = "Session expired. Please login again."
                 };
             }
-
+            Console.WriteLine("----------------------");
+            Console.WriteLine(response.StatusCode);
             if (!response.IsSuccessStatusCode)
             {
-                var error =
-                    await response.Content.ReadAsStringAsync();
+                var error = await response.Content.ReadAsStringAsync();
 
                 return new ApiResponse<List<EmployeeDocumentModel>>
                 {
@@ -250,16 +222,145 @@ namespace Frontend.ApiServices.Implements
                 };
             }
 
-            var result =  await response.Content.ReadFromJsonAsync<ApiResponse<List<EmployeeDocumentModel>>>();
+            return await response.Content.ReadFromJsonAsync<ApiResponse<List<EmployeeDocumentModel>>>();
 
-            if (result != null)
+        }
+
+        public async Task<ApiResponse<bool>> DeleteDocumentAsync(string employeeId, Guid documentId)
+        {
+            var response = await SendAuthorizedRequestAsync(() => client.DeleteAsync($"api/employeeDocuments/delete/{employeeId}/{documentId}"));
+
+            if (response == null)
             {
-                Console.WriteLine($"Success: {result.Success}");
-                Console.WriteLine($"Message: {result.Message}");
-                Console.WriteLine($"Count: {result.Data?.Count}");
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "Session expired. Please login again."
+                };
             }
-            return result;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = error
+                };
+            }
+
+            return await response.Content
+                .ReadFromJsonAsync<ApiResponse<bool>>()
+                ?? new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "Failed to delete document"
+                };
+        }
+
+        public async Task<ApiResponse<bool>> UpdateDocumentAsync(Guid documentId,int documentTypeId,IFormFile file,string? employeeId = null)
+        {
+            // Generate SAS
+
+            var sasResponse = await GenerateUploadSasAsync(
+                new GenerateUploadSasRequest
+                {
+                    DocumentTypeId = documentTypeId,
+                    FileName = file.FileName
+                });
+
+            if (!sasResponse.Success)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = sasResponse.Message
+                };
+            }
+
+            // Upload file to blob
+
+            using var blobClient = new HttpClient();
+
+            using var stream = file.OpenReadStream();
+
+            using var content = new StreamContent(stream);
+
+            content.Headers.Add("x-ms-blob-type", "BlockBlob");
+
+            content.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+            var uploadResult = await blobClient.PutAsync(
+                sasResponse.Data.UploadUrl,
+                content);
+
+            if (!uploadResult.IsSuccessStatusCode)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "Blob upload failed."
+                };
+            }
+
+            // Update API
+
+            var request = new UpdateDocumentRequest
+            {
+                EmployeeId = employeeId, // null for employee, value for admin
+                BlobName = sasResponse.Data.BlobName
+            };
+
+            var response = await SendAuthorizedRequestAsync(
+                () => client.PutAsJsonAsync(
+                    $"api/employeeDocuments/update/{documentId}",
+                    request));
+
+            if (response == null)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "Session expired. Please login again."
+                };
+            }
+
+            return await response.Content
+                .ReadFromJsonAsync<ApiResponse<bool>>()
+                ?? new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "Failed to update document."
+                };
+        }
+
+        public async Task<ApiResponse<List<PendingDocumentModel>>> GetPendingDocumentsAsync()
+        {
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync("api/employeeDocuments/pending-actions"));
+
+            if (response == null)
+            {
+                return new ApiResponse<List<PendingDocumentModel>>
+                {
+                    Success = false,
+                    Message = "Session expired. Please login again."
+                };
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+
+                return new ApiResponse<List<PendingDocumentModel>>
+                {
+                    Success = false,
+                    Message = error
+                };
+            }
+
+            return await response.Content.ReadFromJsonAsync<ApiResponse<List<PendingDocumentModel>>>();
         }
     }
-
 }

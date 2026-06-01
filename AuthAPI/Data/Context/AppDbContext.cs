@@ -1,7 +1,5 @@
 ﻿using AuthAPI.Data.Entitys;
-using AuthAPI.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthAPI.Data.Context
 {

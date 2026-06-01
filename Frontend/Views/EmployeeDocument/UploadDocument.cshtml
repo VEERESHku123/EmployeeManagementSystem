@@ -1,0 +1,207 @@
+﻿@using Frontend.Models.EmployeeDocument
+
+@{
+    var categories = ViewBag.DocumentCategories as List<DocumentCategoryModel>;
+    var documentTypes = ViewBag.DocumentTypes as List<DocumentTypeModel>;
+    var uploadedDocuments = ViewBag.UploadedDocuments as List<EmployeeDocumentModel>;
+}
+
+<link rel="stylesheet" href="~/css/employee-document-upload.css" />
+
+<div class="container">
+
+    <div class="category-nav">
+        @foreach (var category in categories)
+        {
+            <button type="button"
+                    class="category-btn"
+                    onclick="showCategory(@category.CategoryId,this)">
+                @category.CategoryName
+            </button>
+        }
+    </div>
+
+    @foreach (var category in categories)
+    {
+        <div id="category-@category.CategoryId"
+             class="category-section"
+             style="display:none;">
+
+            <div class="row">
+
+                @foreach (var docType in documentTypes.Where(x => x.CategoryId == category.CategoryId))
+                {
+                    <div class="col-md-6 mb-4">
+
+                        @{
+                            var uploadedDoc =
+                                uploadedDocuments?
+                                .FirstOrDefault(x =>
+                                    x.DocumentTypeId == docType.DocumentTypeId);
+                        }
+
+                        <div class="document-card">
+
+                            @if (uploadedDoc != null)
+                            {
+                                <div class="uploaded-container">
+
+                                    <h5 class="document-title">
+                                        @docType.DocumentName
+
+                                        @if (docType.IsMandatory == true)
+                                        {
+                                            <span class="required">*</span>
+                                        }
+                                    </h5>
+
+                                    <div class="uploaded-success">
+                                        ✓ Document Uploaded Successfully
+                                    </div>
+
+                                    <div class="document-info">
+
+                                        <p>
+                                            <strong>Status:</strong>
+                                            @uploadedDoc.VerificationStatus
+                                        </p>
+
+                                        <p>
+                                            <strong>Uploaded:</strong>
+                                            @uploadedDoc.UploadedDate.ToString("dd-MMM-yyyy")
+                                        </p>
+
+                                        @if (!string.IsNullOrWhiteSpace(uploadedDoc.Remarks))
+                                        {
+                                            <p>
+                                                <strong>Remarks:</strong>
+                                                @uploadedDoc.Remarks
+                                            </p>
+                                        }
+
+                                    </div>
+
+                                    <div class="mt-3">
+
+                                        <button type="button"
+                                                class="btn-view"
+                                                onclick="viewDocument('@uploadedDoc.DownloadUrl')">
+                                            View
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn-upload"
+                                                onclick="replaceDocument(
+                                            '@uploadedDoc.EmployeeId',
+                                            '@uploadedDoc.DocumentId',
+                                            @docType.DocumentTypeId)">
+                                            Update
+                                        </button>
+
+                                    </div>
+
+                                    <input type="file"
+                                           id="file_@docType.DocumentTypeId"
+                                           style="display:none;"
+                                           onchange="updateDocument(
+                                    '@uploadedDoc.EmployeeId',
+                                    '@uploadedDoc.DocumentId',
+                                    @docType.DocumentTypeId)" />
+
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="cardBody_@docType.DocumentTypeId">
+
+                                    <h5 class="document-title">
+                                        @docType.DocumentName
+
+                                        @if (docType.IsMandatory == true)
+                                        {
+                                            <span class="required">*</span>
+                                        }
+                                    </h5>
+
+                                    <input type="file"
+                                           id="newfile_@docType.DocumentTypeId"
+                                           class="form-control"
+                                           onchange="showFileName(this,@docType.DocumentTypeId)" />
+
+                                    <div id="fileName_@docType.DocumentTypeId"
+                                         class="selected-file">
+                                    </div>
+
+                                    <div class="mt-3">
+
+                                        <button type="button"
+                                                class="btn-view"
+                                                onclick="previewFile(@docType.DocumentTypeId)">
+                                            View
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn-upload"
+                                                onclick="uploadDocument(@docType.DocumentTypeId)">
+                                            Upload
+                                        </button>
+
+                                    </div>
+
+                                    <iframe id="preview_@docType.DocumentTypeId"
+                                            class="preview-frame">
+                                    </iframe>
+
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+<div class="modal fade"
+     id="documentModal"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-xl">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Document Preview
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <iframe id="documentFrame"
+                        class="document-frame">
+                </iframe>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script src="~/js/employee-document-upload.js"></script>
+}
