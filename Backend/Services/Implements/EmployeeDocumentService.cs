@@ -267,5 +267,121 @@ namespace Backend.Services.Implements
                 Data = documents
             };
         }
+
+        public async Task<ApiResponse<bool>> ApproveDocumentAsync(string employeeId,Guid documentId,string? remarks)
+        {
+            try
+            {
+                logger.LogInformation(
+                    "Approving document. EmployeeId: {EmployeeId}, DocumentId: {DocumentId}",
+                    employeeId,
+                    documentId);
+
+                var result =
+                    await employeeDocumentRepo
+                        .ApproveDocumentAsync(
+                            employeeId,
+                            documentId,
+                            remarks);
+
+                if (!result)
+                {
+                    logger.LogWarning(
+                        "Document not found. EmployeeId: {EmployeeId}, DocumentId: {DocumentId}",
+                        employeeId,
+                        documentId);
+
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Document not found."
+                    };
+                }
+
+                logger.LogInformation(
+                    "Document approved successfully. EmployeeId: {EmployeeId}, DocumentId: {DocumentId}",
+                    employeeId,
+                    documentId);
+
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    Message = "Document approved successfully.",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error approving document. EmployeeId: {EmployeeId}, DocumentId: {DocumentId}",
+                    employeeId,
+                    documentId);
+
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "An error occurred while approving the document."
+                };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> RejectDocumentAsync(string employeeId,Guid documentId,string remarks)
+        {
+            try
+            {
+                logger.LogInformation(
+                    "Rejecting document. EmployeeId: {EmployeeId}, DocumentId: {DocumentId}",
+                    employeeId,
+                    documentId);
+
+                var result =
+                    await employeeDocumentRepo
+                        .RejectDocumentAsync(
+                            employeeId,
+                            documentId,
+                            remarks);
+
+                if (!result)
+                {
+                    logger.LogWarning(
+                        "Document not found. EmployeeId: {EmployeeId}, DocumentId: {DocumentId}",
+                        employeeId,
+                        documentId);
+
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Document not found."
+                    };
+                }
+
+                logger.LogInformation(
+                    "Document rejected successfully. EmployeeId: {EmployeeId}, DocumentId: {DocumentId}",
+                    employeeId,
+                    documentId);
+
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    Message = "Document rejected successfully.",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error rejecting document. EmployeeId: {EmployeeId}, DocumentId: {DocumentId}",
+                    employeeId,
+                    documentId);
+
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "An error occurred while rejecting the document."
+                };
+            }
+        }
     }
 }

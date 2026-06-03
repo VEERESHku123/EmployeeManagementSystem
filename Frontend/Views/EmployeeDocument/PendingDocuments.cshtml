@@ -6,13 +6,14 @@
 <div class="container mt-4">
 
     <div class="page-header">
-        <h2>Pending Document Verifications</h2>
+        <h2>Document Verifications</h2>
         <p>Employees waiting for document verification</p>
     </div>
 
     @if (!Model.Any())
     {
         <div class="alert alert-success">
+            <i class="bi bi-check-circle-fill"></i>
             No pending documents found.
         </div>
     }
@@ -24,7 +25,7 @@
 
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th></th>
                         <th>Employee ID</th>
                         <th>Employee Name</th>
                         <th>Action</th>
@@ -48,7 +49,7 @@
 
                             <td>
                                 <button type="button"
-                                        class="btn btn-sm btn-primary">
+                                        class="btn-review">
                                     Review Documents
                                 </button>
                             </td>

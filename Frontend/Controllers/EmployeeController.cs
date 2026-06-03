@@ -59,9 +59,9 @@ namespace Frontend.Controllers
 
         [HttpGet]
         [Route("employee")]
-        public async Task<IActionResult> GetEmployeeById(string id)
+        public async Task<IActionResult> GetEmployeeById(string? employeeId)
         {
-            var result = await employeeApiService.GetEmployeeById(id);
+            var result = await employeeApiService.GetEmployeeById(employeeId);
 
             if (!result.Success && result.Message == "Session expired")
             {
@@ -75,7 +75,7 @@ namespace Frontend.Controllers
                 return RedirectToAction("StatusCode404Page","StatusCode");
             }
 
-            return View(result.Data);
+            return PartialView("GetEmployeeById", result.Data);
         }
 
 
@@ -90,7 +90,7 @@ namespace Frontend.Controllers
 
             ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
 
-            return View();
+            return PartialView("AddNewEmployee");
         }
 
         [HttpPost]
@@ -115,14 +115,14 @@ namespace Frontend.Controllers
 
             TempData["ErrorMessage"] = result.Message ?? "Unable to create employee";
 
-            return RedirectToAction("AddNewEmployee");
+            return PartialView("AddNewEmployee");
         }
 
         [HttpGet]
         [Route("employee/update")]
-        public async Task<IActionResult> UpdateEmployee(string id)
+        public async Task<IActionResult> UpdateEmployee(string? employeeId)
         {
-            var result = await employeeApiService.GetEmployeeById(id);
+            var result = await employeeApiService.GetEmployeeById(employeeId);
 
             var employee = mapper.Map<UpdateEmployeeModel>(result.Data);
 
@@ -133,7 +133,7 @@ namespace Frontend.Controllers
 
             ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
 
-            return View(employee);
+            return PartialView("UpdateEmployee", employee);
         }
 
         [HttpPost]
@@ -147,7 +147,10 @@ namespace Frontend.Controllers
             {
                 TempData["SuccessMessage"] = $"Employee: {model.FirstName} updated successfully!";
 
-                return RedirectToAction("GetAllEmployees");
+                if (User.IsInRole("Admin"))
+                    return RedirectToAction("GetAllEmployees");
+                else
+                    return RedirectToAction("EmployeeDashboard", "Home");
             }
 
             // Session expired
@@ -158,14 +161,14 @@ namespace Frontend.Controllers
 
             TempData["ErrorMessage"] = result.Message ?? "Failed to update employee";
 
-            return RedirectToAction("UpdateEmployee",new { id = model.EmployeeId });
+            return PartialView("UpdateEmployee",new { id = model.EmployeeId });
         }
 
         [HttpPost]
         [Route("employee/delete")]
-        public async Task<IActionResult> DeleteEmployee([FromBody] string id)
+        public async Task<IActionResult> DeleteEmployee([FromBody] string employeeId)
         {
-            var result = await employeeApiService.DeleteEmployee(id);
+            var result = await employeeApiService.DeleteEmployee(employeeId);
 
             if (result.Success)
             {

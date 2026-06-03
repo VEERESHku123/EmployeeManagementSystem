@@ -47,18 +47,26 @@ function showFileName(input, documentTypeId) {
 
 function previewFile(documentTypeId) {
 
-    const frame =
-        document.getElementById(
-            "preview_" + documentTypeId);
+    const fileInput = document.getElementById("newfile_" + documentTypeId);
 
-    if (!frame)
+    if (!fileInput || !fileInput.files.length) {
+
+        Swal.fire(
+            "Warning",
+            "Please select a file first.",
+            "warning"
+        );
+
         return;
+    }
 
-    frame.style.display =
-        frame.style.display === "none" ||
-            frame.style.display === ""
-            ? "block"
-            : "none";
+    const file = fileInput.files[0];
+
+    const fileUrl = URL.createObjectURL(file);
+
+    document.getElementById("documentFrame").src = fileUrl;
+
+    new bootstrap.Modal(document.getElementById("documentModal")).show();
 }
 
 async function uploadDocument(documentTypeId) {
@@ -144,16 +152,11 @@ async function uploadDocument(documentTypeId) {
 }
 
 function viewDocument(url) {
+    document.getElementById("documentFrame").src = url;
 
-    document.getElementById(
-        "documentFrame").src = url;
-
-    const modal =
-        new bootstrap.Modal(
-            document.getElementById(
-                "documentModal"));
-
-    modal.show();
+    new bootstrap.Modal(
+        document.getElementById("documentModal")
+    ).show();
 }
 
 function replaceDocument(employeeId, documentId, documentTypeId) {
@@ -245,6 +248,7 @@ async function updateDocument(
         location.reload();
     }
 }
+
 window.addEventListener("load", function () {
 
     const firstButton =

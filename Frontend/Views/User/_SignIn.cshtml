@@ -64,13 +64,9 @@
 
         First time user?
 
-        <a asp-controller="Home"
-           asp-action="Index"
-           asp-route-showLogin="true"
-           asp-route-activate="true">
-
-            Activate Account
-
+        <a href="javascript:void(0)"
+           onclick="loadPartial('/User/ActivateAccount')">
+            Activate Account →
         </a>
 
     </div>

@@ -42,9 +42,9 @@ namespace Frontend.ApiServices.Implements
                    };
         }
 
-        public async Task<ApiResponse<EmployeeModel>> GetEmployeeById(string id)
+        public async Task<ApiResponse<EmployeeModel>> GetEmployeeById(string? employeeId)
         {
-            var response = await SendAuthorizedRequestAsync( () => client.GetAsync($"employee/{id}"));
+            var response = await SendAuthorizedRequestAsync( () => client.GetAsync($"employee/{employeeId}"));
 
             if (response == null)
             {

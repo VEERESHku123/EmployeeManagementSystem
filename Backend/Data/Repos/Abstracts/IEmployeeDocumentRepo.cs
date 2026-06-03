@@ -17,5 +17,9 @@ namespace Backend.Data.Repos.Abstracts
         Task<bool> DeleteAsync(EmployeeDocumentEntity document);
         Task<bool> UpdateDocumentAsync(EmployeeDocumentEntity document, string blobName);
         Task<List<PendingDocumentDto>> GetPendingActionDocumentsAsync();
+
+        Task<bool> ApproveDocumentAsync(string employeeId,Guid documentId,string? remarks);
+
+        Task<bool> RejectDocumentAsync(string employeeId, Guid documentId, string remarks);
     }
 }

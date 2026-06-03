@@ -209,8 +209,6 @@ namespace Frontend.ApiServices.Implements
                     Message = "Session expired. Please login again."
                 };
             }
-            Console.WriteLine("----------------------");
-            Console.WriteLine(response.StatusCode);
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
@@ -361,6 +359,60 @@ namespace Frontend.ApiServices.Implements
             }
 
             return await response.Content.ReadFromJsonAsync<ApiResponse<List<PendingDocumentModel>>>();
+        }
+
+        public async Task<ApiResponse<bool>> ApproveDocumentAsync(string employeeId,Guid documentId,string? remarks)
+        {
+            try
+            {
+                var response = await SendAuthorizedRequestAsync(() => client.PutAsync(
+                    $"api/employeeDocuments/approve?employeeId={employeeId}&documentId={documentId}&remarks={Uri.EscapeDataString(remarks ?? string.Empty)}", null));
+                Console.WriteLine("--------------");
+                Console.WriteLine(response.StatusCode);
+
+                var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
+                Console.WriteLine(result);
+
+                return result ?? new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "No response received."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> RejectDocumentAsync(string employeeId,Guid documentId,string remarks)
+        {
+            try
+            {
+                var response = await SendAuthorizedRequestAsync(() => client.PutAsync(
+                    $"api/employeeDocuments/reject?employeeId={employeeId}&documentId={documentId}&remarks={Uri.EscapeDataString(remarks)}", null));
+
+                var result = await response.Content
+                    .ReadFromJsonAsync<ApiResponse<bool>>();
+
+                return result ?? new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = "No response received."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
         }
     }
 }

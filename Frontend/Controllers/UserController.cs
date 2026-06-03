@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using Newtonsoft.Json.Linq;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
@@ -20,15 +22,9 @@ namespace Frontend.Controllers
 
 
         [HttpGet]
-        public IActionResult _SignIn()
+        public IActionResult SignIn()
         {
-            return RedirectToAction("Index", "Home",
-                    new
-                    {
-                        showLogin = true,
-                        activate = false
-                    }
-            );
+            return PartialView("~/Views/User/_SignIn.cshtml");
         }
 
         [HttpPost]
@@ -36,14 +32,15 @@ namespace Frontend.Controllers
         {
             try
             {
-                var email = User.FindFirst("preferred_username")?.Value;
-
+                var email = model.Email;
+                
                 if (!ModelState.IsValid)
                 {
-                    return ReturnHomeView( model,showLogin: true);
+                    return ReturnHomeView(model,showLogin: true);
                 }
 
                 var result = await userApiService.SignIn(model);
+
 
                 if (!result.Success)
                 {
@@ -52,12 +49,20 @@ namespace Frontend.Controllers
                     return ReturnHomeView(model, showLogin: true);
                 }
 
+                var token = result.AuthResponse.Token;
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                var employeeName = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
                 //authenticate
-                await AuthenticateUser( model.Email, result.AuthResponse.RoleType, "Native", result.AuthResponse.Token, result.AuthResponse.RefreshToken);
+                await AuthenticateUser( model.Email, result.AuthResponse.RoleType, "Native", result.AuthResponse.Token, result.AuthResponse.RefreshToken, employeeName);
 
                 TempData["SuccessMessage"] = "SignIn successful";
 
-                return RedirectToAction("GetAllEmployees", "Employee");
+                if (result.AuthResponse.RoleType == "Admin")
+                    return RedirectToAction("GetAllEmployees", "Employee");
+                else
+                    return RedirectToAction("EmployeeDashboard", "Home");
             }
             catch (Exception e)
             {
@@ -83,7 +88,7 @@ namespace Frontend.Controllers
             try
             {
                 var email = User.FindFirst("preferred_username")?.Value;
-
+                
                 var result = await userApiService.MicrosoftSignIn(email);
 
                 if (result == null || !result.Success)
@@ -93,12 +98,21 @@ namespace Frontend.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
+                var token = result.AuthResponse.Token;
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                var employeeName = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
                 //authenticate
-                await AuthenticateUser(email, result.AuthResponse.RoleType, "Microsoft", result.AuthResponse.Token, result.AuthResponse.RefreshToken);
+                await AuthenticateUser(email, result.AuthResponse.RoleType, "Microsoft", result.AuthResponse.Token, result.AuthResponse.RefreshToken, employeeName);
 
                 TempData["SuccessMessage"] = "SignIn successful";
 
-                return RedirectToAction("GetAllEmployees", "Employee");
+                if (result.AuthResponse.RoleType == "Admin")
+                    return RedirectToAction("GetAllEmployees", "Employee");
+                else
+                    return RedirectToAction("EmployeeDashboard", "Home");
             }
             catch (Exception ex)
             {
@@ -137,10 +151,9 @@ namespace Frontend.Controllers
 
 
         [HttpGet]
-        public IActionResult _ActivateAccount()
+        public IActionResult ActivateAccount()
         {
-            return RedirectToAction("Index", "Home", new { showLogin = false, activate = true });
-        
+            return PartialView("~/Views/User/_ActivateAccount.cshtml");
         }
 
         [HttpPost]
@@ -183,10 +196,11 @@ namespace Frontend.Controllers
 
 
         //helper methods
-        private async Task AuthenticateUser(string email, string role, string provider, string accessToken, string refreshToken)
+        private async Task AuthenticateUser(string email, string role, string provider, string accessToken, string refreshToken, string employeeName)
         {
             var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.Name, employeeName),
                 new Claim(ClaimTypes.Email,email),
                 new Claim(ClaimTypes.Role,role),
                 new Claim("LoginProvider",provider)

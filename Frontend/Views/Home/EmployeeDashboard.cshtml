@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="welcome-container">
+    <div class="welcome-card">
+        <h1>Welcome, @ViewBag.EmployeeName 👋</h1>
+        <p>Welcome to the Employee Management System.</p>
+    </div>
+</div>
+
+<style>
+    .welcome-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 20px;
+    }
+
+    .welcome-card {
+        width: 100%;
+        max-width: 700px;
+        text-align: center;
+        padding: 50px 30px;
+        border-radius: 20px;
+        background: #56557D;
+        color: white;
+        box-shadow: 0 10px 30px rgba(86, 85, 125, 0.25);
+    }
+
+        .welcome-card h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .welcome-card p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+</style>

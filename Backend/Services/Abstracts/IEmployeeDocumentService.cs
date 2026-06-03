@@ -14,5 +14,9 @@ namespace Backend.Services.Abstracts
         Task<ApiResponse<bool>> DeleteDocumentAsync(string employeeId,Guid documentId);
         Task<ApiResponse<bool>> UpdateDocumentAsync(string employeeId,Guid documentId,UpdateDocumentRequest request);
         Task<ApiResponse<List<PendingDocumentDto>>> GetPendingActionDocumentsAsync();
+
+        Task<ApiResponse<bool>> ApproveDocumentAsync(string employeeId,Guid documentId,string? remarks);
+
+        Task<ApiResponse<bool>> RejectDocumentAsync(string employeeId,Guid documentId,string remarks);
     }
 }

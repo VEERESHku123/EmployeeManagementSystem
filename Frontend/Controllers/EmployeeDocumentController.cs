@@ -16,7 +16,7 @@ namespace Frontend.Controllers
 
         #region Employee
 
-        [HttpGet]
+        [HttpGet("document/upload")]
         public async Task<IActionResult> UploadDocument(string? employeeId)
         {
             var categoryResponse = await employeeDocumentApiService.GetAllDocumentCategories();
@@ -29,10 +29,10 @@ namespace Frontend.Controllers
             ViewBag.DocumentTypes = typeResponse.Data;
             ViewBag.UploadedDocuments = uploadedResponse.Data;
 
-            return View();
+            return PartialView("UploadDocument");
         }
 
-        [HttpPost]
+        [HttpPost("document/upload")]
         public async Task<IActionResult> UploadDocument(UploadEmployeeDocumentsModel model)
         {
             if (model.File == null)
@@ -71,8 +71,7 @@ namespace Frontend.Controllers
                 TempData["SuccessMessage"] = result.Message;
             }
 
-            return RedirectToAction(nameof(UploadDocument),
-                new { employeeId });
+            return RedirectToAction(nameof(UploadDocument), new { employeeId });
         }
 
         #endregion
@@ -129,6 +128,41 @@ namespace Frontend.Controllers
             }
 
             return RedirectToAction(nameof(VerifyDocuments),new { employeeId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ApproveDocument(string employeeId,Guid documentId, string? remarks)
+        {
+            var result = await employeeDocumentApiService
+                .ApproveDocumentAsync(employeeId, documentId, remarks);
+
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.Message;
+            }
+
+            return RedirectToAction(nameof(PendingDocuments));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectDocument(string employeeId,Guid documentId, string remarks)
+        {
+            var result = await employeeDocumentApiService.RejectDocumentAsync(employeeId, documentId, remarks);
+
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.Message;
+            }
+
+            return RedirectToAction(nameof(PendingDocuments));
         }
 
         #endregion

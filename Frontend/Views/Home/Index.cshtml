@@ -1,45 +1,55 @@
 ﻿<div class="hero-container">
 
     <div class="hero-content">
-
-        <h2>Welcome To EMS App!</h2>
+        <h1>Employee Management System</h1>
 
         <p>
-            Please signIn to continue and
-            access dashboard.
+            Please sign in to continue and access your dashboard,
+            profile, documents and employee services.
         </p>
 
-        <a asp-controller="Home"
-           asp-action="Index"
-           asp-route-showLogin="true"
-           class="hero-btn">
-
-            SignIn →
+        <a href="javascript:void(0)"
+           class="hero-btn"
+           onclick="loadPartial('/User/SignIn')">
+            Sign In →
         </a>
-
     </div>
 
     <div class="hero-right">
 
-        @if (ViewBag.ShowActivate == true)
-        {
-            <partial name="~/Views/User/_ActivateAccount.cshtml"
-                     model="Model" />
-        }
-        else if (ViewBag.ShowLogin == true)
-        {
-            <partial name="~/Views/User/_SignIn.cshtml" />
-        }
-        else
-        {
-            <video autoplay muted loop>
+        <div class="hero-card" id="heroCard">
 
-                <source src="~/videos/ems-animation.mp4"
-                        type="video/mp4" />
+            @if (ViewBag.ShowActivate == true)
+            {
+                <partial name="~/Views/User/_ActivateAccount.cshtml"
+                         model="Model" />
+            }
+            else if (ViewBag.ShowLogin == true)
+            {
+                <partial name="~/Views/User/_SignIn.cshtml" />
+            }
+            else
+            {
+                <video autoplay muted loop>
+                    <source src="~/videos/ems-animation.mp4"
+                            type="video/mp4" />
+                </video>
+            }
 
-            </video>
-        }
+        </div>
 
     </div>
 
 </div>
+
+<script>
+    function loadPartial(url) {
+
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('heroCard').innerHTML = html;
+            })
+            .catch(error => console.error(error));
+    }
+</script>

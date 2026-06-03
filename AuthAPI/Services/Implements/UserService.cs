@@ -50,7 +50,7 @@ namespace AuthAPI.Services.Implements
                     Message = "Invalid email or password"
                 };
 
-                var authResponse = jwtService.GenerateToken(user.Email, user.EmployeeId, user.Role.RoleName);
+                var authResponse = await jwtService.GenerateToken(user.Email, user.EmployeeId, user.Role.RoleName);
                 
                 await userRepo.SaveRefreshToken(user.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
 
@@ -83,7 +83,7 @@ namespace AuthAPI.Services.Implements
                     Message = "User not registered"
                 };
 
-                var authResponse = jwtService.GenerateToken(user.Email, user.EmployeeId, user.Role.RoleName);
+                var authResponse = await jwtService.GenerateToken(user.Email, user.EmployeeId, user.Role.RoleName);
                
                 await userRepo.SaveRefreshToken(user.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
 
@@ -192,7 +192,7 @@ namespace AuthAPI.Services.Implements
                 };
             }
 
-            var auth = jwtService.GenerateToken(user.Email, user.EmployeeId,user.Role.RoleName);
+            var auth = await jwtService.GenerateToken(user.Email, user.EmployeeId,user.Role.RoleName);
 
             await userRepo.SaveRefreshToken(user.UserId, auth.RefreshToken, auth.RefreshTokenExpiry);
 

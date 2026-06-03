@@ -60,14 +60,6 @@
     min-height: 20px;
 }
 
-.btn-view {
-    background: #5a3ff2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 20px;
-}
-
 .btn-upload {
     background: #198754;
     color: white;
@@ -76,15 +68,20 @@
     padding: 8px 20px;
     margin-left: 10px;
 }
-
-.preview-frame {
-    display: none;
-    width: 100%;
-    height: 250px;
-    margin-top: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
+    .btn-upload:hover {
+        background: rgba(4,31,69,.72);
+        color: #fff;
+        box-shadow: 0 8px 16px rgba(25,135,84,.25);
+        transform: translateY(-2px);
+    }
+    .preview-frame {
+        display: none;
+        width: 100%;
+        height: 250px;
+        margin-top: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
 
 .uploaded-badge {
     background: #e8f8ee;
@@ -93,4 +90,132 @@
     padding: 20px;
     border-radius: 12px;
     font-weight: 600;
+}
+/* Status */
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-approved {
+    background: #e8f8ee;
+    color: #198754;
+}
+
+.status-rejected {
+    background: #fdeaea;
+    color: #dc3545;
+}
+
+.status-pending {
+    background: #fff7e6;
+    color: #ff9800;
+}
+
+/* Buttons */
+
+.btn-view,
+.btn-delete,
+.btn-success,
+.btn-warning {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all .25s ease;
+    cursor: pointer;
+    text-decoration: none;
+    margin-right: 8px;
+}
+
+/* View */
+
+.btn-view {
+    background: rgba(4,31,69,.72);
+    color: #fff;
+}
+
+    .btn-view:hover {
+        background: #157347 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(25,135,84,.25);
+    }
+
+/* Approve */
+
+.btn-success {
+    background: rgba(4,31,69,.72);
+    color: #fff;
+}
+
+    .btn-success:hover {
+        background: #157347 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(25,135,84,.25);
+    }
+
+/* Reject */
+
+.btn-warning {
+    background: #dc3545 !important;
+    color: #fff !important;
+}
+
+    .btn-warning:hover {
+        background: #bb2d3b !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(220,53,69,.25);
+    }
+
+/* Delete */
+
+.btn-delete {
+    background: #ffffff;
+    color: rgba(4,31,69,.72);
+    border: 2px solid rgba(4,31,69,.72);
+}
+
+    .btn-delete:hover {
+        color: #fff;
+        background: #bb2d3b !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(220,53,69,.25);
+        border: none;
+    }
+
+/* Card hover */
+
+.document-card {
+    transition: all .3s ease;
+}
+
+    .document-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    }
+
+.remark-text {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.modal-dialog.modal-xl {
+    max-width: 95%;
+}
+
+.modal-body {
+    padding: 0;
+    height: 85vh;
+    overflow: hidden;
+}
+
+.document-frame {
+    width: 100%;
+    height: 85vh;
+    border: none;
+    display: block;
 }

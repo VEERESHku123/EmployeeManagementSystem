@@ -2,6 +2,7 @@
 using Backend.Data.Entities;
 using Backend.Data.Repos.Abstracts;
 using Backend.DTOs.EmployeeDocument;
+using Backend.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data.Repos.Implements
@@ -77,6 +78,7 @@ namespace Backend.Data.Repos.Implements
             document.BlobName = blobName;
             document.Remarks = null;
             document.UploadedDate = DateTime.Now;
+            document.VerificationStatus = VerificationStatus.Pending.ToString();
 
             context.EmployeeDocuments.Update(document);
 
@@ -86,7 +88,7 @@ namespace Backend.Data.Repos.Implements
         public async Task<List<PendingDocumentDto>> GetPendingActionDocumentsAsync()
         {
             return await context.EmployeeDocuments
-                .Where(d => d.VerificationStatus == "Pending")
+                .Where(d => d.VerificationStatus == VerificationStatus.Pending.ToString())
                 .GroupBy(d => new
                 {
                     d.EmployeeId,
@@ -98,6 +100,42 @@ namespace Backend.Data.Repos.Implements
                     EmployeeName = g.Key.EmployeeName
                 })
                 .ToListAsync();
+        }
+
+        public async Task<bool> ApproveDocumentAsync(string employeeId,Guid documentId,string? remarks)
+        {
+            var document = await GetDocumentAsync(employeeId, documentId);
+                
+
+            if (document == null)
+            {
+                return false;
+            }
+
+            document.VerificationStatus = VerificationStatus.Approved.ToString();
+            document.Remarks = remarks;
+
+            await context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> RejectDocumentAsync(string employeeId,Guid documentId,string remarks)
+        {
+            var document = await GetDocumentAsync(employeeId, documentId);
+                
+
+            if (document == null)
+            {
+                return false;
+            }
+
+            document.VerificationStatus = VerificationStatus.Rejected.ToString();
+            document.Remarks = remarks;
+
+            await context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

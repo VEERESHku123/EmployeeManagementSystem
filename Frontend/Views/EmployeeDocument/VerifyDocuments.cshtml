@@ -41,8 +41,9 @@
                     .Where(x => x.CategoryId == category.CategoryId))
                 {
                     var uploadedDoc = uploadedDocuments?
-                        .FirstOrDefault(x =>
-                            x.DocumentTypeId == docType.DocumentTypeId);
+                                        .FirstOrDefault(x =>
+                                            x.DocumentTypeId == docType.DocumentTypeId &&
+                                            x.VerificationStatus == "Pending");
 
                     if (uploadedDoc == null)
                     {
@@ -64,16 +65,7 @@
                                     }
                                 </h5>
 
-                                <div class="uploaded-success">
-                                    ✓ Document Uploaded
-                                </div>
-
                                 <div class="document-info">
-
-                                    <p>
-                                        <strong>Status:</strong>
-                                        @uploadedDoc.VerificationStatus
-                                    </p>
 
                                     <p>
                                         <strong>Uploaded:</strong>
@@ -100,13 +92,13 @@
 
                                     <button type="button"
                                             class="btn btn-success"
-                                            onclick="approveDocument('@uploadedDoc.DocumentId')">
+                                            onclick="approveDocument('@employeeId','@uploadedDoc.DocumentId')">
                                         Approve
                                     </button>
 
                                     <button type="button"
                                             class="btn btn-warning"
-                                            onclick="rejectDocument('@uploadedDoc.DocumentId')">
+                                            onclick="rejectDocument('@employeeId','@uploadedDoc.DocumentId')">
                                         Reject
                                     </button>
 
@@ -147,92 +139,9 @@
 
 </div>
 
-<div class="modal fade"
-     id="documentModal"
-     tabindex="-1">
-
-    <div class="modal-dialog modal-xl">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h5 class="modal-title">
-                    Document Preview
-                </h5>
-
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal">
-                </button>
-
-            </div>
-
-            <div class="modal-body">
-
-                <iframe id="documentFrame"
-                        class="document-frame">
-                </iframe>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
+<partial name="_DocumentPreviewModal" />
 
 @section Scripts
 {
-    <script>
-
-        function showCategory(categoryId, button)
-        {
-            document.querySelectorAll(".category-section")
-                .forEach(section => {
-                    section.style.display = "none";
-                });
-
-            document
-                .getElementById("category-" + categoryId)
-                .style.display = "block";
-
-            document
-                .querySelectorAll(".category-btn")
-                .forEach(btn => btn.classList.remove("active"));
-
-            button.classList.add("active");
-        }
-
-        function viewDocument(url)
-        {
-            document.getElementById("documentFrame").src = url;
-
-            new bootstrap.Modal(
-                document.getElementById("documentModal"))
-                .show();
-        }
-
-        function approveDocument(documentId)
-        {
-            alert("Implement Approve API call");
-        }
-
-        function rejectDocument(documentId)
-        {
-            alert("Implement Reject API call");
-        }
-
-        window.onload = function ()
-        {
-            const firstButton =
-                document.querySelector(".category-btn");
-
-            if (firstButton)
-            {
-                firstButton.click();
-            }
-        };
-
-    </script>
+    <script src="~/js/verify-documents.js"></script>
 }

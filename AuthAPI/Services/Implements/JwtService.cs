@@ -1,28 +1,33 @@
-﻿using AuthAPI.DTOs;
+﻿using AuthAPI.Data.Repos.Abstracts;
+using AuthAPI.DTOs;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Linq;
 
 namespace AuthAPI.Services.Implements
 {
     public class JwtService
     {
         private readonly IConfiguration config;
+        private readonly IEmployeeRepo employeeRepo;
 
-        public JwtService(IConfiguration config)
+        public JwtService(IConfiguration config, IEmployeeRepo employeeRepo)
         {
             this.config = config;
+            this.employeeRepo = employeeRepo;
         }
 
-        public AuthResponse GenerateToken(string email, string employeeId, string role)
+        public async Task<AuthResponse> GenerateToken(string email, string employeeId, string role)
         {
+            var employee = await employeeRepo.CheckEmailExistsAsync(email);
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email,email),
                 new Claim("employeeId",employeeId),
+                new Claim(ClaimTypes.Name, employee.FirstName),
                 new Claim(ClaimTypes.Role,role)
             };
 

@@ -27,8 +27,9 @@ namespace Frontend.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult SignIn()
+        public IActionResult EmployeeDashboard()
         {
+            ViewBag.EmployeeName = User.Identity?.Name ?? "Employee";
             return View();
         }
 

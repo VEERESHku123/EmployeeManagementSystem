@@ -140,5 +140,27 @@ namespace Backend.Controllers
             return Ok(documents);
         }
 
+        [HttpPut("approve")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ApproveDocument(string employeeId,Guid documentId,string? remarks)
+        {
+            var response = await employeeDocumentService.ApproveDocumentAsync(employeeId,documentId,remarks);
+
+            return response.Success
+                ? Ok(response)
+                : BadRequest(response);
+        }
+
+        [HttpPut("reject")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RejectDocument(string employeeId,Guid documentId,string remarks)
+        {
+            var response = await employeeDocumentService.RejectDocumentAsync(employeeId,documentId,remarks);
+
+            return response.Success
+                ? Ok(response)
+                : BadRequest(response);
+        }
+
     }
 }

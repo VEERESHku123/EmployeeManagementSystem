@@ -19,5 +19,9 @@ namespace Frontend.ApiServices.Abstracts
 
         Task<ApiResponse<List<PendingDocumentModel>>> GetPendingDocumentsAsync();
 
+        Task<ApiResponse<bool>> ApproveDocumentAsync(string employeeId,Guid documentId,string? remarks);
+
+        Task<ApiResponse<bool>> RejectDocumentAsync(string employeeId,Guid documentId,string remarks);
+
     }
 }

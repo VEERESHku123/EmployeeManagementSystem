@@ -31,11 +31,13 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
+        [Route("{employeeId?}")]
         [Authorize(Roles = "Admin,User")]
-        public async Task<IActionResult> GetEmployeeById(string id)
+        public async Task<IActionResult> GetEmployeeById(string? employeeId)
         {
-            var result = await employeeService.GetEmployeeByIdAsync(id);
+            if(employeeId == null) employeeId = User.FindFirst("employeeId")?.Value;
+
+            var result = await employeeService.GetEmployeeByIdAsync(employeeId);
 
             if (!result.Success)
             {

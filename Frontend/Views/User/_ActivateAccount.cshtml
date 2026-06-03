@@ -57,12 +57,9 @@
 
         Already activated?
 
-        <a asp-controller="Home"
-           asp-action="Index"
-           asp-route-showLogin="true">
-
-            ← Back To Login
-
+        <a href="javascript:void(0)"
+           onclick="loadPartial('/User/SignIn')">
+            Sign In →
         </a>
 
     </div>
