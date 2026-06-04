@@ -14,12 +14,11 @@
 
         @foreach (var item in Model)
         {
-            <tr style="cursor:pointer"
-                onclick="location.href='@Url.Action("GetEmployeeById", "Employee", new { id = item.EmployeeId })'">
+            <tr style="cursor:pointer" onclick="loadEmployee('@item.EmployeeId')">
 
                 <td>@item.EmployeeId</td>
                 <td>@item.FirstName @item.LastName</td>
-                <td>@item.Designation</td>
+                <td>@item.DepartmentId</td>
 
             </tr>
         }

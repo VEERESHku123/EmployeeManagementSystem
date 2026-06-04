@@ -13,5 +13,9 @@ namespace Frontend.ApiServices.Abstracts
         Task<ApiResponse<EmployeePaginationData>> GetAllEmployees(string searchTerm, int page, int pageSize);
         Task<ApiResponse<EmployeeModel>> GetEmployeeById(string? employeeId);
         Task<ApiResponse<UpdateEmployeeModel>> UpdateEmployee(string id, UpdateEmployeeModel model);
+
+        Task<ApiResponse<List<DesignationModel>>> GetAllDesignations();
+        Task<ApiResponse<object>> UploadEmployeesAsync(IFormFile file);
+        Task<byte[]> DownloadTemplateAsync();
     }
 }

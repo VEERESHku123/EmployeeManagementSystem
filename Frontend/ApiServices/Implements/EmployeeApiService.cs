@@ -229,5 +229,63 @@ namespace Frontend.ApiServices.Implements
         }
 
 
+        public async Task<ApiResponse<List<DesignationModel>>> GetAllDesignations()
+        {
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employee/designationList"));
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<DesignationModel>>>();
+
+            return new ApiResponse<List<DesignationModel>>
+            {
+                Data = result.Data,
+                Message = "Successfully Fetched"
+            };
+        }
+
+        public async Task<ApiResponse<object>> UploadEmployeesAsync(IFormFile file)
+        {
+            try
+            {
+                using var content = new MultipartFormDataContent();
+
+                using var stream = file.OpenReadStream();
+
+                var fileContent = new StreamContent(stream);
+
+                content.Add(fileContent,"file",file.FileName);
+
+                var response = await SendAuthorizedRequestAsync(() => client.PostAsync("employee/upload-employees",content));
+                Console.WriteLine("---------------------");
+                Console.WriteLine(response.StatusCode);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Failed to upload employees."
+                    };
+                }
+
+                var result =
+                    await response.Content
+                        .ReadFromJsonAsync<ApiResponse<object>>();
+
+                return result!;
+            }
+            catch
+            {
+                throw;
+            }
+            
+        }
+
+        public async Task<byte[]> DownloadTemplateAsync()
+        {
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync("employee/download-template"));
+          
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsByteArrayAsync();
+        }
     }
 }

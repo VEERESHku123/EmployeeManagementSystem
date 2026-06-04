@@ -14,7 +14,7 @@ namespace Backend.DTOs.Employee
         public required DateOnly DOB { get; set; }
         public Gender Gender { get; set; }
         public DateOnly HiredDate { get; set; }
-        public required string Designation { get; set; }
+        public required int DesignationId { get; set; }
         public decimal Salary { get; set; }
         public bool IsActive { get; set; } = true;
 

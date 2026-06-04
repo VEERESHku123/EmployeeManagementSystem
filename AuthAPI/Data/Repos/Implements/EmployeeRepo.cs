@@ -20,9 +20,9 @@ namespace AuthAPI.Data.Repos.Implements
             {
                 return await context.Employees.FirstOrDefaultAsync(e => e.CompanyEmail == email);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
                 throw;
             }
 

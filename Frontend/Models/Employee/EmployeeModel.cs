@@ -39,8 +39,7 @@ namespace Frontend.Models.Employee
         public DateOnly HiredDate { get; set; }
 
         [Required(ErrorMessage = "Designation is required")]
-        [StringLength(50)]
-        public required string Designation { get; set; }
+        public int DesignationId { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Salary must be positive")]
         public decimal Salary { get; set; }

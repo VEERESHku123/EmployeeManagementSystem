@@ -86,13 +86,36 @@ namespace Frontend.Controllers
             var departments = await departmentApi.GetAllDepartments();
             var managers = await managerApi.SendAllManagers();
 
+            var designations = await employeeApiService.GetAllDesignations();
+
             ViewBag.Departments = new SelectList(departments.Data, "DepartmentId", "DepartmentName");
 
             ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
 
+            ViewBag.Designations = new SelectList(designations.Data,"DesignationId","DesignationName");
+
             return PartialView("AddNewEmployee");
         }
 
+        [HttpPost]
+        [Route("employee/upload-employees")]
+        public async Task<IActionResult> UploadEmployees(IFormFile file)
+        {
+            var response = await employeeApiService.UploadEmployeesAsync(file);
+
+            return Json(response);
+        }
+        [HttpGet]
+        [Route("employee/download-template")]
+        public async Task<IActionResult> DownloadTemplate()
+        {
+            var fileBytes = await employeeApiService.DownloadTemplateAsync();
+
+            return File(
+                fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "EmployeeTemplate.xlsx");
+        }
         [HttpPost]
         [Route("employee/add")]
         public async Task<IActionResult> AddNewEmployee(EmployeeModel model)
@@ -129,9 +152,14 @@ namespace Frontend.Controllers
             var departments = await departmentApi.GetAllDepartments();
             var managers = await managerApi.SendAllManagers();
 
+            var designations = await employeeApiService.GetAllDesignations();
+
             ViewBag.Departments = new SelectList(departments.Data, "DepartmentId", "DepartmentName");
 
             ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
+
+            ViewBag.Designations = new SelectList(designations.Data, "DesignationId", "DesignationsName");
+
 
             return PartialView("UpdateEmployee", employee);
         }

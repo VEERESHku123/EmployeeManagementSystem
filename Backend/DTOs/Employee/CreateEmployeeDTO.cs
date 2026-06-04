@@ -32,8 +32,10 @@ namespace Backend.DTOs.Employee
         public Gender Gender { get; set; }
         [Required]
         public DateOnly HiredDate { get; set; }
+
         [Required]
-        public required string Designation { get; set; }
+        public int DesignationId { get; set; }
+
         [Range(0, 10000000)]
         public decimal Salary { get; set; }
 

@@ -7,133 +7,186 @@
 
 <link rel="stylesheet" href="~/css/employee-Add.css" />
 
-<div class="form-card">
+<div class="mb-3 text-center">
 
-    <form asp-action="AddNewEmployee" method="post">
+    <div class="btn-group">
 
-        <div class="section-title">Basic Information</div>
+        <button type="button"
+                id="singleModeBtn"
+                class="btn btn-primary">
+            Single Employee
+        </button>
 
-        <div class="row">
-            <div class="col-md-6 form-group">
-                <label asp-for="EmployeeId" class="form-label required">Employee Id</label>
-                <input asp-for="EmployeeId" class="form-control" />
-                <span asp-validation-for="EmployeeId" class="text-danger"></span>
-            </div>
+        <button type="button"
+                id="bulkModeBtn"
+                class="btn btn-outline-primary">
+            Bulk Upload
+        </button>
 
-            <div class="col-md-6 form-group">
-                <label asp-for="CompanyEmail" class="form-label required">Company Email</label>
-                <input asp-for="CompanyEmail" class="form-control" />
-                <span asp-validation-for="CompanyEmail" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 form-group">
-                <label asp-for="PersonalEmail" class="form-label">Personal Email</label>
-                <input asp-for="PersonalEmail" class="form-control" />
-                <span asp-validation-for="PersonalEmail" class="text-danger"></span>
-            </div>
-        </div>
-
-        <div class="row mt-2">
-            <div class="col-md-6 form-group">
-                <label asp-for="FirstName" class="form-label required">First Name</label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6 form-group">
-                <label asp-for="LastName" class="form-label required">Last Name</label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-        </div>
-
-        <div class="section-title">Contact Details</div>
-
-        <div class="row">
-            <div class="col-md-6 form-group">
-                <label asp-for="PhoneNumber" class="form-label required">Phone Number</label>
-                <input asp-for="PhoneNumber" class="form-control" type="number"/>
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6 form-group">
-                <label asp-for="DOB" class="form-label required"></label>
-                <input asp-for="DOB" type="date" class="form-control" />
-                <span asp-validation-for="DOB" class="text-danger"></span>
-            </div>
-        </div>
-
-        <div class="section-title">Job Details</div>
-
-        <div class="row">
-            <div class="col-md-6 form-group">
-                <label asp-for="Gender" class="form-label required"></label>
-                <select asp-for="Gender"
-                        class="form-control"
-                        asp-items="Html.GetEnumSelectList<GenderEnum>()">
-                </select>
-            </div>
-
-            <div class="col-md-6 form-group">
-                <label asp-for="HiredDate" class="form-label required">Hired Date</label>
-                <input asp-for="HiredDate" type="date" class="form-control" />
-            </div>
-        </div>
-
-        <div class="row mt-2">
-            <div class="col-md-6 form-group">
-                <label asp-for="Designation" class="form-label required">Designation</label>
-
-                <select asp-for="Designation" class="form-control">
-                    <option value="">-- Select Job Title --</option>
-                    <option value="Software Engineer">Software Engineer</option>
-                    <option value="Senior Software Engineer">Senior Software Engineer</option>
-                    <option value="Team Lead">Team Lead</option>
-                    <option value="Project Manager">Project Manager</option>
-                    <option value="HR Manager">HR Manager</option>
-                    <option value="QA Engineer">QA Engineer</option>
-                    <option value="Business Analyst">Business Analyst</option>
-                </select>
-
-                <span asp-validation-for="Designation" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6 form-group">
-                <label asp-for="Salary" class="form-label"></label>
-                <input asp-for="Salary" type="number" step="0.01" class="form-control" />
-            </div>
-        </div>
-
-        <div class="row mt-2">
-            <div class="col-md-6 form-group required">
-                <label asp-for="DepartmentId" class="form-label">Department</label>
-                <select asp-for="DepartmentId"
-                        class="form-control"
-                        asp-items="ViewBag.Departments">
-                    <option value="">-- Select Department --</option>
-                </select>
-            </div>
-
-            <div class="col-md-6 form-group">
-                <label asp-for="ManagerId" class="form-label">Manager</label>
-                <select asp-for="ManagerId"
-                        class="form-control"
-                        asp-items="ViewBag.Managers">
-                    <option value="">-- Select Manager --</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="mt-4 text-center">
-            <button type="submit" class="btn-navy">Add</button>
-            <a asp-action="GetAllEmployees" class="btn-outline-navy">Cancel</a>
-        </div>
-
-    </form>
+    </div>
 
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+<div id="singleEmployeeSection">
+    <div class="form-card">
+
+        <form asp-action="AddNewEmployee" method="post">
+
+            <div class="section-title">Basic Information</div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="EmployeeId" class="form-label required">Employee Id</label>
+                    <input asp-for="EmployeeId" class="form-control" />
+                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label asp-for="CompanyEmail" class="form-label required">Company Email</label>
+                    <input asp-for="CompanyEmail" class="form-control" />
+                    <span asp-validation-for="CompanyEmail" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="PersonalEmail" class="form-label">Personal Email</label>
+                    <input asp-for="PersonalEmail" class="form-control" />
+                    <span asp-validation-for="PersonalEmail" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6 form-group">
+                    <label asp-for="FirstName" class="form-label required">First Name</label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label asp-for="LastName" class="form-label required">Last Name</label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="section-title">Contact Details</div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="PhoneNumber" class="form-label required">Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control" type="number" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label asp-for="DOB" class="form-label required"></label>
+                    <input asp-for="DOB" type="date" class="form-control" />
+                    <span asp-validation-for="DOB" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="section-title">Job Details</div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label asp-for="Gender" class="form-label required"></label>
+                    <select asp-for="Gender"
+                            class="form-control"
+                            asp-items="Html.GetEnumSelectList<GenderEnum>()">
+                    </select>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label asp-for="HiredDate" class="form-label required">Hired Date</label>
+                    <input asp-for="HiredDate" type="date" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6 form-group">
+                    <label asp-for="DesignationId" class="form-label required">Designation</label>
+
+                    <select asp-for="DesignationId"
+                            class="form-control"
+                            asp-items="ViewBag.Designations">
+                        <option value="">-- Select Job Title --</option>
+                    </select>
+
+                    <span asp-validation-for="DesignationId" class="text-danger"></span>
+
+                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label asp-for="Salary" class="form-label"></label>
+                    <input asp-for="Salary" type="number" step="0.01" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6 form-group required">
+                    <label asp-for="DepartmentId" class="form-label">Department</label>
+                    <select asp-for="DepartmentId"
+                            class="form-control"
+                            asp-items="ViewBag.Departments">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label asp-for="ManagerId" class="form-label">Manager</label>
+                    <select asp-for="ManagerId"
+                            class="form-control"
+                            asp-items="ViewBag.Managers">
+                        <option value="">-- Select Manager --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn-navy">Add</button>
+                <a asp-action="GetAllEmployees" class="btn-outline-navy">Cancel</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<div id="bulkUploadSection"
+     class="form-card"
+     style="display:none;">
+
+    <div class="section-title">
+        Bulk Employee Upload
+    </div>
+
+    <div class="mb-3">
+
+        <a href="/employee/download-template"
+           class="btn btn-success">
+
+            Download Template
+
+        </a>
+
+    </div>
+
+    <div class="mb-3">
+
+        <input type="file"
+               id="employeeExcel"
+               class="form-control"
+               accept=".xlsx" />
+
+    </div>
+
+    <button type="button"
+            id="uploadEmployeesBtn"
+            class="btn-navy">
+
+        Upload Employees
+
+    </button>
+
+</div>

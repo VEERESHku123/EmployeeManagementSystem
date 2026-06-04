@@ -56,7 +56,7 @@
             Job Title
         </dt>
         <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Designation)
+            @Html.DisplayFor(model => model.DesignationId)
         </dd>
 
         <dt class="col-sm-3">
@@ -90,28 +90,28 @@
     </dl>
    
     <div class="mt-4 text-center">
-        @if (User.IsInRole("Admin") || email == Model.CompanyEmail)
+        @if (User.IsInRole("Admin"))
         {
             <a asp-action="UpdateEmployee"
                asp-route-id="@Model.EmployeeId"
                class="btn-custom btn-edit">
                 Edit
             </a>
-        }
-        @if (User.IsInRole("Admin"))
-        {
+
             <button id="deleteBtn"
                     data-id="@Model.EmployeeId"
                     class="btn-custom btn-edit">
                 Remove
             </button>
+
+            <a asp-action="GetAllEmployees"
+               asp-controller="Employee"
+               class="btn-custom btn-back">
+                Back to List
+            </a>
         }
         
-        <a asp-action="GetAllEmployees"
-           asp-controller="Employee"
-           class="btn-custom btn-back">
-            Back to List
-        </a>
+        
     </div>
 
 </div>

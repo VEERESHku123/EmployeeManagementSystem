@@ -81,9 +81,9 @@
                             </li>
 
                             <li>
-                                <a class="nav-link"
-                                   asp-controller="EmployeeDocument"
-                                   asp-action="PendingDocuments">
+                                <a href="javascript:void(0)"
+                                   class="nav-link"
+                                   onclick="loadPage('/document/PendingDocuments')">
 
                                     Verify Documents
 
@@ -230,6 +230,11 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script src="~/js/employee-document-upload.js"></script>
+    <script src="~/js/verify-documents.js"></script>
+    <script src="~/js/pending-documents.js"></script>
+    <script src="~/js/employee-add.js"></script>
+    <script src="~/js/get-all-employees.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

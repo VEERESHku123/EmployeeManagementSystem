@@ -7,11 +7,11 @@ namespace Backend.Data.Repos.Implements
 {
     public class ManagerRepo : IManagerRepo
     {
-        public AppDbContext Context { get; set; }
+        private readonly AppDbContext context;
 
         public ManagerRepo(AppDbContext context)
         {
-            Context = context;
+            this.context = context;
         }
 
 
@@ -20,7 +20,7 @@ namespace Backend.Data.Repos.Implements
         {
             try
             {
-                return await Context.Managers.ToListAsync();
+                return await context.Managers.ToListAsync();
             }
             catch (Exception)
             {
@@ -30,5 +30,9 @@ namespace Backend.Data.Repos.Implements
 
         }
 
+        public async Task<ManagerEntity?> GetByNameAsync(string managerName)
+        {
+            return await context.Managers.FirstOrDefaultAsync(m => m.ManagerName == managerName);
+        }
     }
 }

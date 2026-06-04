@@ -81,39 +81,32 @@
 
         <div class="row mt-2">
             <div class="col-md-6 form-group">
-                <label asp-for="Designation" class="form-label">Designation</label>
+                <label asp-for="DesignationId" class="form-label">Designation</label>
                 @if (User.IsInRole("Admin"))
                     {
-                    <select asp-for="Designation" class="form-control">
+                    <select asp-for="DesignationId"
+                            class="form-control"
+                            asp-items="ViewBag.Designations">
                         <option value="">-- Select Job Title --</option>
-                        <option value="Software Engineer">Software Engineer</option>
-                        <option value="Senior Software Engineer">Senior Software Engineer</option>
-                        <option value="Team Lead">Team Lead</option>
-                        <option value="Project Manager">Project Manager</option>
-                        <option value="HR Manager">HR Manager</option>
-                        <option value="QA Engineer">QA Engineer</option>
-                        <option value="Business Analyst">Business Analyst</option>
                     </select>
+
+                    <span asp-validation-for="DesignationId" class="text-danger"></span>
                     }
                     else
                     {
-                    <select asp-for="Designation" class="form-control" disabled>
+                    <select asp-for="DesignationId"
+                            class="form-control"
+                            asp-items="ViewBag.Designations">
                         <option value="">-- Select Job Title --</option>
-                        <option value="Software Engineer">Software Engineer</option>
-                        <option value="Senior Software Engineer">Senior Software Engineer</option>
-                        <option value="Team Lead">Team Lead</option>
-                        <option value="Project Manager">Project Manager</option>
-                        <option value="HR Manager">HR Manager</option>
-                        <option value="QA Engineer">QA Engineer</option>
-                        <option value="Business Analyst">Business Analyst</option>
                     </select>
-                    <input type="hidden"
-                           asp-for="Designation" />
+
+                    <span asp-validation-for="DesignationId" class="text-danger"></span>
+                    <input type="hidden" asp-for="DesignationId" />
                     }
 
                 
 
-                <span asp-validation-for="Designation" class="text-danger"></span>
+                <span asp-validation-for="DesignationId" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 form-group">

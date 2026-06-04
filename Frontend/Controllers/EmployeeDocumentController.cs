@@ -53,32 +53,26 @@ namespace Frontend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateDocument(string employeeId,Guid documentId,int documentTypeId,IFormFile file)
+        public async Task<IActionResult> UpdateDocument(string employeeId, Guid documentId, int documentTypeId, IFormFile file)
         {
-            var result =
-                await employeeDocumentApiService.UpdateDocumentAsync(
-                    documentId,
-                    documentTypeId,
-                    file,
-                    employeeId);
+            var result = await employeeDocumentApiService.UpdateDocumentAsync(
+                documentId,
+                documentTypeId,
+                file,
+                employeeId);
 
-            if (!result.Success)
+            return Json(new
             {
-                TempData["ErrorMessage"] = result.Message;
-            }
-            else
-            {
-                TempData["SuccessMessage"] = result.Message;
-            }
-
-            return RedirectToAction(nameof(UploadDocument), new { employeeId });
+                success = result.Success,
+                message = result.Message
+            });
         }
 
         #endregion
 
         #region Admin
 
-        [HttpGet]
+        [HttpGet("document/PendingDocuments")]
         public async Task<IActionResult> PendingDocuments()
         {
             var response = await employeeDocumentApiService.GetPendingDocumentsAsync();
@@ -90,10 +84,10 @@ namespace Frontend.Controllers
                 return View(new List<PendingDocumentModel>());
             }
 
-            return View(response.Data);
+            return PartialView("PendingDocuments", response.Data);
         }
 
-        [HttpGet]
+        [HttpGet("document/verify")]
         public async Task<IActionResult> VerifyDocuments(string employeeId)
         {
             var categoryResponse =
@@ -110,7 +104,7 @@ namespace Frontend.Controllers
             ViewBag.DocumentTypes = typeResponse.Data;
             ViewBag.UploadedDocuments = uploadedResponse.Data;
 
-            return View();
+            return PartialView("VerifyDocuments");
         }
 
         [HttpPost]
@@ -131,38 +125,27 @@ namespace Frontend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ApproveDocument(string employeeId,Guid documentId, string? remarks)
+        public async Task<IActionResult> ApproveDocument(string employeeId, Guid documentId, string? remarks)
         {
-            var result = await employeeDocumentApiService
-                .ApproveDocumentAsync(employeeId, documentId, remarks);
+            var result = await employeeDocumentApiService.ApproveDocumentAsync(employeeId, documentId, remarks);
 
-            if (result.Success)
+            return Json(new
             {
-                TempData["SuccessMessage"] = result.Message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = result.Message;
-            }
-
-            return RedirectToAction(nameof(PendingDocuments));
+                success = result.Success,
+                message = result.Message
+            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> RejectDocument(string employeeId,Guid documentId, string remarks)
+        public async Task<IActionResult> RejectDocument(string employeeId,Guid documentId,string remarks)
         {
             var result = await employeeDocumentApiService.RejectDocumentAsync(employeeId, documentId, remarks);
 
-            if (result.Success)
+            return Json(new
             {
-                TempData["SuccessMessage"] = result.Message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = result.Message;
-            }
-
-            return RedirectToAction(nameof(PendingDocuments));
+                success = result.Success,
+                message = result.Message
+            });
         }
 
         #endregion

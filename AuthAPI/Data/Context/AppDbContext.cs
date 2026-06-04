@@ -17,6 +17,10 @@ namespace AuthAPI.Data.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<EmployeeEntity>()
+                .Property(e => e.Gender)
+                .HasConversion<string>();
+
             base.OnModelCreating(modelBuilder);
         }
 

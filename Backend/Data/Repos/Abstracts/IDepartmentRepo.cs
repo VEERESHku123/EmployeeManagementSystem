@@ -8,5 +8,6 @@ namespace Backend.Data.Repos.Abstracts
         AppDbContext Context { get; set; }
 
         Task<List<DepartmentEntity>> GetAllAsync();
+        Task<DepartmentEntity?> GetByNameAsync(string departmentName);
     }
 }

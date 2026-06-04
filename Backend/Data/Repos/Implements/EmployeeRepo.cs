@@ -199,5 +199,21 @@ namespace Backend.Data.Repos.Implements
             }
             
         }
+
+        public async Task BulkInsertEmployeesAsync(List<EmployeeEntity> employees)
+        {
+            await context.Employees.AddRangeAsync(employees);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<List<DesignationEntity>> GetAllDesignations()
+        {
+            return await context.Designations.ToListAsync();
+        }
+
+        public async Task<DesignationEntity?> GetByDesignationNameAsync(string designationName)
+        {
+            return await context.Designations.FirstOrDefaultAsync(d => d.DesignationName == designationName);
+        }
     }
 }

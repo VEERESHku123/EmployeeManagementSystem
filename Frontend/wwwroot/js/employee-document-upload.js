@@ -161,13 +161,69 @@ function viewDocument(url) {
 
 function replaceDocument(employeeId, documentId, documentTypeId) {
 
-    const fileInput =
-        document.getElementById(
-            "file_" + documentTypeId);
+    const fileInput = document.getElementById(
+        "file_" + documentTypeId
+    );
 
-    if (fileInput) {
-        fileInput.click();
+    if (!fileInput) {
+        return;
     }
+
+    fileInput.onchange = function () {
+
+        const file = this.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const formData = new FormData();
+
+        formData.append("employeeId", employeeId);
+        formData.append("documentId", documentId);
+        formData.append("documentTypeId", documentTypeId);
+        formData.append("file", file);
+
+        $.ajax({
+            url: '/EmployeeDocument/UpdateDocument',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            success: function (response) {
+
+                if (response.success) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Document Updated',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    });
+
+                } else {
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        text: response.message
+                    });
+                }
+            },
+
+            error: function () {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Failed to update document. Please try again.'
+                });
+            }
+        });
+    };
+
+    fileInput.click();
 }
 
 async function deleteDocument(documentId) {

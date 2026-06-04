@@ -135,6 +135,35 @@ namespace Backend.Controllers
 
         }
 
+        [HttpPost("upload-employees")]
+        [Authorize]
+        public async Task<IActionResult> UploadEmployees([FromForm] IFormFile file)
+        {
+            if (file == null)
+            {
+                return BadRequest("File is null");
+            }
+            var response = await employeeService.UploadEmployeesAsync(file);
+
+            Console.WriteLine(response.Success);
+            Console.WriteLine(response.Message);
+
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpGet("download-template")]
+        [Authorize]
+        public async Task<IActionResult> DownloadTemplate()
+        {
+            var fileBytes =
+                await employeeService.DownloadTemplateAsync();
+
+            return File(
+                fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "EmployeeTemplate.xlsx");
+        }
+
         [HttpGet]
         [Route("CheckEmailExists/{email}")]
         [Authorize(Roles = "Admin,User")]
@@ -166,6 +195,14 @@ namespace Backend.Controllers
                 return Conflict("Phone number already exists");
 
             return Ok("Phone number is available");
+        }
+
+        [HttpGet]
+        [Route("designationList")]
+        [Authorize]
+        public async Task<IActionResult> GetAllDesignations()
+        {
+            return Ok(await employeeService.GetAllDesignations());
         }
 
     }

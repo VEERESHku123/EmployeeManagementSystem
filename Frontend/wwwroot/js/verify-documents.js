@@ -33,21 +33,38 @@ function approveDocument(employeeId, documentId) {
         confirmButtonText: 'Approve'
     }).then((result) => {
 
-        if (result.isConfirmed) {
+        if (!result.isConfirmed) return;
 
-            const form = document.createElement('form');
-            form.method = 'post';
-            form.action = '/EmployeeDocument/ApproveDocument';
+        fetch('/EmployeeDocument/ApproveDocument', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body:
+                `employeeId=${encodeURIComponent(employeeId)}` +
+                `&documentId=${encodeURIComponent(documentId)}` +
+                `&remarks=${encodeURIComponent(result.value || '')}`
+        })
+            .then(response => response.text())
+            .then(() => {
 
-            form.innerHTML = `
-                <input type="hidden" name="employeeId" value="${employeeId}" />
-                <input type="hidden" name="documentId" value="${documentId}" />
-                <input type="hidden" name="remarks" value="${result.value ?? ''}" />
-            `;
+                Swal.fire(
+                    'Success',
+                    'Document approved successfully.',
+                    'success'
+                );
 
-            document.body.appendChild(form);
-            form.submit();
-        }
+                loadPage('/document/PendingDocuments');
+            })
+            .catch(error => {
+                console.error(error);
+
+                Swal.fire(
+                    'Error',
+                    'Failed to approve document.',
+                    'error'
+                );
+            });
     });
 }
 
@@ -68,20 +85,48 @@ function rejectDocument(employeeId, documentId) {
         confirmButtonColor: '#d33'
     }).then((result) => {
 
-        if (result.isConfirmed) {
+        if (!result.isConfirmed) return;
 
-            const form = document.createElement('form');
-            form.method = 'post';
-            form.action = '/EmployeeDocument/RejectDocument';
+        fetch('/EmployeeDocument/RejectDocument', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body:
+                `employeeId=${encodeURIComponent(employeeId)}` +
+                `&documentId=${encodeURIComponent(documentId)}` +
+                `&remarks=${encodeURIComponent(result.value)}`
+        })
+            .then(response => response.json())
+            .then(data => {
 
-            form.innerHTML = `
-                <input type="hidden" name="employeeId" value="${employeeId}" />
-                <input type="hidden" name="documentId" value="${documentId}" />
-                <input type="hidden" name="remarks" value="${result.value}" />
-            `;
+                if (data.success) {
 
-            document.body.appendChild(form);
-            form.submit();
-        }
+                    Swal.fire(
+                        'Rejected!',
+                        data.message,
+                        'success'
+                    );
+
+                    loadPage('/document/PendingDocuments');
+                }
+                else {
+
+                    Swal.fire(
+                        'Error',
+                        data.message,
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                console.error(error);
+
+                Swal.fire(
+                    'Error',
+                    'Failed to reject document.',
+                    'error'
+                );
+            });
     });
 }

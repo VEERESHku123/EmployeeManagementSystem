@@ -7,18 +7,19 @@ namespace Backend.Data.Repos.Implements
 {
     public class DepartmentRepo : IDepartmentRepo
     {
-        public AppDbContext Context { get; set; }
+        private readonly AppDbContext context;
         public DepartmentRepo(AppDbContext context)
         {
-            Context = context;
+            this.context = context;
         }
 
+        public AppDbContext Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public async Task<List<DepartmentEntity>> GetAllAsync()
         {
             try
             {
-                return await Context.Departments.ToListAsync();
+                return await context.Departments.ToListAsync();
             }
             catch (Exception)
             {
@@ -28,5 +29,9 @@ namespace Backend.Data.Repos.Implements
 
         }
 
+        public async Task<DepartmentEntity?> GetByNameAsync(string departmentName)
+        {
+            return await context.Departments.FirstOrDefaultAsync(d => d.DepartmentName == departmentName);
+        }
     }
 }
