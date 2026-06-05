@@ -4,9 +4,13 @@ using Backend.Data.Repos.Abstracts;
 using Backend.DTOs.Common;
 using Backend.DTOs.Employee;
 using Backend.Enums;
+using Backend.Helpers;
 using Backend.Services.Abstracts;
+using Backend.Validators;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Wordprocessing;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Backend.Services.Implements
 {
@@ -17,13 +21,15 @@ namespace Backend.Services.Implements
         private readonly IManagerRepo managerRepo;
         private readonly ILogger<EmployeeService> logger;
         private readonly IMapper mapper;
-        public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper, ILogger<EmployeeService> logger, IDepartmentRepo departmentRepo, IManagerRepo managerRepo)
+        private readonly EmployeeUploadValidator employeeUploadValidator;
+        public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper, ILogger<EmployeeService> logger, IDepartmentRepo departmentRepo, IManagerRepo managerRepo, EmployeeUploadValidator employeeUploadValidator)
         {
             this.employeeRepo = employeeRepo;
             this.mapper = mapper;
             this.logger = logger;
             this.managerRepo = managerRepo;
             this.departmentRepo = departmentRepo;
+            this.employeeUploadValidator = employeeUploadValidator;
         }
 
 
@@ -246,11 +252,11 @@ namespace Backend.Services.Implements
             }
         }
 
-        public async Task<bool> CheckEmailExistsAsync(string email)
+        public async Task<bool> CheckEmailExistsAsync(string companyEmail)
         {
             try
             {
-                return await employeeRepo.CheckEmailExistsAsync(email);
+                return await employeeRepo.CheckCompanyEmailExistsAsync(companyEmail);
             }
             catch (Exception)
             {
@@ -274,6 +280,16 @@ namespace Backend.Services.Implements
             
         }
 
+        public async Task<ApiResponse<List<DesignationEntity>>> GetAllDesignations()
+        {
+            var result = await employeeRepo.GetAllDesignations();
+            return new ApiResponse<List<DesignationEntity>>
+            {
+                Data = result,
+                Message = "Successfully Fetched"
+            };
+        }
+
         public async Task<bool> CheckPhoneExistsAsync(string phoneNumber, string? id)
         {
             try
@@ -288,141 +304,33 @@ namespace Backend.Services.Implements
             
         }
 
-        public async Task<ApiResponse<object>> UploadEmployeesAsync(IFormFile file)
-        {
-            try
-            {
-                if (file == null || file.Length == 0)
-                {
-                    return new ApiResponse<object>
-                    {
-                        Success = false,
-                        Message = "Please select an excel file."
-                    };
-                }
 
-                var employees = new List<EmployeeDTO>();
-
-                using var stream = file.OpenReadStream();
-                using var workbook = new XLWorkbook(stream);
-                var worksheet = workbook.Worksheet(1);
-
-                foreach (var row in worksheet.RowsUsed().Skip(1))
-                {
-                    var departmentName = row.Cell(12).GetString().Trim();
-                    var managerName = row.Cell(13).GetString().Trim();
-                    var designationName = row.Cell(10).GetString().Trim();
-
-                    var department = await departmentRepo.GetByNameAsync(departmentName);
-
-                    if (department == null)
-                    {
-                        return new ApiResponse<object>
-                        {
-                            Success = false,
-                            Message = $"Department '{departmentName}' not found."
-                        };
-                    }
-
-                    var manager = await managerRepo.GetByNameAsync(managerName);
-
-                    if (manager == null)
-                    {
-                        return new ApiResponse<object>
-                        {
-                            Success = false,
-                            Message = $"Manager '{managerName}' not found."
-                        };
-                    }
-
-                    var designation = await employeeRepo.GetByDesignationNameAsync(designationName);
-
-                    if (designation == null)
-                    {
-                        return new ApiResponse<object>
-                        {
-                            Success = false,
-                            Message = $"Designation '{designationName}' not found."
-                        };
-                    }
-
-                    var employee = new EmployeeDTO
-                    {
-                        EmployeeId = row.Cell(1).GetString().Trim(),
-                        FirstName = row.Cell(2).GetString().Trim(),
-                        LastName = row.Cell(3).GetString().Trim(),
-                        PhoneNumber = row.Cell(4).GetString().Trim(),
-                        PersonalEmail = string.IsNullOrWhiteSpace(row.Cell(5).GetString()) ? null : row.Cell(5).GetString().Trim(),
-                        CompanyEmail = row.Cell(6).GetString().Trim(),
-
-                        DOB = DateOnly.FromDateTime(DateTime.Parse(row.Cell(7).GetString())),
-
-                        HiredDate = DateOnly.FromDateTime(DateTime.Parse(row.Cell(9).GetString())),
-
-                        Gender = Enum.Parse<Gender>(row.Cell(8).GetString(), true),
-
-
-
-
-                        Salary = row.Cell(11).GetValue<decimal>(),
-
-                        DepartmentId = department.DepartmentId,
-
-                        ManagerId = manager.ManagerId,
-
-                        DesignationId = designation.DesignationId,
-
-                        IsActive = true
-                    };
-
-                    employees.Add(employee);
-                }
-
-                await employeeRepo.BulkInsertEmployeesAsync(mapper.Map<List<EmployeeEntity>>(employees));
-
-                logger.LogInformation("{Count} employees imported successfully.",employees.Count);
-
-                return new ApiResponse<object>
-                {
-                    Success = true,
-                    Message =
-                        $"{employees.Count} employees imported successfully."
-                };
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(
-                    ex,
-                    "Error while uploading employee excel.");
-
-                return new ApiResponse<object>
-                {
-                    Success = false,
-                    Message = "Failed to import employees.",
-                    Errors = new List<string>
-                {
-                    ex.Message
-                }
-                };
-            }
-        }
-
-        public async Task<ApiResponse<List<DesignationEntity>>> GetAllDesignations()
-        {
-            var result = await employeeRepo.GetAllDesignations();
-            return new ApiResponse<List<DesignationEntity>>
-            {
-                Data = result,
-                Message = "Successfully Fetched"
-            };
-        }
+        //------------------------------------- XL Template Download --------------------------
         public async Task<byte[]> DownloadTemplateAsync()
         {
             using var workbook = new XLWorkbook();
 
             var worksheet = workbook.Worksheets.Add("Employees");
 
-            // Headers
+            AddHeaders(worksheet);
+
+            await AddDepartmentDropdown(workbook, worksheet);
+
+            await AddManagerDropdown(workbook, worksheet);
+
+            await AddDesignationDropdown(workbook, worksheet);
+
+            ApplyStyles(worksheet);
+
+            using var stream = new MemoryStream();
+
+            workbook.SaveAs(stream);
+
+            return stream.ToArray();
+        }
+
+        private void AddHeaders(IXLWorksheet worksheet)
+        {
             worksheet.Cell(1, 1).Value = "EmployeeId";
             worksheet.Cell(1, 2).Value = "FirstName";
             worksheet.Cell(1, 3).Value = "LastName";
@@ -436,75 +344,203 @@ namespace Backend.Services.Implements
             worksheet.Cell(1, 11).Value = "Salary";
             worksheet.Cell(1, 12).Value = "Department";
             worksheet.Cell(1, 13).Value = "Manager";
+        }
 
-            // ---------------- Department Dropdown ----------------
+        private async Task AddDepartmentDropdown(XLWorkbook workbook, IXLWorksheet worksheet)
+        {
             var departments = await departmentRepo.GetAllAsync();
 
-            var deptSheet = workbook.Worksheets.Add("Departments");
+            var sheet = workbook.Worksheets.Add("Departments");
 
             for (int i = 0; i < departments.Count; i++)
             {
-                deptSheet.Cell(i + 1, 1).Value =
-                    departments[i].DepartmentName;
+                sheet.Cell(i + 1, 1).Value = departments[i].DepartmentName;
             }
 
             worksheet.Range("L2:L1000")
                      .CreateDataValidation()
-                     .List(deptSheet.Range($"A1:A{departments.Count}"));
+                     .List(sheet.Range($"A1:A{departments.Count}"));
 
-            // ---------------- Manager Dropdown ----------------
+            sheet.Hide();
+        }
+
+        private async Task AddManagerDropdown(XLWorkbook workbook, IXLWorksheet worksheet)
+        {
             var managers = await managerRepo.GetAllAsync();
 
-            var managerSheet = workbook.Worksheets.Add("Managers");
+            var sheet = workbook.Worksheets.Add("Managers");
 
             for (int i = 0; i < managers.Count; i++)
             {
-                managerSheet.Cell(i + 1, 1).Value =
-                    managers[i].ManagerName;
+                sheet.Cell(i + 1, 1).Value = managers[i].ManagerName;
             }
 
             worksheet.Range("M2:M1000")
                      .CreateDataValidation()
-                     .List(managerSheet.Range($"A1:A{managers.Count}"));
+                     .List(sheet.Range($"A1:A{managers.Count}"));
 
-            // ---------------- Designation Dropdown ----------------
-            var designations =
-                await employeeRepo.GetAllDesignations();
+            sheet.Hide();
+        }
 
-            var designationSheet =
-                workbook.Worksheets.Add("Designations");
+        private async Task AddDesignationDropdown(XLWorkbook workbook, IXLWorksheet worksheet)
+        {
+            var designations = await employeeRepo.GetAllDesignations();
+
+            var sheet = workbook.Worksheets.Add("Designations");
 
             for (int i = 0; i < designations.Count; i++)
             {
-                designationSheet.Cell(i + 1, 1).Value =
-                    designations[i].DesignationName;
+                sheet.Cell(i + 1, 1).Value = designations[i].DesignationName;
             }
 
             worksheet.Range("J2:J1000")
                      .CreateDataValidation()
-                     .List(designationSheet.Range($"A1:A{designations.Count}"));
+                     .List(sheet.Range($"A1:A{designations.Count}"));
 
-            // ---------------- Gender Dropdown ----------------
+            sheet.Hide();
+        }
+
+        private void ApplyStyles(IXLWorksheet worksheet)
+        {
+            worksheet.Row(1).Style.Font.Bold = true;
+
+            worksheet.Column(7).Style.DateFormat.Format = "yyyy-MM-dd";
+
+            worksheet.Column(9).Style.DateFormat.Format = "yyyy-MM-dd";
+
+            worksheet.Range("G2:G1000").Style.DateFormat.Format = "yyyy-MM-dd";
+
+            worksheet.Range("I2:I1000").Style.DateFormat.Format = "yyyy-MM-dd";
+
             worksheet.Range("H2:H1000")
                      .CreateDataValidation()
                      .List("\"Male,Female,Other\"");
 
-            // ---------------- Date Format ----------------
-            worksheet.Range("G2:G1000")
-                     .Style.DateFormat.Format = "yyyy-MM-dd";
+            worksheet.Columns().AdjustToContents();
+        }
 
-            worksheet.Range("I2:I1000")
-                     .Style.DateFormat.Format = "yyyy-MM-dd";
+        //------------------------------------- bulck uploade employee --------------------------
+        public async Task<ApiResponse<EmployeeUploadResultDTO>> UploadEmployeesAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return new ApiResponse<EmployeeUploadResultDTO>
+                {
+                    Success = false,
+                    Message = "Please select an excel file."
+                };
+            }
 
-            // ---------------- Header Style ----------------
-            worksheet.Row(1).Style.Font.Bold = true;
+            var validEmployees = new List<EmployeeDTO>();
 
-            // ---------------- Hide Master Sheets ----------------
-            deptSheet.Hide();
-            managerSheet.Hide();
-            designationSheet.Hide();
+            var invalidEmployees = new List<EmployeeUploadDTO>();
 
-            // ---------------- Auto Fit ----------------
+            var errors = new List<string>();
+
+            var tracker = new ExcelDuplicateTracker();
+
+            using var stream = file.OpenReadStream();
+            using var workbook = new XLWorkbook(stream);
+            var worksheet = workbook.Worksheet(1);
+
+            foreach (var row in worksheet.RowsUsed().Skip(1))
+            {
+                int rowNumber = row.RowNumber();
+
+                try
+                {
+                    var dto = ReadEmployeeFromRow(row);
+
+                    var rowErrors = await employeeUploadValidator.ValidateAsync(dto, rowNumber, tracker);
+
+                    if (rowErrors.Any())
+                    {
+                        invalidEmployees.Add(dto);
+
+                        errors.AddRange(rowErrors);
+
+                        continue;
+                    }
+
+                    validEmployees.Add(MapToEmployeeDTO(dto));
+                }
+                catch (Exception ex)
+                {
+                    invalidEmployees.Add(ReadEmployeeFromRow(row));
+
+                    errors.Add($"Row {rowNumber}: {ex.Message}");
+                }
+            }
+
+            if (validEmployees.Any())
+            {
+                await employeeRepo.BulkInsertEmployeesAsync(mapper.Map<List<EmployeeEntity>>(validEmployees));
+            }
+
+            string? invalidFileName = null;
+           
+            if (invalidEmployees.Any())
+            {
+                invalidFileName = $"InvalidEmployees_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+
+                byte[] fileBytes = GenerateInvalidEmployeesExcel(invalidEmployees);
+
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "InvalidEmployees");
+
+                Directory.CreateDirectory(folderPath);
+
+                await System.IO.File.WriteAllBytesAsync(Path.Combine(folderPath, invalidFileName), fileBytes);
+     
+            }
+
+            return new ApiResponse<EmployeeUploadResultDTO>
+            {
+                Success = true,
+                Message = $"{validEmployees.Count} employees imported successfully. {invalidEmployees.Count} employees failed.",
+
+                Data = new EmployeeUploadResultDTO
+                {
+                    SuccessCount = validEmployees.Count,
+                    FailedCount = invalidEmployees.Count,
+                    InsertedEmployeeIds = validEmployees.Select(x => x.EmployeeId).ToList(),
+
+                    InvalidFileName = invalidFileName
+                },
+
+                Errors = errors
+            };
+        }
+
+        private byte[] GenerateInvalidEmployeesExcel(List<EmployeeUploadDTO> invalidEmployees)
+        {
+            using var workbook = new XLWorkbook();
+
+            var worksheet =
+                workbook.Worksheets.Add("Invalid Employees");
+
+            AddHeaders(worksheet);
+
+            int row = 2;
+
+            foreach (var employee in invalidEmployees)
+            {
+                worksheet.Cell(row, 1).Value = employee.EmployeeId;
+                worksheet.Cell(row, 2).Value = employee.FirstName;
+                worksheet.Cell(row, 3).Value = employee.LastName;
+                worksheet.Cell(row, 4).Value = employee.PhoneNumber;
+                worksheet.Cell(row, 5).Value = employee.PersonalEmail;
+                worksheet.Cell(row, 6).Value = employee.CompanyEmail;
+                worksheet.Cell(row, 7).Value = employee.DOB.ToString();
+                worksheet.Cell(row, 8).Value = employee.GenderText;
+                worksheet.Cell(row, 9).Value = employee.HiredDate.ToString();
+                worksheet.Cell(row, 10).Value = employee.DesignationName;
+                worksheet.Cell(row, 11).Value = employee.Salary;
+                worksheet.Cell(row, 12).Value = employee.DepartmentName;
+                worksheet.Cell(row, 13).Value = employee.ManagerName;
+
+                row++;
+            }
+
             worksheet.Columns().AdjustToContents();
 
             using var stream = new MemoryStream();
@@ -512,6 +548,63 @@ namespace Backend.Services.Implements
             workbook.SaveAs(stream);
 
             return stream.ToArray();
+        }
+        private EmployeeUploadDTO ReadEmployeeFromRow(IXLRow row)
+        {
+            DateOnly dob = default;
+            DateOnly hiredDate = default;
+
+            if (row.Cell(7).TryGetValue<DateTime>(out var dobDate))
+            {
+                dob = DateOnly.FromDateTime(dobDate);
+            }
+
+            if (row.Cell(9).TryGetValue<DateTime>(out var hiredDateValue))
+            {
+                hiredDate = DateOnly.FromDateTime(hiredDateValue);
+            }
+
+            decimal.TryParse(row.Cell(11).GetString().Trim(), out var salary);
+
+            return new EmployeeUploadDTO
+            {
+                EmployeeId = row.Cell(1).GetString().Trim(),
+                FirstName = row.Cell(2).GetString().Trim(),
+                LastName = row.Cell(3).GetString().Trim(),
+                PhoneNumber = row.Cell(4).GetString().Trim(),
+                PersonalEmail = row.Cell(5).GetString().Trim(),
+                CompanyEmail = row.Cell(6).GetString().Trim(),
+                DOB = dob,
+                GenderText = row.Cell(8).GetString().Trim(),
+                HiredDate = hiredDate,
+                DesignationName = row.Cell(10).GetString().Trim(),
+                Salary = salary,
+                DepartmentName = row.Cell(12).GetString().Trim(),
+                ManagerName = row.Cell(13).GetString().Trim()
+            };
+        }
+
+        private EmployeeDTO MapToEmployeeDTO(EmployeeUploadDTO dto)
+        {
+            return new EmployeeDTO
+            {
+                EmployeeId = dto.EmployeeId,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                PhoneNumber = dto.PhoneNumber,
+                CompanyEmail = dto.CompanyEmail,
+                PersonalEmail = string.IsNullOrWhiteSpace(dto.PersonalEmail)
+                    ? null
+                    : dto.PersonalEmail,
+                DOB = dto.DOB,
+                Gender = dto.Gender,
+                HiredDate = dto.HiredDate,
+                Salary = dto.Salary,
+                DepartmentId = dto.DepartmentId,
+                DesignationId = dto.DesignationId,
+                ManagerId = dto.ManagerId,
+                IsActive = true
+            };
         }
 
     }

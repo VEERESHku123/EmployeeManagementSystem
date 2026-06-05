@@ -41,7 +41,6 @@ $(document).on("click", "#uploadEmployeesBtn", function () {
     }
 
     let formData = new FormData();
-
     formData.append("file", file);
 
     $.ajax({
@@ -53,18 +52,71 @@ $(document).on("click", "#uploadEmployeesBtn", function () {
 
         success: function (response) {
 
-            Swal.fire(
-                response.success ? "Success" : "Error",
-                response.message,
-                response.success ? "success" : "error");
+            $("#uploadErrorsContainer").hide();
+            $("#uploadErrorsList").empty();
+
+            if (response.success) {
+                console.log(response);
+                Swal.fire({
+                    icon: "success",
+                    title: "Upload Completed",
+                    html:
+                        `Success: ${response.data.successCount}<br>` +
+                        `Failed: ${response.data.failedCount}`
+                });
+
+                $("#employeeExcel").val("");
+
+                $("#invalidFileContainer").hide();
+
+                if (response.data &&
+                    response.data.invalidFileName) {
+
+                    $("#invalidFileDownloadLink")
+                        .attr(
+                            "href",
+                            "/employee/download-invalid-file?fileName=" +
+                            encodeURIComponent(
+                                response.data.invalidFileName));
+
+                    $("#invalidFileContainer").show();
+                }
+            }
+            else {
+
+                if (response.errors && response.errors.length > 0) {
+
+                    showUploadErrors(response.errors);
+                }
+
+                Swal.fire(
+                    "Error",
+                    response.message,
+                    "error");
+            }
         },
 
         error: function () {
 
             Swal.fire(
                 "Error",
-                "Upload failed.",
+                "Something went wrong while uploading the file.",
                 "error");
         }
     });
 });
+
+
+function showUploadErrors(errors) {
+
+    $("#uploadErrorsList").empty();
+
+    errors.forEach(function (error) {
+
+        $("#uploadErrorsList").append(
+            `<li>${error}</li>`
+        );
+    });
+
+    $("#uploadErrorsContainer").show();
+}

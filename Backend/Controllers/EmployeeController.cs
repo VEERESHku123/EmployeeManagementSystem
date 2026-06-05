@@ -139,16 +139,28 @@ namespace Backend.Controllers
         [Authorize]
         public async Task<IActionResult> UploadEmployees([FromForm] IFormFile file)
         {
-            if (file == null)
-            {
-                return BadRequest("File is null");
-            }
             var response = await employeeService.UploadEmployeesAsync(file);
 
-            Console.WriteLine(response.Success);
-            Console.WriteLine(response.Message);
-
             return response.Success ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpGet]
+        [Route("download-invalid-file")]
+        public async Task<IActionResult> DownloadInvalidFile(string fileName)
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(),"Uploads","InvalidEmployees",fileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+
+            return File(
+                fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName);
         }
 
         [HttpGet("download-template")]

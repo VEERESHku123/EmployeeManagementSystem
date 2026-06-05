@@ -152,11 +152,11 @@ namespace Backend.Data.Repos.Implements
             
         }
 
-        public async Task<bool> CheckEmailExistsAsync(string email)
+        public async Task<bool> CheckCompanyEmailExistsAsync(string companyEmail)
         {
             try
             {
-                var result = await context.Employees.SingleOrDefaultAsync(e => e.CompanyEmail == email);
+                var result = await context.Employees.SingleOrDefaultAsync(e => e.CompanyEmail == companyEmail);
 
                 return result != null;
             }
@@ -214,6 +214,21 @@ namespace Backend.Data.Repos.Implements
         public async Task<DesignationEntity?> GetByDesignationNameAsync(string designationName)
         {
             return await context.Designations.FirstOrDefaultAsync(d => d.DesignationName == designationName);
+        }
+
+        public async Task<bool> CheckPersonalEmailExistsAsync(string personalEmail)
+        {
+            try
+            {
+                var result = await context.Employees.SingleOrDefaultAsync(e => e.PersonalEmail == personalEmail);
+
+                return result != null;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

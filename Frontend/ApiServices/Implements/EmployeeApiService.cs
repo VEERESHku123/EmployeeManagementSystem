@@ -242,7 +242,7 @@ namespace Frontend.ApiServices.Implements
             };
         }
 
-        public async Task<ApiResponse<object>> UploadEmployeesAsync(IFormFile file)
+        public async Task<ApiResponse<EmployeeUploadResultModel>> UploadEmployeesAsync(IFormFile file)
         {
             try
             {
@@ -255,20 +255,8 @@ namespace Frontend.ApiServices.Implements
                 content.Add(fileContent,"file",file.FileName);
 
                 var response = await SendAuthorizedRequestAsync(() => client.PostAsync("employee/upload-employees",content));
-                Console.WriteLine("---------------------");
-                Console.WriteLine(response.StatusCode);
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new ApiResponse<object>
-                    {
-                        Success = false,
-                        Message = "Failed to upload employees."
-                    };
-                }
 
-                var result =
-                    await response.Content
-                        .ReadFromJsonAsync<ApiResponse<object>>();
+                var result = await response.Content.ReadFromJsonAsync<ApiResponse<EmployeeUploadResultModel>>();
 
                 return result!;
             }
@@ -283,6 +271,18 @@ namespace Frontend.ApiServices.Implements
         {
             var response = await SendAuthorizedRequestAsync(() => client.GetAsync("employee/download-template"));
           
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+
+        public async Task<byte[]> DownloadInvalidFileAsync(string fileName)
+        {
+            var response =
+                await SendAuthorizedRequestAsync(
+                    () => client.GetAsync(
+                        $"employee/download-invalid-file?fileName={Uri.EscapeDataString(fileName)}"));
+            Console.WriteLine(response.StatusCode);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsByteArrayAsync();

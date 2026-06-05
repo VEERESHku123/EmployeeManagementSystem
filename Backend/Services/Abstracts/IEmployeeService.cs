@@ -16,7 +16,7 @@ namespace Backend.Services.Abstracts
         Task<ApiResponse<EmployeeDTO>> GetEmployeeByIdAsync(string id);
         Task<ApiResponse<CreateEmployeeDTO>> UpdateEmployeeAsync(string id, CreateEmployeeDTO dto);
 
-        Task<ApiResponse<object>> UploadEmployeesAsync(IFormFile file);
+        Task<ApiResponse<EmployeeUploadResultDTO>> UploadEmployeesAsync(IFormFile file);
 
         Task<byte[]> DownloadTemplateAsync();
 

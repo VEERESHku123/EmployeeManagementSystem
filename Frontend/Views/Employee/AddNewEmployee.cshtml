@@ -162,31 +162,53 @@
     </div>
 
     <div class="mb-3">
-
         <a href="/employee/download-template"
            class="btn btn-success">
-
             Download Template
-
         </a>
-
     </div>
 
     <div class="mb-3">
-
         <input type="file"
                id="employeeExcel"
                class="form-control"
                accept=".xlsx" />
-
     </div>
 
     <button type="button"
             id="uploadEmployeesBtn"
             class="btn-navy">
-
         Upload Employees
-
     </button>
+
+    <!-- Validation Errors -->
+    <div id="uploadErrorsContainer"
+         class="mt-4"
+         style="display:none;">
+
+        <div class="alert alert-danger">
+
+            <h6 class="mb-3">
+                Validation Errors
+            </h6>
+
+            <ul id="uploadErrorsList"
+                class="mb-0">
+            </ul>
+
+        </div>
+
+    </div>
+
+    <div id="invalidFileContainer"
+         class="mt-3"
+         style="display:none;">
+
+        <a id="invalidFileDownloadLink"
+           class="btn btn-warning">
+            Download Invalid Employees
+        </a>
+
+    </div>
 
 </div>

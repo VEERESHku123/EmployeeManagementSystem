@@ -105,6 +105,19 @@ namespace Frontend.Controllers
 
             return Json(response);
         }
+
+        [HttpGet]
+        [Route("employee/download-invalid-file")]
+        public async Task<IActionResult> DownloadInvalidFile(string fileName)
+        {
+            var fileBytes =await employeeApiService.DownloadInvalidFileAsync(fileName);
+
+            return File(
+                fileBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName);
+        }
+
         [HttpGet]
         [Route("employee/download-template")]
         public async Task<IActionResult> DownloadTemplate()
