@@ -108,8 +108,7 @@ builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IEmployeeDocumentService, EmployeeDocumentService>();
 builder.Services.AddScoped<EmployeeUploadValidator>();
 
-builder.Services.AddAutoMapper(
-    config => config.AddProfile<MappingProfile>());
+builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
 var app = builder.Build();
 

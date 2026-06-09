@@ -33,8 +33,7 @@ namespace AuthAPI.Services.Implements
 
             var key = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( config["Jwt:Key"]));
 
-            var credentials =
-                new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var expiry = DateTime.Now.AddMinutes(int.Parse(config["Jwt:DurationInMinutes"]));
 

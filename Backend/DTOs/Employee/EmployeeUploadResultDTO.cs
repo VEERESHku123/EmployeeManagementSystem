@@ -9,5 +9,7 @@
         public List<string> InsertedEmployeeIds { get; set; } = new();
 
         public string? InvalidFileName { get; set; }
+
+        public List<InvalidEmployeeRecord> InvalidEmployeeRecords { get; set; } = new();
     }
 }

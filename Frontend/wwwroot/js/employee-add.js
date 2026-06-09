@@ -1,29 +1,12 @@
-﻿$(document).on("click", "#singleModeBtn", function () {
+﻿$(document).on("click", ".mode-btn", function () {
 
-    $("#singleEmployeeSection").show();
-    $("#bulkUploadSection").hide();
+    $(".mode-btn").removeClass("active");
+    $(this).addClass("active");
 
-    $(this)
-        .removeClass("btn-outline-primary")
-        .addClass("btn-primary");
+    const isBulkMode = this.id === "bulkModeBtn";
 
-    $("#bulkModeBtn")
-        .removeClass("btn-primary")
-        .addClass("btn-outline-primary");
-});
-
-$(document).on("click", "#bulkModeBtn", function () {
-
-    $("#singleEmployeeSection").hide();
-    $("#bulkUploadSection").show();
-
-    $(this)
-        .removeClass("btn-outline-primary")
-        .addClass("btn-primary");
-
-    $("#singleModeBtn")
-        .removeClass("btn-primary")
-        .addClass("btn-outline-primary");
+    $("#singleEmployeeSection").toggle(!isBulkMode);
+    $("#bulkUploadSection").toggle(isBulkMode);
 });
 
 $(document).on("click", "#uploadEmployeesBtn", function () {
@@ -52,46 +35,51 @@ $(document).on("click", "#uploadEmployeesBtn", function () {
 
         success: function (response) {
 
-            $("#uploadErrorsContainer").hide();
-            $("#uploadErrorsList").empty();
-
             if (response.success) {
-                console.log(response);
+
+                $("#employeeExcel").val("");
+
+                $("#successCount").text(response.data.successCount);
+                $("#failedCount").text(response.data.failedCount);
+
+                $("#uploadSummaryContainer").show();
+
+                if (response.data.invalidFileName) {
+
+                    $("#invalidFileDownloadLink").attr(
+                        "href",
+                        "/employee/download-invalid-file?fileName=" +
+                        encodeURIComponent(response.data.invalidFileName));
+
+                    $("#invalidFileContainer").show();
+                }
+                else {
+
+                    $("#invalidFileContainer").hide();
+                }
+
+                if (response.data.invalidEmployeeRecords && response.data.invalidEmployeeRecords.length > 0) {
+
+                    loadInvalidEmployees(response.data.invalidEmployeeRecords);
+                }
+                else {
+
+                    $("#invalidEmployeesContainer").hide();
+                }
+
                 Swal.fire({
                     icon: "success",
                     title: "Upload Completed",
                     html:
-                        `Success: ${response.data.successCount}<br>` +
-                        `Failed: ${response.data.failedCount}`
+                        `Success: ${response.data.successCount}<br>
+                         Failed: ${response.data.failedCount}`
                 });
-
-                $("#employeeExcel").val("");
-
-                $("#invalidFileContainer").hide();
-
-                if (response.data &&
-                    response.data.invalidFileName) {
-
-                    $("#invalidFileDownloadLink")
-                        .attr(
-                            "href",
-                            "/employee/download-invalid-file?fileName=" +
-                            encodeURIComponent(
-                                response.data.invalidFileName));
-
-                    $("#invalidFileContainer").show();
-                }
             }
             else {
 
-                if (response.errors && response.errors.length > 0) {
-
-                    showUploadErrors(response.errors);
-                }
-
                 Swal.fire(
                     "Error",
-                    response.message,
+                    response.message || "Upload failed.",
                     "error");
             }
         },
@@ -106,17 +94,45 @@ $(document).on("click", "#uploadEmployeesBtn", function () {
     });
 });
 
+function loadInvalidEmployees(records) {
 
-function showUploadErrors(errors) {
+    if ($.fn.DataTable.isDataTable('#errorTable')) {
 
-    $("#uploadErrorsList").empty();
+        $('#errorTable').DataTable().clear().destroy();
+    }
 
-    errors.forEach(function (error) {
+    $("#invalidEmployeesTableBody").empty();
 
-        $("#uploadErrorsList").append(
-            `<li>${error}</li>`
-        );
+    records.forEach(function (item) {
+
+        let employeeName = `${item.employee.firstName} ${item.employee.lastName}`;
+
+        let errors = item.errors.join("<br>");
+
+        $("#invalidEmployeesTableBody").append(`
+            <tr>
+                <td>${item.employee.employeeId}</td>
+                <td>${employeeName}</td>
+                <td>${errors}</td>
+            </tr>
+        `);
     });
 
-    $("#uploadErrorsContainer").show();
+    $("#invalidEmployeesContainer").show();
+
+    $('#errorTable').DataTable({
+        destroy: true,
+        pageLength: 3,
+        lengthChange: true,
+        lengthMenu: [5, 10, 20, 50, 100],
+        ordering: false,
+        searching: true,
+        info: true,
+        retrieve: false,
+
+        language: {
+            search: "Search Employee:",
+            emptyTable: "No invalid employees found"
+        }
+    });
 }

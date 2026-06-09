@@ -1,6 +1,7 @@
 ﻿using Frontend.ApiServices.Abstracts;
 using Frontend.Models.Common;
 using Frontend.Models.Employee;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 namespace Frontend.ApiServices.Implements
@@ -254,7 +255,7 @@ namespace Frontend.ApiServices.Implements
 
                 content.Add(fileContent,"file",file.FileName);
 
-                var response = await SendAuthorizedRequestAsync(() => client.PostAsync("employee/upload-employees",content));
+                var response = await SendAuthorizedRequestAsync(() => client.PostAsync("employee/upload-employees", content));
 
                 var result = await response.Content.ReadFromJsonAsync<ApiResponse<EmployeeUploadResultModel>>();
 
@@ -282,7 +283,7 @@ namespace Frontend.ApiServices.Implements
                 await SendAuthorizedRequestAsync(
                     () => client.GetAsync(
                         $"employee/download-invalid-file?fileName={Uri.EscapeDataString(fileName)}"));
-            Console.WriteLine(response.StatusCode);
+
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsByteArrayAsync();

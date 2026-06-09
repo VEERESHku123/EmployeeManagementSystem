@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
-    [Route("manager")]
+    [Route("api/manager")]
     [ApiController]
     public class ManagerController : ControllerBase
     {

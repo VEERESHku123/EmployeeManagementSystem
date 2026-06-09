@@ -433,9 +433,7 @@ namespace Backend.Services.Implements
 
             var validEmployees = new List<EmployeeDTO>();
 
-            var invalidEmployees = new List<EmployeeUploadDTO>();
-
-            var errors = new List<string>();
+            var invalidEmployeesRecords = new List<InvalidEmployeeRecord>();
 
             var tracker = new ExcelDuplicateTracker();
 
@@ -455,9 +453,11 @@ namespace Backend.Services.Implements
 
                     if (rowErrors.Any())
                     {
-                        invalidEmployees.Add(dto);
-
-                        errors.AddRange(rowErrors);
+                        invalidEmployeesRecords.Add(new InvalidEmployeeRecord
+                        {
+                            Employee = dto,
+                            Errors = rowErrors
+                        });
 
                         continue;
                     }
@@ -466,9 +466,16 @@ namespace Backend.Services.Implements
                 }
                 catch (Exception ex)
                 {
-                    invalidEmployees.Add(ReadEmployeeFromRow(row));
+                    var dto = ReadEmployeeFromRow(row);
 
-                    errors.Add($"Row {rowNumber}: {ex.Message}");
+                    invalidEmployeesRecords.Add(new InvalidEmployeeRecord
+                    {
+                        Employee = dto,
+                        Errors = new List<string>
+                        {
+                            $"Row {rowNumber}: {ex.Message}"
+                        }
+                    });
                 }
             }
 
@@ -479,8 +486,10 @@ namespace Backend.Services.Implements
 
             string? invalidFileName = null;
            
-            if (invalidEmployees.Any())
+            if (invalidEmployeesRecords.Any())
             {
+                var invalidEmployees = invalidEmployeesRecords.Select(x => x.Employee).ToList();
+
                 invalidFileName = $"InvalidEmployees_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
 
                 byte[] fileBytes = GenerateInvalidEmployeesExcel(invalidEmployees);
@@ -496,18 +505,17 @@ namespace Backend.Services.Implements
             return new ApiResponse<EmployeeUploadResultDTO>
             {
                 Success = true,
-                Message = $"{validEmployees.Count} employees imported successfully. {invalidEmployees.Count} employees failed.",
+                Message = $"{validEmployees.Count} employees imported successfully. {invalidEmployeesRecords.Count} employees failed.",
 
                 Data = new EmployeeUploadResultDTO
                 {
                     SuccessCount = validEmployees.Count,
-                    FailedCount = invalidEmployees.Count,
+                    FailedCount = invalidEmployeesRecords.Count,
                     InsertedEmployeeIds = validEmployees.Select(x => x.EmployeeId).ToList(),
 
-                    InvalidFileName = invalidFileName
-                },
-
-                Errors = errors
+                    InvalidFileName = invalidFileName,
+                    InvalidEmployeeRecords = invalidEmployeesRecords
+                }
             };
         }
 

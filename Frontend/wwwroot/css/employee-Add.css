@@ -1,4 +1,21 @@
-﻿.page-title {
+﻿.mode-btn {
+    color: #56557D;
+    border: 1px solid #56557D;
+    background: #fff;
+}
+
+    .mode-btn:hover {
+        background: green;
+        color: #fff;
+    }
+
+    .mode-btn.active {
+        background: #56557D;
+        border-color: #56557D;
+        color: #fff;
+    }
+
+.page-title {
     font-weight: 600;
     color: black;
     margin-bottom: 25px;

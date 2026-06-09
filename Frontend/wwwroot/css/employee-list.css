@@ -93,3 +93,19 @@
     border-radius: 10px;
     backdrop-filter: blur(8px);
 }
+
+.btn-primary {
+    background-color: green !important;
+    border-color: #56557D !important;
+}
+
+.btn-outline-primary {
+    color: green !important;
+    border-color: #56557D !important;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #56557D !important;
+        border-color: #56557D !important;
+        color: #fff !important;
+    }

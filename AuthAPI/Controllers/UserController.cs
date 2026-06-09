@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace AuthAPI.Controllers
 {
-    [Route("user")]
+    [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
     {

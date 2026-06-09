@@ -9,38 +9,32 @@ namespace Frontend.ApiServices.Abstracts
     {
         protected readonly HttpClient client;
         protected readonly IHttpContextAccessor httpContextAccessor;
+        protected readonly IHttpClientFactory factory;
 
-        protected BaseApiService(IHttpClientFactory factory,IHttpContextAccessor httpContextAccessor, string clientName)
+        protected BaseApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor, string clientName)
         {
+            this.factory = factory;
             client = factory.CreateClient(clientName);
             this.httpContextAccessor = httpContextAccessor;
         }
 
         protected async Task<HttpResponseMessage?> SendAuthorizedRequestAsync(Func<Task<HttpResponseMessage>> request)
         {
-            var token = httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
             var response = await request();
 
-            // Access token expired
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                var newToken = await RefreshAccessToken();
+            if (response.StatusCode != HttpStatusCode.Unauthorized)
+                return response;
 
-                if (string.IsNullOrEmpty(newToken))
-                {
-                    return null;
-                }
+            var newToken = await RefreshAccessToken();
 
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", newToken);
+            if (string.IsNullOrEmpty(newToken))
+                return null;
 
-                response = await request();
-            }
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", newToken);
 
-            return response;
+            return await request();
         }
-
         private async Task<string?> RefreshAccessToken()
         {
             var refreshToken = httpContextAccessor.HttpContext?.Session.GetString("RefreshToken");
@@ -48,11 +42,9 @@ namespace Frontend.ApiServices.Abstracts
             if (string.IsNullOrEmpty(refreshToken))
                 return null;
 
-            var response = await client.PostAsJsonAsync("user/refresh-token",
-                    new
-                    {
-                        RefreshToken = refreshToken
-                    });
+            var authClient = factory.CreateClient("Auth");
+
+            var response = await authClient.PostAsJsonAsync("refresh-token", new { RefreshToken = refreshToken });
 
             if (!response.IsSuccessStatusCode)
             {

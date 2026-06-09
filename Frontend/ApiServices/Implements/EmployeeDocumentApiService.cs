@@ -15,7 +15,7 @@ namespace Frontend.ApiServices.Implements
         {
             try
             {
-                var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"api/employeeDocuments/types"));
+                var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employeeDocuments/types"));
 
                 if (response == null)
                 {
@@ -50,7 +50,7 @@ namespace Frontend.ApiServices.Implements
         {
             try
             {
-                var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"api/employeeDocuments/categories"));
+                var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employeeDocuments/categories"));
 
                 if (response == null)
                 {
@@ -86,7 +86,7 @@ namespace Frontend.ApiServices.Implements
             try
             {
 
-                var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"api/employeeDocuments/all"));
+                var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employeeDocuments/all"));
                 if (response == null)
                 {
                     return new ApiResponse<List<EmployeeDocumentModel>>
@@ -127,7 +127,7 @@ namespace Frontend.ApiServices.Implements
         {
             var content = JsonContent.Create(model);
 
-            var response = await SendAuthorizedRequestAsync(() => client.PostAsync("api/employeeDocuments/generate-upload-sas",content));
+            var response = await SendAuthorizedRequestAsync(() => client.PostAsync("employeeDocuments/generate-upload-sas",content));
 
             return await response.Content.ReadFromJsonAsync<ApiResponse<UploadSasResponse>>();
         }
@@ -183,7 +183,7 @@ namespace Frontend.ApiServices.Implements
                 BlobName = sasResponse.Data.BlobName
             };
 
-            var saveResponse = await SendAuthorizedRequestAsync(() => client.PostAsJsonAsync("api/employeeDocuments/save", saveModel));
+            var saveResponse = await SendAuthorizedRequestAsync(() => client.PostAsJsonAsync("employeeDocuments/save", saveModel));
 
             if (!saveResponse.IsSuccessStatusCode)
             {
@@ -199,7 +199,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<ApiResponse<List<EmployeeDocumentModel>>> GetEmployeeDocumentsAsync(string? employeeId)
         {
-            var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"api/employeeDocuments/my-documents/{employeeId}"));
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employeeDocuments/my-documents/{employeeId}"));
 
             if (response == null)
             {
@@ -226,7 +226,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<ApiResponse<bool>> DeleteDocumentAsync(string employeeId, Guid documentId)
         {
-            var response = await SendAuthorizedRequestAsync(() => client.DeleteAsync($"api/employeeDocuments/delete/{employeeId}/{documentId}"));
+            var response = await SendAuthorizedRequestAsync(() => client.DeleteAsync($"employeeDocuments/delete/{employeeId}/{documentId}"));
 
             if (response == null)
             {
@@ -290,9 +290,7 @@ namespace Frontend.ApiServices.Implements
             content.Headers.ContentType =
                 new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
 
-            var uploadResult = await blobClient.PutAsync(
-                sasResponse.Data.UploadUrl,
-                content);
+            var uploadResult = await blobClient.PutAsync(sasResponse.Data.UploadUrl, content);
 
             if (!uploadResult.IsSuccessStatusCode)
             {
@@ -311,10 +309,7 @@ namespace Frontend.ApiServices.Implements
                 BlobName = sasResponse.Data.BlobName
             };
 
-            var response = await SendAuthorizedRequestAsync(
-                () => client.PutAsJsonAsync(
-                    $"api/employeeDocuments/update/{documentId}",
-                    request));
+            var response = await SendAuthorizedRequestAsync(() => client.PutAsJsonAsync($"employeeDocuments/update/{documentId}",request));
 
             if (response == null)
             {
@@ -325,8 +320,7 @@ namespace Frontend.ApiServices.Implements
                 };
             }
 
-            return await response.Content
-                .ReadFromJsonAsync<ApiResponse<bool>>()
+            return await response.Content.ReadFromJsonAsync<ApiResponse<bool>>()
                 ?? new ApiResponse<bool>
                 {
                     Success = false,
@@ -336,7 +330,7 @@ namespace Frontend.ApiServices.Implements
 
         public async Task<ApiResponse<List<PendingDocumentModel>>> GetPendingDocumentsAsync()
         {
-            var response = await SendAuthorizedRequestAsync(() => client.GetAsync("api/employeeDocuments/pending-actions"));
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync("employeeDocuments/pending-actions"));
 
             if (response == null)
             {
@@ -366,9 +360,7 @@ namespace Frontend.ApiServices.Implements
             try
             {
                 var response = await SendAuthorizedRequestAsync(() => client.PutAsync(
-                    $"api/employeeDocuments/approve?employeeId={employeeId}&documentId={documentId}&remarks={Uri.EscapeDataString(remarks ?? string.Empty)}", null));
-                Console.WriteLine("--------------");
-                Console.WriteLine(response.StatusCode);
+                    $"employeeDocuments/approve?employeeId={employeeId}&documentId={documentId}&remarks={Uri.EscapeDataString(remarks ?? string.Empty)}", null));
 
                 var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
                 Console.WriteLine(result);
@@ -394,7 +386,7 @@ namespace Frontend.ApiServices.Implements
             try
             {
                 var response = await SendAuthorizedRequestAsync(() => client.PutAsync(
-                    $"api/employeeDocuments/reject?employeeId={employeeId}&documentId={documentId}&remarks={Uri.EscapeDataString(remarks)}", null));
+                    $"employeeDocuments/reject?employeeId={employeeId}&documentId={documentId}&remarks={Uri.EscapeDataString(remarks)}", null));
 
                 var result = await response.Content
                     .ReadFromJsonAsync<ApiResponse<bool>>();

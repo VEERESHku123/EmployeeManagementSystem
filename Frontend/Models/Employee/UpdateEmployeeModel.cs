@@ -30,7 +30,7 @@ namespace Frontend.Models.Employee
         public required DateOnly DOB { get; set; }
 
         [Required]
-        public GenderEnum Gender { get; set; }
+        public Gender Gender { get; set; }
 
         public DateOnly HiredDate { get; set; }
 

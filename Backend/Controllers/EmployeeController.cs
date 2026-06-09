@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace Backend.Controllers
 {
-    [Route("employee")]
+    [Route("api/employee")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
@@ -137,7 +137,8 @@ namespace Backend.Controllers
 
         [HttpPost("upload-employees")]
         [Authorize]
-        public async Task<IActionResult> UploadEmployees([FromForm] IFormFile file)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadEmployees(IFormFile file)
         {
             var response = await employeeService.UploadEmployeesAsync(file);
 
