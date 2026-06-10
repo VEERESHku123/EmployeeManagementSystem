@@ -71,12 +71,9 @@ function previewFile(documentTypeId) {
 
 async function uploadDocument(documentTypeId) {
 
-    const fileInput =
-        document.getElementById(
-            "newfile_" + documentTypeId);
+    const fileInput = document.getElementById("newfile_" + documentTypeId);
 
-    if (!fileInput ||
-        !fileInput.files.length) {
+    if (!fileInput || !fileInput.files.length) {
 
         Swal.fire({
             icon: "warning",
@@ -99,22 +96,17 @@ async function uploadDocument(documentTypeId) {
     if (!result.isConfirmed)
         return;
 
-    const formData =
-        new FormData();
+    const formData = new FormData();
 
-    formData.append(
-        "DocumentTypeId",
-        documentTypeId);
+    formData.append("DocumentTypeId", documentTypeId);
 
-    formData.append(
-        "File",
-        fileInput.files[0]);
+    formData.append("File", fileInput.files[0]);
 
     try {
 
         const response =
             await fetch(
-                "/EmployeeDocument/UploadDocument",
+                "/document/upload",
                 {
                     method: "POST",
                     body: formData
@@ -146,8 +138,11 @@ async function uploadDocument(documentTypeId) {
 
         console.error(error);
 
-        alert(
-            "Upload failed.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Upload Failed',
+            text: 'An error occurred while uploading the file.'
+        });
     }
 }
 
@@ -185,7 +180,7 @@ function replaceDocument(employeeId, documentId, documentTypeId) {
         formData.append("file", file);
 
         $.ajax({
-            url: '/EmployeeDocument/UpdateDocument',
+            url: '/document/update',
             type: 'POST',
             data: formData,
             processData: false,
@@ -228,52 +223,62 @@ function replaceDocument(employeeId, documentId, documentTypeId) {
 
 async function deleteDocument(documentId) {
 
-    const confirmed =
-        confirm(
-            "Are you sure you want to delete this document?");
+    const confirmed = await Swal.fire({
+        title: "Delete Document?",
+        text: "Are you sure you want to delete this document?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Delete",
+        cancelButtonText: "Cancel"
+    });
 
-    if (!confirmed)
+    if (!confirmed.isConfirmed)
         return;
 
     try {
 
-        const response =
-            await fetch(
-                `/EmployeeDocument/DeleteDocument?documentId=${documentId}`,
-                {
-                    method: "DELETE"
-                });
+        const response = await fetch(
+            `/EmployeeDocument/DeleteDocument?documentId=${documentId}`,
+            {
+                method: "DELETE"
+            });
 
-        const result =
-            await response.json();
+        const result = await response.json();
 
         if (result.success) {
 
-            alert(
-                "Document deleted successfully.");
+            await Swal.fire({
+                title: "Deleted!",
+                text: "Document deleted successfully.",
+                icon: "success"
+            });
 
             location.reload();
         }
         else {
 
-            alert(
-                result.message ||
-                "Delete failed.");
+            Swal.fire({
+                title: "Error",
+                text: result.message || "Delete failed.",
+                icon: "error"
+            });
         }
     }
     catch (error) {
 
         console.error(error);
 
-        alert(
-            "Delete failed.");
+        Swal.fire({
+            title: "Error",
+            text: "Delete failed.",
+            icon: "error"
+        });
     }
 }
 
-async function updateDocument(
-    employeeId,
-    documentId,
-    documentTypeId) {
+async function updateDocument(employeeId, documentId, documentTypeId) {
+
+    console.log("replaceDocument called");
 
     const fileInput =
         document.getElementById(
@@ -291,7 +296,7 @@ async function updateDocument(
 
     const response =
         await fetch(
-            "/EmployeeDocument/UpdateDocument",
+            "/document/update",
             {
                 method: "POST",
                 body: formData

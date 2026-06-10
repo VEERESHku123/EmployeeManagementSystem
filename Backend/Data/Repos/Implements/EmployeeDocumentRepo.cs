@@ -55,10 +55,11 @@ namespace Backend.Data.Repos.Implements
         public async Task<List<EmployeeDocumentEntity>> GetEmployeeDocumentsAsync(string employeeId)
         {
             return await context.EmployeeDocuments
-            .Include(x => x.DocumentType)
-            .Where(x => x.EmployeeId == employeeId)
-            .OrderBy(x => x.DocumentTypeId)
-            .ToListAsync();
+                .AsNoTracking()
+                .Include(x => x.DocumentType)
+                .Where(x => x.EmployeeId == employeeId)
+                .OrderBy(x => x.DocumentTypeId)
+                .ToListAsync();
         }
 
         public async Task<EmployeeDocumentEntity?> GetDocumentAsync(string employeeId, Guid documentId)

@@ -8,8 +8,7 @@ namespace Frontend.Controllers
     {
         private readonly IEmployeeDocumentApiService employeeDocumentApiService;
 
-        public EmployeeDocumentController(
-            IEmployeeDocumentApiService employeeDocumentApiService)
+        public EmployeeDocumentController(IEmployeeDocumentApiService employeeDocumentApiService)
         {
             this.employeeDocumentApiService = employeeDocumentApiService;
         }
@@ -52,7 +51,7 @@ namespace Frontend.Controllers
             return Json(response);
         }
 
-        [HttpPost]
+        [HttpPost("document/update")]
         public async Task<IActionResult> UpdateDocument(string employeeId, Guid documentId, int documentTypeId, IFormFile file)
         {
             var result = await employeeDocumentApiService.UpdateDocumentAsync(

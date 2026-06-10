@@ -363,7 +363,7 @@ namespace Frontend.ApiServices.Implements
                     $"employeeDocuments/approve?employeeId={employeeId}&documentId={documentId}&remarks={Uri.EscapeDataString(remarks ?? string.Empty)}", null));
 
                 var result = await response.Content.ReadFromJsonAsync<ApiResponse<bool>>();
-                Console.WriteLine(result);
+
 
                 return result ?? new ApiResponse<bool>
                 {

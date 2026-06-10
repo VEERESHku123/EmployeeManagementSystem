@@ -88,11 +88,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             };
     });
 // DB
-builder.Services.AddDbContext<AppDbContext>(
-    options =>
-        options.UseSqlServer(
-            builder.Configuration.GetConnectionString(
-                "employeeManagementDbConStr")));
+builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(
+            builder.Configuration.GetConnectionString("employeeManagementDbConStr")
+            )
+);
 
 builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
 builder.Services.AddScoped<IDepartmentRepo, DepartmentRepo>();
@@ -111,6 +110,18 @@ builder.Services.AddScoped<EmployeeUploadValidator>();
 builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
 var app = builder.Build();
+
+
+// Warm up the database connection during application startup
+// to reduce first-request/login latency.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await db.Database.CanConnectAsync();
+
+    Console.WriteLine("Database warm-up completed.");
+}
 
 if (app.Environment.IsDevelopment())
 {

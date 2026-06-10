@@ -1,8 +1,9 @@
 ﻿using AuthAPI.DTOs;
-using AuthAPI.Services.Implements;
 using AuthAPI.Services.Abstracts;
+using AuthAPI.Services.Implements;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace AuthAPI.Controllers
@@ -26,7 +27,13 @@ namespace AuthAPI.Controllers
         {
             try
             {
+                var stopwatch = Stopwatch.StartNew();
+
                 var result = await userService.MicrosoftLogin(request);
+                stopwatch.Stop();
+
+                Console.WriteLine("-----------------------------------");
+                Console.WriteLine($"Time taken for microsoft sigin(backend Service class): {stopwatch.ElapsedMilliseconds} ms");
 
                 if (!result.Success)
                 {
@@ -49,7 +56,14 @@ namespace AuthAPI.Controllers
         {
             try
             {
+                var stopwatch = Stopwatch.StartNew();
+
                 var result = await userService.Login(loginDto);
+
+                stopwatch.Stop();
+
+                Console.WriteLine("-----------------------------------");
+                Console.WriteLine($"Time taken for native sigin(backend service class): {stopwatch.ElapsedMilliseconds} ms");
 
                 if (!result.Success)
                 {

@@ -78,9 +78,7 @@ namespace Frontend.ApiServices.Implements
 
             var response = await client.PostAsync("signOut", null);
 
-            Console.WriteLine("-----------------");
-            Console.WriteLine("token: " + token);
-            Console.WriteLine(response.StatusCode);
+
             if (response == null)
             {
                 return new ApiResponse<object>

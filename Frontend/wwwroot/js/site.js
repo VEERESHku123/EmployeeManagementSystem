@@ -11,6 +11,8 @@ function loadPage(url) {
 
             document.getElementById('mainContent').innerHTML = html;
 
+            history.pushState({}, "", url);
+
         })
         .catch(error => console.error(error));
 }

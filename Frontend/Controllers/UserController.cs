@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
@@ -38,9 +39,15 @@ namespace Frontend.Controllers
                 {
                     return ReturnHomeView(model,showLogin: true);
                 }
+                var stopwatch = Stopwatch.StartNew();
 
                 var result = await userApiService.SignIn(model);
 
+                stopwatch.Stop();
+
+                Console.WriteLine("-----------------------------------");
+
+                Console.WriteLine($"Time taken native signin: {stopwatch.ElapsedMilliseconds} ms");
 
                 if (!result.Success)
                 {
@@ -79,8 +86,7 @@ namespace Frontend.Controllers
                 RedirectUri = "/user/callback"
             };
 
-            return Challenge(properties,
-                OpenIdConnectDefaults.AuthenticationScheme);
+            return Challenge(properties,OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         public async Task<IActionResult> Callback()
@@ -88,9 +94,15 @@ namespace Frontend.Controllers
             try
             {
                 var email = User.FindFirst("preferred_username")?.Value;
-                
+
+                var stopwatch = Stopwatch.StartNew();
+
                 var result = await userApiService.MicrosoftSignIn(email);
 
+                stopwatch.Stop();
+
+                Console.WriteLine("-----------------------------------");
+                Console.WriteLine($"Time taken for microsoft sigin: {stopwatch.ElapsedMilliseconds} ms");
                 if (result == null || !result.Success)
                 {
                     TempData["ErrorMessage"] = "SignIn failed";
@@ -180,7 +192,7 @@ namespace Frontend.Controllers
 
                 TempData["SuccessMessage"] = result.Message;
 
-                return RedirectToAction("_SignIn", "User", new { showLogin = true });
+                return RedirectToAction("Index", "Home", new { showLogin = true });
             }
             catch (Exception e)
             {

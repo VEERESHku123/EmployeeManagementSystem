@@ -40,8 +40,7 @@
 
                     @foreach (var employee in Model)
                     {
-                        <tr class="clickable-row"
-                            onclick="reviewDocuments('@employee.EmployeeId')">
+                        <tr class="clickable-row" onclick="reviewDocuments('@employee.EmployeeId')">
 
                             <td>@count</td>
                             <td>@employee.EmployeeId</td>
@@ -49,7 +48,8 @@
 
                             <td>
                                 <button type="button"
-                                        class="btn-review">
+                                        class="btn-review"
+                                        onclick="event.stopPropagation(); reviewDocuments('@employee.EmployeeId')">
                                     Review Documents
                                 </button>
                             </td>

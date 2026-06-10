@@ -163,6 +163,7 @@ namespace Frontend.Controllers
             var employee = mapper.Map<UpdateEmployeeModel>(result.Data);
 
             var departments = await departmentApi.GetAllDepartments();
+
             var managers = await managerApi.SendAllManagers();
 
             var designations = await employeeApiService.GetAllDesignations();
@@ -171,7 +172,7 @@ namespace Frontend.Controllers
 
             ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
 
-            ViewBag.Designations = new SelectList(designations.Data, "DesignationId", "DesignationsName");
+            ViewBag.Designations = new SelectList(designations.Data, "DesignationId", "DesignationName");
 
 
             return PartialView("UpdateEmployee", employee);

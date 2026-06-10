@@ -2,6 +2,7 @@
 using AuthAPI.Data.Repos.Abstracts;
 using AuthAPI.DTOs;
 using AuthAPI.Services.Abstracts;
+using System.Diagnostics;
 
 namespace AuthAPI.Services.Implements
 {
@@ -25,9 +26,11 @@ namespace AuthAPI.Services.Implements
             try
             {
                 var user = await userRepo.GetUserByEmail(loginDto.Email);
+                
                 if(user == null)
                 {
                     var employee = await employeeRepo.CheckEmailExistsAsync(loginDto.Email);
+
                     if(employee == null) return new LoginResponse
                     {
                         Success = false,

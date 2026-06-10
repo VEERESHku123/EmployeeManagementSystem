@@ -92,9 +92,9 @@
     <div class="mt-4 text-center">
         @if (User.IsInRole("Admin"))
         {
-            <a asp-action="UpdateEmployee"
-               asp-route-id="@Model.EmployeeId"
-               class="btn-custom btn-edit">
+            <a href="javascript:void(0)"
+               class="btn-custom btn-edit"
+               onclick="loadPage('/employee/update?employeeId=@Model.EmployeeId')">
                 Edit
             </a>
 
