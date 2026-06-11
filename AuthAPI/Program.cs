@@ -1,9 +1,9 @@
 using AuthAPI.Data.Context;
-using AuthAPI.Data.Repos.Implements;
 using AuthAPI.Data.Repos.Abstracts;
-using AuthAPI.Services;
-using AuthAPI.Services.Implements;
+using AuthAPI.Data.Repos.Implements;
+using AuthAPI.DTOs.ForgetPassword;
 using AuthAPI.Services.Abstracts;
+using AuthAPI.Services.Implements;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +11,10 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
+//Forget Password
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 //Repos 
 builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(
@@ -20,6 +24,7 @@ builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(
 builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
 builder.Services.AddScoped<IRoleRepo, RoleRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<IPasswordResetRepo, PasswordResetRepo>();
 
 
 //swagger
@@ -54,6 +59,7 @@ builder.Services.AddSwaggerGen(options =>
 // Services
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 
 // Auth
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

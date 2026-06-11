@@ -1,6 +1,7 @@
 ﻿using AuthAPI.Data.Entitys;
 using AuthAPI.Data.Repos.Abstracts;
-using AuthAPI.DTOs;
+using AuthAPI.DTOs.Common;
+using AuthAPI.DTOs.SigIn;
 using AuthAPI.Services.Abstracts;
 using System.Diagnostics;
 
@@ -121,8 +122,7 @@ namespace AuthAPI.Services.Implements
                     };
                 }
 
-                var employee =
-                    await employeeRepo.CheckEmailExistsAsync(loginDto.Email);
+                var employee = await employeeRepo.CheckEmailExistsAsync(loginDto.Email);
 
                 if (employee == null)
                 {
@@ -133,11 +133,9 @@ namespace AuthAPI.Services.Implements
                     };
                 }
 
-                var role =
-                    await roleRepo.GetRoleByName("User");
+                var role = await roleRepo.GetRoleByName("User");
 
-                string hashPassword =
-                    BCrypt.Net.BCrypt.HashPassword(loginDto.Password);
+                string hashPassword = BCrypt.Net.BCrypt.HashPassword(loginDto.Password);
 
                 var user = new UserEntity
                 {
@@ -149,8 +147,7 @@ namespace AuthAPI.Services.Implements
                     RoleId = role.RoleId
                 };
 
-                var result =
-                    await userRepo.AddUser(user);
+                var result = await userRepo.AddUser(user);
 
                 if (!result)
                 {

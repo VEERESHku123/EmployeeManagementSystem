@@ -1,4 +1,5 @@
-﻿using AuthAPI.DTOs;
+﻿using AuthAPI.DTOs.Common;
+using AuthAPI.DTOs.SigIn;
 using AuthAPI.Services.Abstracts;
 using AuthAPI.Services.Implements;
 using Microsoft.AspNetCore.Authorization;
@@ -51,8 +52,8 @@ namespace AuthAPI.Controllers
         }
 
         [HttpPost]
-        [Route("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        [Route("signIn")]
+        public async Task<IActionResult> SignIn([FromBody] LoginDto loginDto)
         {
             try
             {

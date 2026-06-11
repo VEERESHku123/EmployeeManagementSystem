@@ -44,7 +44,7 @@ namespace Frontend.ApiServices.Abstracts
 
             var authClient = factory.CreateClient("Auth");
 
-            var response = await authClient.PostAsJsonAsync("refresh-token", new { RefreshToken = refreshToken });
+            var response = await authClient.PostAsJsonAsync("user/refresh-token", new { RefreshToken = refreshToken });
 
             if (!response.IsSuccessStatusCode)
             {

@@ -11,6 +11,8 @@ namespace AuthAPI.Data.Context
         public DbSet<RoleEntity> Roles { get; set; }
         public DbSet<UserEntity> Users { get; set; }
 
+        public DbSet<PasswordResetOtpEntity> PasswordResetOtps { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }

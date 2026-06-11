@@ -35,7 +35,7 @@ namespace AuthAPI.Data.Entitys
         [ForeignKey(nameof(EmployeeId))]
         public EmployeeEntity Employee { get; set; }
 
-
+        public ICollection<PasswordResetOtpEntity> PasswordResetOtps { get; set; } = new List<PasswordResetOtpEntity>();
 
     }
 }

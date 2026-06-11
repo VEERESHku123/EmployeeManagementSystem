@@ -9,5 +9,11 @@ namespace Frontend.ApiServices.Abstracts
         Task<SignInResponseModel> MicrosoftSignIn(string email);
         Task<ApiResponse<object>> ActivateAccount(ActivateAccountModel model);
         Task<ApiResponse<object>> SignOut();
+
+        Task<ApiResponse<object>> ForgotPasswordAsync(string email);
+
+        Task<ApiResponse<string>> VerifyOtpAsync(string email, string otp);
+
+        Task<ApiResponse<object>> ResetPasswordAsync(string resetToken, string newPassword);
     }
 }

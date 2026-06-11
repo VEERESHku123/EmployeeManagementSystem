@@ -1,4 +1,4 @@
-﻿namespace AuthAPI.DTOs
+﻿namespace AuthAPI.DTOs.Common
 {
     public class ApiResponse<T>
     {

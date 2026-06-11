@@ -1,4 +1,5 @@
-﻿using AuthAPI.DTOs;
+﻿using AuthAPI.DTOs.Common;
+using AuthAPI.DTOs.SigIn;
 
 namespace AuthAPI.Services.Abstracts
 {

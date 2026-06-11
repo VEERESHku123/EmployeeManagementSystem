@@ -1,4 +1,6 @@
-﻿namespace AuthAPI.DTOs
+﻿using AuthAPI.DTOs.Common;
+
+namespace AuthAPI.DTOs.SigIn
 {
     public class LoginResponse
     {

@@ -4,12 +4,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Frontend.Controllers
 {
@@ -93,6 +90,12 @@ namespace Frontend.Controllers
         {
             try
             {
+                if (!User.Identity?.IsAuthenticated ?? true)
+                {
+                    TempData["ErrorMessage"] = "Microsoft authentication failed";
+                    return RedirectToAction("Index", "Home");
+                }
+
                 var email = User.FindFirst("preferred_username")?.Value;
 
                 var stopwatch = Stopwatch.StartNew();
@@ -103,6 +106,7 @@ namespace Frontend.Controllers
 
                 Console.WriteLine("-----------------------------------");
                 Console.WriteLine($"Time taken for microsoft sigin: {stopwatch.ElapsedMilliseconds} ms");
+
                 if (result == null || !result.Success)
                 {
                     TempData["ErrorMessage"] = "SignIn failed";
@@ -205,8 +209,34 @@ namespace Frontend.Controllers
         }
 
 
+        //Forget Password
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var result = await userApiService.ForgotPasswordAsync(email);
 
+            return Json(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyOtp(string email, string otp)
+        {
+            var result = await userApiService.VerifyOtpAsync(email, otp);
+
+            return Json(result);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string resetToken, string newPassword)
+        {
+            var result = await userApiService.ResetPasswordAsync(resetToken, newPassword);
+
+            return Json(result);
+        }
         //helper methods
         private async Task AuthenticateUser(string email, string role, string provider, string accessToken, string refreshToken, string employeeName)
         {

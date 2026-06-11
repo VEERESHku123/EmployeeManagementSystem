@@ -61,14 +61,21 @@
 
 
     <div class="bottom-link">
+        <div class="link-row">
+            <span>First time user?</span>
+            <a href="javascript:void(0)"
+               onclick="loadPartial('/User/ActivateAccount')">
+                Activate Account
+            </a>
+        </div>
 
-        First time user?
-
-        <a href="javascript:void(0)"
-           onclick="loadPartial('/User/ActivateAccount')">
-            Activate Account →
-        </a>
-
+        <div class="link-row">
+            <span>Forgot Password?</span>
+            <a asp-controller="User"
+               asp-action="ForgotPassword">
+                Reset Password
+            </a>
+        </div>
     </div>
 
 </div>
