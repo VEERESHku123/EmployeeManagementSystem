@@ -2,7 +2,7 @@
 
 namespace AuthAPI.DTOs.SigIn
 {
-    public class LoginResponse
+    public class SignInResponse
     {
         public bool Success { get; set; }
 

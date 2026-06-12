@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="~/css/layout-theme.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="~/js/common-alert.js" asp-append-version="true"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css" />
 </head>
 <body class="hero-bg">
@@ -30,11 +30,8 @@
                     <div class="ms-auto">
 
                         <a class="btn btn-outline-light btn-sm px-3 py-1 rounded-pill shadow-sm custom-btn"
-                           href="javascript:void(0)"
-                           onclick="loadPartial('/User/SignIn')">
-                                
-                           Sign In 
-
+                           href="/Home/Index?showLogin=true">
+                            Sign In
                         </a>
 
                     </div>
@@ -188,46 +185,23 @@
     </div>
 
 
-    @if (TempData["SuccessMessage"] != null ||TempData["ErrorMessage"] != null)
+    @if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
     {
         <script>
 
-            const icon =
-            '@(TempData["SuccessMessage"] != null ? "success" : "error")';
-
-            const message =
-            '@(TempData["SuccessMessage"] ?? TempData["ErrorMessage"])';
-
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-
-                toast.addEventListener(
-                    'mouseenter',
-                    Swal.stopTimer
-                );
-
-                toast.addEventListener(
-                    'mouseleave',
-                    Swal.resumeTimer
-                );
-                }
-            });
-
-            Toast.fire({
-                icon: icon,
-                title: message
-            });
+            showAlert(
+            '@(TempData["SuccessMessage"] != null ? "success" : "error")',
+            '@(TempData["SuccessMessage"] != null ? "Success" : "Error")',
+            '@(TempData["SuccessMessage"] ?? TempData["ErrorMessage"])'
+            );
 
         </script>
     }
 
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>

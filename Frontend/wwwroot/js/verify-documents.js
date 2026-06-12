@@ -48,21 +48,24 @@ function approveDocument(employeeId, documentId) {
             .then(response => response.text())
             .then(() => {
 
-                Swal.fire(
+                showAlert(
+                    'success',
                     'Success',
-                    'Document approved successfully.',
-                    'success'
+                    'Document approved successfully.'
                 );
 
-                loadPage('/document/PendingDocuments');
+                setTimeout(() => {
+                    loadPage('/document/PendingDocuments');
+                }, 1500);
             })
             .catch(error => {
+
                 console.error(error);
 
-                Swal.fire(
+                showAlert(
+                    'error',
                     'Error',
-                    'Failed to approve document.',
-                    'error'
+                    'Failed to approve document.'
                 );
             });
     });
@@ -102,30 +105,33 @@ function rejectDocument(employeeId, documentId) {
 
                 if (data.success) {
 
-                    Swal.fire(
-                        'Rejected!',
-                        data.message,
-                        'success'
+                    showAlert(
+                        'success',
+                        'Rejected',
+                        data.message
                     );
 
-                    loadPage('/document/PendingDocuments');
+                    setTimeout(() => {
+                        loadPage('/document/PendingDocuments');
+                    }, 1500);
                 }
                 else {
 
-                    Swal.fire(
+                    showAlert(
+                        'error',
                         'Error',
-                        data.message,
-                        'error'
+                        data.message
                     );
                 }
             })
             .catch(error => {
+
                 console.error(error);
 
-                Swal.fire(
+                showAlert(
+                    'error',
                     'Error',
-                    'Failed to reject document.',
-                    'error'
+                    'Failed to reject document.'
                 );
             });
     });

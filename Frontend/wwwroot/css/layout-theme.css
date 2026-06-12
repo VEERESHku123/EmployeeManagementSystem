@@ -46,15 +46,14 @@ body {
 /* SignIn button */
 
 .custom-btn {
-    background: rgba(255,255,255,.05);
-    border: none;
+    border: 2px solid #ff8c00;
     box-shadow: 0 4px 12px rgba(0,0,0,.12);
     color: white !important;
 }
 
-
     .custom-btn:hover {
         background: #0b3472;
+        border-color: #ffa500;
         transform: translateY(-2px);
     }
 
@@ -443,9 +442,12 @@ footer.footer {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: chocolate;
+    color: #ff8c00;
     padding: 14px 18px;
 }
+
+
+
 .logout-btn {
     display: flex;
     align-items: center;
@@ -464,14 +466,15 @@ footer.footer {
         color: white !important;
         transform: translateX(8px);
         border: 1px solid rgba(255,140,0,.45);
+        border-radius: 20px;
         box-shadow: 0 0 10px rgba(255,140,0,.18), 0 10px 18px rgba(0,0,0,.15);
     }
 
 .profile-icon {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: rgba(255,255,255,.15);
+    background: #ff8c00;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -481,7 +484,7 @@ footer.footer {
 }
 
 .profile-link:hover .profile-icon {
-    background: rgba(255,255,255,.25);
+    background: #ff8c00;
 }
 
 .logout-btn {

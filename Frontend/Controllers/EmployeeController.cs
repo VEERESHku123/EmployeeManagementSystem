@@ -3,7 +3,6 @@ using Frontend.ApiServices.Abstracts;
 using Frontend.Models.Employee;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace Frontend.Controllers
 {
@@ -31,14 +30,6 @@ namespace Frontend.Controllers
         {
             var model = await employeeApiService.GetAllEmployees(search, page, pageSize);
 
-            // Refresh token expired
-            if (!model.Success && model.Message == "Session expired")
-            {
-                TempData["ErrorMessage"] = "Session expired. Login again.";
-
-                return RedirectToAction("_SignIn","User");
-            }
-
             if (!model.Success)
             {
                 return RedirectToAction("StatusCode500Page","StatusCode");
@@ -62,13 +53,6 @@ namespace Frontend.Controllers
         public async Task<IActionResult> GetEmployeeById(string? employeeId)
         {
             var result = await employeeApiService.GetEmployeeById(employeeId);
-
-            if (!result.Success && result.Message == "Session expired")
-            {
-                TempData["ErrorMessage"] = "Session expired";
-
-                return RedirectToAction("_SignIn", "User");
-            }
 
             if (result.Data == null)
             {
@@ -129,6 +113,7 @@ namespace Frontend.Controllers
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 "EmployeeTemplate.xlsx");
         }
+
         [HttpPost]
         [Route("employee/add")]
         public async Task<IActionResult> AddNewEmployee(EmployeeModel model)
@@ -141,12 +126,6 @@ namespace Frontend.Controllers
                 TempData["SuccessMessage"] = $"Employee: {model.FirstName} added successfully!";
 
                 return RedirectToAction("GetAllEmployees");
-            }
-
-            // Session expired
-            if (result.Message == "Session expired")
-            {
-                return RedirectToAction("Index", "Home");
             }
 
             TempData["ErrorMessage"] = result.Message ?? "Unable to create employee";
@@ -217,14 +196,6 @@ namespace Frontend.Controllers
                 return Ok(new
                 {
                     message = "Employee deleted successfully"
-                });
-            }
-
-            if (result.Message == "Session expired")
-            {
-                return Unauthorized(new
-                {
-                    message = result.Message
                 });
             }
 

@@ -48,7 +48,10 @@
         fetch(url)
             .then(response => response.text())
             .then(html => {
+
                 document.getElementById('heroCard').innerHTML = html;
+
+                $.validator.unobtrusive.parse('#heroCard');
             })
             .catch(error => console.error(error));
     }

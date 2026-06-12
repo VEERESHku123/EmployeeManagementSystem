@@ -8,5 +8,6 @@ namespace AuthAPI.Data.Repos.Abstracts
         Task<bool> AddUser(UserEntity user);
         Task SaveRefreshToken(Guid userId, string? refreshToken, DateTime? expiry);
         Task<UserEntity> GetByRefreshToken(string refreshToken);
+        Task<UserEntity> GetUserByEmployeeId(string employeeId);
     }
 }

@@ -51,10 +51,10 @@ function previewFile(documentTypeId) {
 
     if (!fileInput || !fileInput.files.length) {
 
-        Swal.fire(
+        showAlert(
+            "warning",
             "Warning",
-            "Please select a file first.",
-            "warning"
+            "Please select a file first."
         );
 
         return;
@@ -75,11 +75,11 @@ async function uploadDocument(documentTypeId) {
 
     if (!fileInput || !fileInput.files.length) {
 
-        Swal.fire({
-            icon: "warning",
-            title: "No File Selected",
-            text: "Please select a file."
-        });
+        showAlert(
+            "warning",
+            "No File Selected",
+            "Please select a file."
+        );
 
         return;
     }
@@ -99,50 +99,49 @@ async function uploadDocument(documentTypeId) {
     const formData = new FormData();
 
     formData.append("DocumentTypeId", documentTypeId);
-
     formData.append("File", fileInput.files[0]);
 
     try {
 
-        const response =
-            await fetch(
-                "/document/upload",
-                {
-                    method: "POST",
-                    body: formData
-                });
+        const response = await fetch(
+            "/document/upload",
+            {
+                method: "POST",
+                body: formData
+            });
 
-        const result =
-            await response.json();
+        const result = await response.json();
 
         if (result.success) {
 
-            await Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: "Document uploaded successfully."
-            });
+            showAlert(
+                "success",
+                "Success",
+                "Document uploaded successfully."
+            );
 
-            location.reload();
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
         }
         else {
 
-            Swal.fire({
-                icon: "error",
-                title: "Upload Failed",
-                text: result.message || "Upload failed."
-            });
+            showAlert(
+                "error",
+                "Upload Failed",
+                result.message || "Upload failed."
+            );
         }
     }
     catch (error) {
 
         console.error(error);
 
-        Swal.fire({
-            icon: 'error',
-            title: 'Upload Failed',
-            text: 'An error occurred while uploading the file.'
-        });
+        showAlert(
+            "error",
+            "Upload Failed",
+            "An error occurred while uploading the file."
+        );
     }
 }
 
@@ -190,30 +189,29 @@ function replaceDocument(employeeId, documentId, documentTypeId) {
 
                 if (response.success) {
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Document Updated',
-                        text: response.message,
-                        confirmButtonText: 'OK'
-                    });
+                    showAlert(
+                        'success',
+                        'Document Updated',
+                        response.message
+                    );
 
                 } else {
 
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Update Failed',
-                        text: response.message
-                    });
+                    showAlert(
+                        'error',
+                        'Update Failed',
+                        response.message
+                    );
                 }
             },
 
             error: function () {
 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Failed to update document. Please try again.'
-                });
+                showAlert(
+                    'error',
+                    'Update Failed',
+                    'Failed to update document. Please try again.'
+                );
             }
         });
     };
@@ -247,32 +245,34 @@ async function deleteDocument(documentId) {
 
         if (result.success) {
 
-            await Swal.fire({
-                title: "Deleted!",
-                text: "Document deleted successfully.",
-                icon: "success"
-            });
+            showAlert(
+                "success",
+                "Deleted",
+                "Document deleted successfully."
+            );
 
-            location.reload();
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
         }
         else {
 
-            Swal.fire({
-                title: "Error",
-                text: result.message || "Delete failed.",
-                icon: "error"
-            });
+            showAlert(
+                "error",
+                "Error",
+                result.message || "Delete failed."
+            );
         }
     }
     catch (error) {
 
         console.error(error);
 
-        Swal.fire({
-            title: "Error",
-            text: "Delete failed.",
-            icon: "error"
-        });
+        showAlert(
+            "error",
+            "Error",
+            "Delete failed."
+        );
     }
 }
 

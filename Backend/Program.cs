@@ -15,6 +15,17 @@ using Backend.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//CROS 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins("https://localhost:7230")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Register BlobContainerClient
 builder.Services.AddSingleton(x =>
 {
@@ -87,6 +98,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     ClockSkew = TimeSpan.Zero
             };
     });
+
 // DB
 builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(
             builder.Configuration.GetConnectionString("employeeManagementDbConStr")
@@ -131,7 +143,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("FrontendPolicy");
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

@@ -89,14 +89,11 @@ namespace Frontend.Controllers
         [HttpGet("document/verify")]
         public async Task<IActionResult> VerifyDocuments(string employeeId)
         {
-            var categoryResponse =
-                await employeeDocumentApiService.GetAllDocumentCategories();
+            var categoryResponse = await employeeDocumentApiService.GetAllDocumentCategories();
 
-            var typeResponse =
-                await employeeDocumentApiService.GetAllDocumentTypes();
+            var typeResponse = await employeeDocumentApiService.GetAllDocumentTypes();
 
-            var uploadedResponse =
-                await employeeDocumentApiService.GetEmployeeDocumentsAsync(employeeId);
+            var uploadedResponse = await employeeDocumentApiService.GetEmployeeDocumentsAsync(employeeId);
 
             ViewBag.EmployeeId = employeeId;
             ViewBag.DocumentCategories = categoryResponse.Data;

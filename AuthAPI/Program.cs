@@ -11,6 +11,17 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
+//CROS 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins("https://localhost:7230")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 //Forget Password
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
@@ -112,10 +123,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("FrontendPolicy");
+
 app.UseAuthentication();
-
-app.UseAuthorization();
-
 
 app.UseAuthorization();
 

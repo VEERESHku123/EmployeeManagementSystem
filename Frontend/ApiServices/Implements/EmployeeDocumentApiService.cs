@@ -17,14 +17,6 @@ namespace Frontend.ApiServices.Implements
             {
                 var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employeeDocuments/types"));
 
-                if (response == null)
-                {
-                    return new ApiResponse<List<DocumentTypeModel>>
-                    {
-                        Success = false,
-                        Message = "Session expired"
-                    };
-                }
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -52,15 +44,7 @@ namespace Frontend.ApiServices.Implements
             {
                 var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employeeDocuments/categories"));
 
-                if (response == null)
-                {
-                    return new ApiResponse<List<DocumentCategoryModel>>
-                    {
-                        Success = false,
-                        Message = "Session expired"
-                    };
-                }
-
+              
                 if (!response.IsSuccessStatusCode)
                 {
                     return new ApiResponse<List<DocumentCategoryModel>>
@@ -87,14 +71,7 @@ namespace Frontend.ApiServices.Implements
             {
 
                 var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employeeDocuments/all"));
-                if (response == null)
-                {
-                    return new ApiResponse<List<EmployeeDocumentModel>>
-                    {
-                        Success = false,
-                        Message = "Session expired"
-                    };
-                }
+                
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -201,14 +178,7 @@ namespace Frontend.ApiServices.Implements
         {
             var response = await SendAuthorizedRequestAsync(() => client.GetAsync($"employeeDocuments/my-documents/{employeeId}"));
 
-            if (response == null)
-            {
-                return new ApiResponse<List<EmployeeDocumentModel>>
-                {
-                    Success = false,
-                    Message = "Session expired. Please login again."
-                };
-            }
+            
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
@@ -228,14 +198,6 @@ namespace Frontend.ApiServices.Implements
         {
             var response = await SendAuthorizedRequestAsync(() => client.DeleteAsync($"employeeDocuments/delete/{employeeId}/{documentId}"));
 
-            if (response == null)
-            {
-                return new ApiResponse<bool>
-                {
-                    Success = false,
-                    Message = "Session expired. Please login again."
-                };
-            }
 
             if (!response.IsSuccessStatusCode)
             {
@@ -311,15 +273,6 @@ namespace Frontend.ApiServices.Implements
 
             var response = await SendAuthorizedRequestAsync(() => client.PutAsJsonAsync($"employeeDocuments/update/{documentId}",request));
 
-            if (response == null)
-            {
-                return new ApiResponse<bool>
-                {
-                    Success = false,
-                    Message = "Session expired. Please login again."
-                };
-            }
-
             return await response.Content.ReadFromJsonAsync<ApiResponse<bool>>()
                 ?? new ApiResponse<bool>
                 {
@@ -331,15 +284,6 @@ namespace Frontend.ApiServices.Implements
         public async Task<ApiResponse<List<PendingDocumentModel>>> GetPendingDocumentsAsync()
         {
             var response = await SendAuthorizedRequestAsync(() => client.GetAsync("employeeDocuments/pending-actions"));
-
-            if (response == null)
-            {
-                return new ApiResponse<List<PendingDocumentModel>>
-                {
-                    Success = false,
-                    Message = "Session expired. Please login again."
-                };
-            }
 
             if (!response.IsSuccessStatusCode)
             {

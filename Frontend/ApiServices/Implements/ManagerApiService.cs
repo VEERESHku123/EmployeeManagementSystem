@@ -1,9 +1,7 @@
 ﻿using Frontend.ApiServices.Abstracts;
 using Frontend.Models.Common;
 using Frontend.Models.Employee;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using System.Net.Http.Headers;
 
 namespace Frontend.ApiServices.Implements
 {
@@ -26,15 +24,6 @@ namespace Frontend.ApiServices.Implements
                 }
 
                 var response = await SendAuthorizedRequestAsync(() => client.GetAsync("manager/all"));
-
-                if (response == null)
-                {
-                    return new ApiResponse<List<ManagerModel>>
-                    {
-                        Success = false,
-                        Message = "Session expired"
-                    };
-                }
 
                 if (!response.IsSuccessStatusCode)
                 {

@@ -15,10 +15,11 @@ $(document).on("click", "#uploadEmployeesBtn", function () {
 
     if (!file) {
 
-        Swal.fire(
+        showAlert(
+            "error",
             "Error",
-            "Please select an Excel file.",
-            "error");
+            "Please select an Excel file."
+        );
 
         return;
     }
@@ -67,29 +68,30 @@ $(document).on("click", "#uploadEmployeesBtn", function () {
                     $("#invalidEmployeesContainer").hide();
                 }
 
-                Swal.fire({
-                    icon: "success",
-                    title: "Upload Completed",
-                    html:
-                        `Success: ${response.data.successCount}<br>
-                         Failed: ${response.data.failedCount}`
-                });
+                showAlert(
+                    "success",
+                    "Upload Completed",
+                    `Success: ${response.data.successCount} | Failed: ${response.data.failedCount}`,
+                    4000
+                );
             }
             else {
 
-                Swal.fire(
+                showAlert(
+                    "error",
                     "Error",
-                    response.message || "Upload failed.",
-                    "error");
+                    response.message || "Upload failed."
+                );
             }
         },
 
         error: function () {
 
-            Swal.fire(
+            showAlert(
+                "error",
                 "Error",
-                "Something went wrong while uploading the file.",
-                "error");
+                "Something went wrong while uploading the file."
+            );
         }
     });
 });

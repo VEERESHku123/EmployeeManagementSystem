@@ -53,13 +53,13 @@ namespace AuthAPI.Controllers
 
         [HttpPost]
         [Route("signIn")]
-        public async Task<IActionResult> SignIn([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> SignIn([FromBody] SignInDto loginDto)
         {
             try
             {
                 var stopwatch = Stopwatch.StartNew();
 
-                var result = await userService.Login(loginDto);
+                var result = await userService.SignIn(loginDto);
 
                 stopwatch.Stop();
 
@@ -81,7 +81,7 @@ namespace AuthAPI.Controllers
 
         [HttpPost]
         [Route("activateAccount")]
-        public async Task<IActionResult> ActivateAccount(LoginDto loginDto)
+        public async Task<IActionResult> ActivateAccount(SignInDto loginDto)
         {
             try
             {

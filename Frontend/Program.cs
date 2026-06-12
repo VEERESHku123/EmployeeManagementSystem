@@ -1,11 +1,14 @@
-using Frontend.ApiServices.Implements;
 using Frontend.ApiServices.Abstracts;
+using Frontend.ApiServices.Implements;
+using Frontend.Filters;
 using Frontend.Mappers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 //Microsoft login
 builder.Services.AddSession();
@@ -46,8 +49,15 @@ builder.Services.AddHttpClient("Auth", client =>
     client.BaseAddress = new Uri(builder.Configuration["BaseUrl:User"]);
 });
 
+// Session Expire 
+builder.Services.AddScoped<SessionExpiredFilter>();
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<SessionExpiredFilter>();
+});
+
 builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 var app = builder.Build();
 

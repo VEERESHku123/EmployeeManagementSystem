@@ -42,7 +42,7 @@ function sendOtp() {
     const email = $("#email").val();
 
     if (!email) {
-        Swal.fire("Error", "Please enter email.", "error");
+        showAlert('error', 'Error', 'Please enter email.');
         return;
     }
 
@@ -56,31 +56,27 @@ function sendOtp() {
             if (response.success) {
 
                 $("#email").prop("readonly", true);
-
                 $("#sendOtpBtn").hide();
-
                 $("#otpArea").slideDown();
-
                 $(".otp-digit").val("");
 
                 startOtpTimer(response.data.expiresAt);
 
-                Swal.fire({
-                    icon: "success",
-                    title: "OTP Sent",
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                showAlert('success', 'OTP Sent', response.message, 2000);
             }
             else {
 
-                Swal.fire(
-                    'Error',
-                    response.message,
-                    'error'
-                );
+                showAlert('error', 'Error', response.message);
             }
+        },
+
+        error: function () {
+
+            showAlert(
+                'error',
+                'Error',
+                'Something went wrong. Please try again.'
+            );
         }
     });
 }
@@ -104,20 +100,32 @@ function resendOtp() {
 
                 $("#resendOtpBtn").hide();
 
-                $("#sendOtpBtn")
-                    .prop("disabled", true)
-                    .text("OTP Sent");
-
                 startOtpTimer(response.data.expiresAt);
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'OTP Resent',
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                showAlert(
+                    'success',
+                    'OTP Resent',
+                    response.message,
+                    2000
+                );
             }
+            else {
+
+                showAlert(
+                    'error',
+                    'Error',
+                    response.message
+                );
+            }
+        },
+
+        error: function () {
+
+            showAlert(
+                'error',
+                'Error',
+                'Something went wrong. Please try again.'
+            );
         }
     });
 }
@@ -131,6 +139,17 @@ function verifyOtp() {
     $(".otp-digit").each(function () {
         otp += $(this).val();
     });
+
+    if (otp.length !== 6) {
+
+        showAlert(
+            'error',
+            'Error',
+            'Please enter the 6-digit OTP.'
+        );
+
+        return;
+    }
 
     $.ajax({
         url: '/User/VerifyOtp',
@@ -154,38 +173,61 @@ function verifyOtp() {
 
                 $("#resetSection").fadeIn();
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'OTP Verified',
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                showAlert(
+                    'success',
+                    'OTP Verified',
+                    response.message,
+                    2000
+                );
             }
             else {
 
-                Swal.fire(
+                showAlert(
+                    'error',
                     'Error',
-                    response.message,
-                    'error'
+                    response.message
                 );
             }
+        },
+
+        error: function () {
+
+            showAlert(
+                'error',
+                'Error',
+                'Something went wrong. Please try again.'
+            );
         }
     });
 }
 
+function isStrongPassword(password) {
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password);
+}
+
 function resetPassword() {
 
-    const newPassword = $("#newPassword").val();
-    const confirmPassword = $("#confirmPassword").val();
+    const newPassword = $("#newPassword").val().trim();
+    const confirmPassword = $("#confirmPassword").val().trim();
     const resetToken = $("#resetToken").val();
+
+    if (!isStrongPassword(newPassword)) {
+
+        showAlert(
+            'warning',
+            'Weak Password',
+            'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character.'
+        );
+
+        return;
+    }
 
     if (newPassword !== confirmPassword) {
 
-        Swal.fire(
-            'Error',
-            'Passwords do not match',
-            'error'
+        showAlert(
+            'error',
+            'Password Mismatch',
+            'Passwords do not match.'
         );
 
         return;
@@ -203,23 +245,32 @@ function resetPassword() {
 
             if (response.success) {
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Password Updated',
-                    text: response.message
-                }).then(() => {
+                showAlert(
+                    'success',
+                    'Password Updated',
+                    response.message,
+                    2000
+                );
 
-                    loadPartial('/User/SignIn');
-                });
+                window.location.href = '/Home/Index?showLogin=true';
             }
             else {
 
-                Swal.fire(
+                showAlert(
+                    'error',
                     'Error',
-                    response.message,
-                    'error'
+                    response.message
                 );
             }
+        },
+
+        error: function () {
+
+            showAlert(
+                'error',
+                'Error',
+                'Something went wrong. Please try again.'
+            );
         }
     });
 }

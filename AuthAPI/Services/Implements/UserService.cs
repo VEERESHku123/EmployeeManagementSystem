@@ -3,7 +3,6 @@ using AuthAPI.Data.Repos.Abstracts;
 using AuthAPI.DTOs.Common;
 using AuthAPI.DTOs.SigIn;
 using AuthAPI.Services.Abstracts;
-using System.Diagnostics;
 
 namespace AuthAPI.Services.Implements
 {
@@ -22,7 +21,7 @@ namespace AuthAPI.Services.Implements
             this.roleRepo = roleRepo;
         }
 
-        public async Task<LoginResponse> Login(LoginDto loginDto)
+        public async Task<SignInResponse> SignIn(SignInDto loginDto)
         {
             try
             {
@@ -32,13 +31,13 @@ namespace AuthAPI.Services.Implements
                 {
                     var employee = await employeeRepo.CheckEmailExistsAsync(loginDto.Email);
 
-                    if(employee == null) return new LoginResponse
+                    if(employee == null) return new SignInResponse
                     {
                         Success = false,
                         Message = "Invalid email or password"
                     };
 
-                    return new LoginResponse
+                    return new SignInResponse
                     {
                         Success = false,
                         Message = "Please Active Your Account"
@@ -48,7 +47,7 @@ namespace AuthAPI.Services.Implements
 
                 bool passwordMatch = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash);
 
-                if (!passwordMatch) return new LoginResponse
+                if (!passwordMatch) return new SignInResponse
                 {
                     Success = false,
                     Message = "Invalid email or password"
@@ -58,7 +57,7 @@ namespace AuthAPI.Services.Implements
                 
                 await userRepo.SaveRefreshToken(user.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
 
-                return new LoginResponse
+                return new SignInResponse
                 {
                     Success = true,
                     Message = "Login successful",
@@ -75,13 +74,13 @@ namespace AuthAPI.Services.Implements
 
         }
 
-        public async Task<LoginResponse> MicrosoftLogin(MicrosoftSignInRequest request)
+        public async Task<SignInResponse> MicrosoftLogin(MicrosoftSignInRequest request)
         {
             try
             {
                 var user = await userRepo.GetUserByEmail(request.Email);
 
-                if (user == null) return new LoginResponse
+                if (user == null) return new SignInResponse
                 {
                     Success = false,
                     Message = "User not registered"
@@ -91,7 +90,7 @@ namespace AuthAPI.Services.Implements
                
                 await userRepo.SaveRefreshToken(user.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
 
-                return new LoginResponse
+                return new SignInResponse
                 {
                     Success = true,
                     Message = "Login successful",
@@ -106,7 +105,7 @@ namespace AuthAPI.Services.Implements
             }
         }
 
-        public async Task<ApiResponse<object>> ActivateAccount(LoginDto loginDto)
+        public async Task<ApiResponse<object>> ActivateAccount(SignInDto loginDto)
         {
             try
             {
@@ -173,15 +172,40 @@ namespace AuthAPI.Services.Implements
 
         public async Task<ApiResponse<AuthResponse>> RefreshToken(RefreshTokenDto refreshTokenDto)
         {
-            var user = await userRepo.GetByRefreshToken(refreshTokenDto.RefreshToken);
+            var principal = jwtService.ValidateRefreshToken(refreshTokenDto.RefreshToken);
 
-            if (user == null) return new ApiResponse<AuthResponse>
+            if (principal == null)
             {
-                Success = false,
-                Message = "Refresh token expired"
-            };
+                return new ApiResponse<AuthResponse>
+                {
+                    Success = false,
+                    Message = "Invalid refresh token"
+                };
+            }
 
-            if (user.RefreshTokenExpiryTime <= DateTime.Now)
+            var employeeId = principal.FindFirst("employeeId")?.Value;
+
+            var user = await userRepo.GetUserByEmployeeId(employeeId);
+
+            if (user == null)
+            {
+                return new ApiResponse<AuthResponse>
+                {
+                    Success = false,
+                    Message = "User not found"
+                };
+            }
+
+            if (user.RefreshToken != refreshTokenDto.RefreshToken)
+            {
+                return new ApiResponse<AuthResponse>
+                {
+                    Success = false,
+                    Message = "Invalid refresh token"
+                };
+            }
+
+            if (!user.RefreshTokenExpiryTime.HasValue || user.RefreshTokenExpiryTime.Value <= DateTime.UtcNow)
             {
                 await userRepo.SaveRefreshToken(user.UserId, null, null);
 
@@ -192,19 +216,19 @@ namespace AuthAPI.Services.Implements
                 };
             }
 
-            var auth = await jwtService.GenerateToken(user.Email, user.EmployeeId,user.Role.RoleName);
+            var authResponse = await jwtService.GenerateToken(user.Email, user.EmployeeId, user.Role.RoleName);
 
-            await userRepo.SaveRefreshToken(user.UserId, auth.RefreshToken, auth.RefreshTokenExpiry);
+            await userRepo.SaveRefreshToken(
+                user.UserId,
+                authResponse.RefreshToken,
+                authResponse.RefreshTokenExpiry);
 
             return new ApiResponse<AuthResponse>
             {
                 Success = true,
-
-                Message =  "Token refreshed successfully",
-
-                Data = auth
+                Message = "Token refreshed successfully",
+                Data = authResponse
             };
-
         }
 
         public async Task<ApiResponse<object>> SignOut(string? email)

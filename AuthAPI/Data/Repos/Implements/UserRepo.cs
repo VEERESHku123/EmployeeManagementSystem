@@ -54,5 +54,10 @@ namespace AuthAPI.Data.Repos.Implements
                 throw;
             }
         }
+
+        public async Task<UserEntity> GetUserByEmployeeId(string employeeId)
+        {
+            return await context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.EmployeeId == employeeId);
+        }
     }
 }

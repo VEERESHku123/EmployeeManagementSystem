@@ -32,10 +32,6 @@ namespace Frontend.Controllers
             {
                 var email = model.Email;
                 
-                if (!ModelState.IsValid)
-                {
-                    return ReturnHomeView(model,showLogin: true);
-                }
                 var stopwatch = Stopwatch.StartNew();
 
                 var result = await userApiService.SignIn(model);
@@ -58,6 +54,7 @@ namespace Frontend.Controllers
                 var jwtToken = handler.ReadJwtToken(token);
 
                 var employeeName = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
                 //authenticate
                 await AuthenticateUser( model.Email, result.AuthResponse.RoleType, "Native", result.AuthResponse.Token, result.AuthResponse.RefreshToken, employeeName);
 
@@ -230,6 +227,7 @@ namespace Frontend.Controllers
 
             return Json(result);
         }
+
         [HttpPost]
         public async Task<IActionResult> ResetPassword(string resetToken, string newPassword)
         {
@@ -237,6 +235,7 @@ namespace Frontend.Controllers
 
             return Json(result);
         }
+
         //helper methods
         private async Task AuthenticateUser(string email, string role, string provider, string accessToken, string refreshToken, string employeeName)
         {

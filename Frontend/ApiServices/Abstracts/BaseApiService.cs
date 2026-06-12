@@ -1,5 +1,8 @@
-﻿using Frontend.Models.Common;
+﻿using Frontend.Exceptions;
+using Frontend.Models.Common;
 using Frontend.Models.Employee;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -20,6 +23,13 @@ namespace Frontend.ApiServices.Abstracts
 
         protected async Task<HttpResponseMessage?> SendAuthorizedRequestAsync(Func<Task<HttpResponseMessage>> request)
         {
+            var token = httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await request();
 
             if (response.StatusCode != HttpStatusCode.Unauthorized)
@@ -28,16 +38,19 @@ namespace Frontend.ApiServices.Abstracts
             var newToken = await RefreshAccessToken();
 
             if (string.IsNullOrEmpty(newToken))
-                return null;
+            {
+                throw new SessionExpiredException();
+            }
 
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", newToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", newToken);
 
             return await request();
         }
         private async Task<string?> RefreshAccessToken()
         {
+
             var refreshToken = httpContextAccessor.HttpContext?.Session.GetString("RefreshToken");
+
 
             if (string.IsNullOrEmpty(refreshToken))
                 return null;
@@ -50,6 +63,10 @@ namespace Frontend.ApiServices.Abstracts
             {
                 httpContextAccessor.HttpContext?.Session.Clear();
 
+                httpContextAccessor.HttpContext?.Response.Cookies.Delete(".AspNetCore.Session");
+
+                await httpContextAccessor.HttpContext!.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
                 return null;
             }
 
@@ -57,6 +74,12 @@ namespace Frontend.ApiServices.Abstracts
 
             if (result == null || !result.Success)
             {
+                httpContextAccessor.HttpContext?.Session.Clear();
+
+                httpContextAccessor.HttpContext?.Response.Cookies.Delete(".AspNetCore.Session");
+
+                await httpContextAccessor.HttpContext!.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
                 return null;
             }
 
