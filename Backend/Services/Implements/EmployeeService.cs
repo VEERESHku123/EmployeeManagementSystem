@@ -18,16 +18,14 @@ namespace Backend.Services.Implements
     {
         private readonly IEmployeeRepo employeeRepo;
         private readonly IDepartmentRepo departmentRepo;
-        private readonly IManagerRepo managerRepo;
         private readonly ILogger<EmployeeService> logger;
         private readonly IMapper mapper;
         private readonly EmployeeUploadValidator employeeUploadValidator;
-        public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper, ILogger<EmployeeService> logger, IDepartmentRepo departmentRepo, IManagerRepo managerRepo, EmployeeUploadValidator employeeUploadValidator)
+        public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper, ILogger<EmployeeService> logger, IDepartmentRepo departmentRepo, EmployeeUploadValidator employeeUploadValidator)
         {
             this.employeeRepo = employeeRepo;
             this.mapper = mapper;
             this.logger = logger;
-            this.managerRepo = managerRepo;
             this.departmentRepo = departmentRepo;
             this.employeeUploadValidator = employeeUploadValidator;
         }
@@ -111,7 +109,6 @@ namespace Backend.Services.Implements
 
         public async Task<ApiResponse<CreateEmployeeDTO>> AddEmployeeAsync(CreateEmployeeDTO employeeDTO)
         {
-            employeeDTO.Role = Enums.Role.User;
 
             try
             {
@@ -304,6 +301,19 @@ namespace Backend.Services.Implements
             
         }
 
+        //-----------------------------------Manager Section -------------------
+        public async Task<ApiResponse<List<ManagerDto>>> GetManagersAsync()
+        {
+            var managers = await employeeRepo.GetManagersAsync();
+
+            return new ApiResponse<List<ManagerDto>>
+            {
+                Success = true,
+                Message = "Managers fetched successfully",
+                Data = managers
+            };
+        }
+
 
         //------------------------------------- XL Template Download --------------------------
         public async Task<byte[]> DownloadTemplateAsync()
@@ -366,7 +376,7 @@ namespace Backend.Services.Implements
 
         private async Task AddManagerDropdown(XLWorkbook workbook, IXLWorksheet worksheet)
         {
-            var managers = await managerRepo.GetAllAsync();
+            var managers = await employeeRepo.GetManagersAsync();
 
             var sheet = workbook.Worksheets.Add("Managers");
 

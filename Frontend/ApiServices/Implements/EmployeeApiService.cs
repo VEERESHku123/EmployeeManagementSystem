@@ -1,14 +1,18 @@
 ﻿using Frontend.ApiServices.Abstracts;
 using Frontend.Models.Common;
 using Frontend.Models.Employee;
-using System.Diagnostics;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using System.Net.Http.Headers;
 namespace Frontend.ApiServices.Implements
 {
     public class EmployeeApiService : BaseApiService, IEmployeeApiService
     {
-        public EmployeeApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor) : base(factory, httpContextAccessor, "Backend") { }
+        private readonly IMemoryCache cache;
+        public EmployeeApiService(IHttpClientFactory factory, IHttpContextAccessor httpContextAccessor, IMemoryCache cache) : base(factory, httpContextAccessor, "Backend") 
+        {
+            this.cache = cache;
+        }
         
 
         public async Task<ApiResponse<EmployeePaginationData>>GetAllEmployees(string searchTerm,int page,int pageSize)
@@ -287,6 +291,38 @@ namespace Frontend.ApiServices.Implements
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsByteArrayAsync();
+        }
+
+
+        //--------------------------------Manager Section---------------------------
+        public async Task<ApiResponse<List<ManagerModel>>> SendAllManagers()
+        {
+            if (cache.TryGetValue("Managers", out List<ManagerModel> cachedManagers))
+            {
+                return new ApiResponse<List<ManagerModel>>
+                {
+                    Success = true,
+                    Data = cachedManagers
+                };
+            }
+
+            var response = await SendAuthorizedRequestAsync(
+                () => client.GetAsync("employee/managers"));
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<ManagerModel>>>();
+
+            result ??= new ApiResponse<List<ManagerModel>>
+            {
+                Success = false,
+                Message = "No response received"
+            };
+
+            if (result.Success)
+            {
+                cache.Set("Managers", result.Data, TimeSpan.FromHours(1));
+            }
+
+            return result;
         }
     }
 }

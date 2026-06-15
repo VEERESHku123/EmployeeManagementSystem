@@ -19,5 +19,7 @@ namespace Frontend.ApiServices.Abstracts
         Task<byte[]> DownloadTemplateAsync();
 
         Task<byte[]> DownloadInvalidFileAsync(string fileName);
+
+        Task<ApiResponse<List<ManagerModel>>> SendAllManagers();
     }
 }

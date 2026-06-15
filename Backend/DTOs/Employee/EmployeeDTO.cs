@@ -23,6 +23,5 @@ namespace Backend.DTOs.Employee
 
         //Navigation
         public DepartmentEntity Department { get; set; }
-        public ManagerEntity Manager { get; set; }
     }
 }

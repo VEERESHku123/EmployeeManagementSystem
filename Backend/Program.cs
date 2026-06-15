@@ -107,7 +107,6 @@ builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(
 
 builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
 builder.Services.AddScoped<IDepartmentRepo, DepartmentRepo>();
-builder.Services.AddScoped<IManagerRepo, ManagerRepo>();
 builder.Services.AddScoped<IEmployeeDocumentRepo, EmployeeDocumentRepo>();
 
 builder.Services.AddControllers(
@@ -115,7 +114,6 @@ builder.Services.AddControllers(
 
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IEmployeeDocumentService, EmployeeDocumentService>();
 builder.Services.AddScoped<EmployeeUploadValidator>();
 

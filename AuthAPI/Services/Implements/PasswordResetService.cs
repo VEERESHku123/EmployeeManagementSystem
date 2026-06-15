@@ -8,25 +8,27 @@ namespace AuthAPI.Services.Implements
     public class PasswordResetService : IPasswordResetService
     {
         private readonly IUserRepo userRepo;
+        private readonly IEmployeeRepo employeeRepo;
         private readonly IPasswordResetRepo passwordResetRepo;
         private readonly IEmailService emailService;
         private readonly ILogger<PasswordResetService> logger;
 
-        public PasswordResetService(IUserRepo userRepo, IPasswordResetRepo passwordResetRepo, IEmailService emailService, ILogger<PasswordResetService> logger)
+        public PasswordResetService(IUserRepo userRepo, IPasswordResetRepo passwordResetRepo, IEmailService emailService, ILogger<PasswordResetService> logger, IEmployeeRepo employeeRepo)
         {
             this.userRepo = userRepo;
             this.passwordResetRepo = passwordResetRepo;
             this.emailService = emailService;
             this.logger = logger;
+            this.employeeRepo = employeeRepo;
         }
 
         public async Task<ApiResponse<Object>> ForgotPasswordAsync(string email)
         {
             try
             {
-                var user = await userRepo.GetUserByEmail(email);
+                var employee = await employeeRepo.CheckEmailExistsAsync(email);
 
-                if (user == null)
+                if (employee == null || employee.User == null)
                 {
                     return new ApiResponse<object>
                     {
@@ -35,12 +37,21 @@ namespace AuthAPI.Services.Implements
                     };
                 }
 
+                if (!employee.User.IsActive)
+                {
+                    return new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Please activate your account"
+                    };
+                }
+
                 var otp = Random.Shared.Next(100000, 999999).ToString();
 
                 var otpEntity = new PasswordResetOtpEntity
                 {
                     Id = Guid.NewGuid(),
-                    UserId = user.UserId,
+                    UserId = employee.User.UserId,
                     OtpCode = otp,
                     OtpExpiresAt = DateTime.UtcNow.AddSeconds(60),
                     CreatedAt = DateTime.UtcNow
@@ -49,9 +60,9 @@ namespace AuthAPI.Services.Implements
                 await passwordResetRepo.CreateOtpAsync(otpEntity);
                 await passwordResetRepo.SaveChangesAsync();
 
-                await emailService.SendOtpAsync(user.Email, otp);
+                await emailService.SendOtpAsync(employee.CompanyEmail, otp);
 
-                logger.LogInformation("Password reset OTP sent to user {UserId}", user.UserId);
+                logger.LogInformation("Password reset OTP sent to user {UserId}", employee.User.UserId);
 
                 return new ApiResponse<object>
                 {
@@ -83,9 +94,9 @@ namespace AuthAPI.Services.Implements
         {
             try
             {
-                var user = await userRepo.GetUserByEmail(email);
+                var employee = await employeeRepo.CheckEmailExistsAsync(email);
 
-                if (user == null)
+                if (employee == null || employee.User == null)
                 {
                     return new ApiResponse<string>
                     {
@@ -94,7 +105,16 @@ namespace AuthAPI.Services.Implements
                     };
                 }
 
-                var otpRecord = await passwordResetRepo.GetLatestOtpByUserIdAsync(user.UserId);
+                if (!employee.User.IsActive)
+                {
+                    return new ApiResponse<string>
+                    {
+                        Success = false,
+                        Message = "Please activate your account first"
+                    };
+                }
+
+                var otpRecord = await passwordResetRepo.GetLatestOtpByUserIdAsync(employee.User.UserId);
 
                 if (otpRecord == null)
                 {
@@ -138,7 +158,7 @@ namespace AuthAPI.Services.Implements
 
                 await passwordResetRepo.SaveChangesAsync();
 
-                logger.LogInformation("OTP verified successfully for user {UserId}", user.UserId);
+                logger.LogInformation("OTP verified successfully for user {UserId}", employee.User.UserId);
 
                 return new ApiResponse<string>
                 {

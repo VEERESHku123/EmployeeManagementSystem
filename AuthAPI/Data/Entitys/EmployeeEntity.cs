@@ -66,17 +66,6 @@ namespace AuthAPI.Data.Entitys
 
         // Navigation Properties
 
-        //[ForeignKey(nameof(DesignationId))]
-        //public DesignationEntity Designation { get; set; } = null!;
-
-        //[ForeignKey(nameof(DepartmentId))]
-        //public DepartmentEntity Department { get; set; } = null!;
-
-        //[ForeignKey(nameof(ManagerId))]
-        //public ManagerEntity? Manager { get; set; }
-
-        //public EmployeeDocumentEntity? EmployeeDocuments { get; set; }
-
         [InverseProperty(nameof(UserEntity.Employee))]
         public virtual UserEntity? User { get; set; }
     }

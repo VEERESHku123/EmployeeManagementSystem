@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using Backend.Data.Context;
 using Backend.Data.Entities;
+using Backend.Data.Entities.User;
 using Backend.Data.Repos.Abstracts;
+using Backend.DTOs.Employee;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data.Repos.Implements
@@ -113,10 +116,14 @@ namespace Backend.Data.Repos.Implements
 
                 found.IsActive = false;
 
-                var user = await context.Users.FirstOrDefaultAsync(u => u.Email == found.CompanyEmail);
+                var user = await context.Users.FirstOrDefaultAsync(u => u.EmployeeId == found.EmployeeId);
 
-                context.Users.Remove(user);
-
+                if (user != null)
+                {
+                    user.IsActive = false;
+                    user.RefreshToken = null;
+                    user.RefreshTokenExpiryTime = null;
+                }
 
                 await context.SaveChangesAsync();
 
@@ -131,25 +138,38 @@ namespace Backend.Data.Repos.Implements
 
         }
 
-        public async Task<bool> AddAsync(EmployeeEntity entity)
+        public async Task<bool> AddAsync(EmployeeEntity employee)
         {
+            using var transaction = await context.Database.BeginTransactionAsync();
+
             try
             {
-                if(entity.IsActive == null)
+                employee.IsActive = true;
+
+                await context.Employees.AddAsync(employee);
+                await context.SaveChangesAsync();
+
+                var user = new UserEntity
                 {
-                    entity.IsActive = true;
-                }
+                    EmployeeId = employee.EmployeeId,
+                    RoleId = 104, // Employee role
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Start@123"),
+                    IsActive = false
+                    
+                };
 
-                await context.AddAsync(entity);
-                var result = await context.SaveChangesAsync();
-                return result > 0;
+                await context.Users.AddAsync(user);
+                await context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return true;
             }
-            catch (Exception)
+            catch
             {
-
+                await transaction.RollbackAsync();
                 throw;
             }
-            
         }
 
         public async Task<bool> CheckCompanyEmailExistsAsync(string companyEmail)
@@ -202,8 +222,31 @@ namespace Backend.Data.Repos.Implements
 
         public async Task BulkInsertEmployeesAsync(List<EmployeeEntity> employees)
         {
-            await context.Employees.AddRangeAsync(employees);
-            await context.SaveChangesAsync();
+            using var transaction = await context.Database.BeginTransactionAsync();
+
+            try
+            {
+                await context.Employees.AddRangeAsync(employees);
+                await context.SaveChangesAsync();
+
+                var users = employees.Select(employee => new UserEntity
+                {
+                    EmployeeId = employee.EmployeeId,
+                    RoleId = 104, // Employee
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Start@123"),
+                    IsActive = false
+                }).ToList();
+
+                await context.Users.AddRangeAsync(users);
+                await context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<List<DesignationEntity>> GetAllDesignations()
@@ -230,5 +273,36 @@ namespace Backend.Data.Repos.Implements
                 throw;
             }
         }
+
+
+        //Manager section
+        public async Task<List<ManagerDto>> GetManagersAsync()
+        {
+            return await context.Employees
+                .Where(e =>
+                    e.Designation.DesignationName == "Manager" ||
+                    e.Designation.DesignationName == "Senior Manager" ||
+                    e.Designation.DesignationName == "Team Lead")
+                .Select(e => new ManagerDto
+                {
+                    ManagerId = e.EmployeeId,
+                    ManagerName = e.FirstName + " " + e.LastName
+                })
+                .ToListAsync();
+        }
+
+        public async Task<ManagerDto?> GetManagerByNameAsync(string managerName)
+        {
+            return await context.Employees
+                .Where(e => (e.FirstName + " " + e.LastName) == managerName)
+                .Select(e => new ManagerDto
+                {
+                    ManagerId = e.EmployeeId,
+                    ManagerName = e.FirstName + " " + e.LastName
+                })
+                .FirstOrDefaultAsync();
+        }
+
+
     }
 }

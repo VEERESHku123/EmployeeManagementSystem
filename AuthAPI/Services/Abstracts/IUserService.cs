@@ -5,7 +5,7 @@ namespace AuthAPI.Services.Abstracts
 {
     public interface IUserService
     {
-        Task<ApiResponse<object>> ActivateAccount(SignInDto loginDto);
+        Task<ApiResponse<object>> ActivateAccount(ActivateAccountDto activateAccountDto);
         Task<SignInResponse> SignIn(SignInDto loginDto);
         Task<SignInResponse> MicrosoftLogin(MicrosoftSignInRequest request);
         Task<ApiResponse<AuthResponse>> RefreshToken(RefreshTokenDto refreshTokenDto);

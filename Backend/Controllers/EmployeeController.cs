@@ -21,7 +21,7 @@ namespace Backend.Controllers
 
         [HttpGet]
         [Route("all")]
-        [Authorize(Roles = "Admin,User")]
+        [Authorize(Roles = "Admin,Employee")]
         public async Task<IActionResult> GetAllEmployees([FromQuery] string? search, [FromQuery] int page, [FromQuery] int pageSize)
         {
             var result = await employeeService.GetAllEmployeeAsync(search, page, pageSize);
@@ -32,7 +32,7 @@ namespace Backend.Controllers
 
         [HttpGet]
         [Route("{employeeId?}")]
-        [Authorize(Roles = "Admin,User")]
+        [Authorize(Roles = "Admin,Employee")]
         public async Task<IActionResult> GetEmployeeById(string? employeeId)
         {
             if(employeeId == null) employeeId = User.FindFirst("employeeId")?.Value;
@@ -216,6 +216,17 @@ namespace Backend.Controllers
         public async Task<IActionResult> GetAllDesignations()
         {
             return Ok(await employeeService.GetAllDesignations());
+        }
+
+        //------------------------------- Manager Section -------------------------------------
+
+        [HttpGet("managers")]
+        [Authorize]
+        public async Task<IActionResult> GetManagers()
+        {
+            var response = await employeeService.GetManagersAsync();
+
+            return Ok(response);
         }
 
     }

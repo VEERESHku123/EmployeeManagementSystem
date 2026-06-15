@@ -39,8 +39,6 @@ namespace Backend.DTOs.Employee
         [Range(0, 10000000)]
         public decimal Salary { get; set; }
 
-        public Role Role { get; set; }
-
         public bool IsActive { get; set; }
         public int DepartmentId { get; set; }
         public string? ManagerId { get; set; }

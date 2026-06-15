@@ -1,4 +1,5 @@
 ﻿using Backend.Data.Entities;
+using Backend.DTOs.Employee;
 
 namespace Backend.Data.Repos.Abstracts
 {
@@ -19,5 +20,10 @@ namespace Backend.Data.Repos.Abstracts
 
         Task<List<DesignationEntity>> GetAllDesignations();
         Task<DesignationEntity?> GetByDesignationNameAsync(string designationName);
+
+
+        //Manager Section
+        Task<List<ManagerDto>> GetManagersAsync();
+        Task<ManagerDto?> GetManagerByNameAsync(string managerName);
     }
 }

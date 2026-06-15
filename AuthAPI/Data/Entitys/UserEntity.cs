@@ -10,9 +10,6 @@ namespace AuthAPI.Data.Entitys
         [Column("user_id")]
         public Guid UserId { get; set; }
 
-        [Column("email")]
-        public required string Email { get; set; }
-
         [Column("password_hash")]
         public required string PasswordHash { get; set; }
 
@@ -24,6 +21,9 @@ namespace AuthAPI.Data.Entitys
 
         [Column("role_id")]
         public int RoleId { get; set; }
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } 
 
         [ForeignKey(nameof(RoleId))]
         public RoleEntity Role { get; set; }

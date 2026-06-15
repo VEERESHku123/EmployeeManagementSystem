@@ -34,7 +34,6 @@ builder.Services.AddHttpContextAccessor();
 // Api Services
 builder.Services.AddScoped<IEmployeeApiService, EmployeeApiService>();
 builder.Services.AddScoped<IDepartmentApiService, DepartmentApiService>();
-builder.Services.AddScoped<IManagerApiService, ManagerApiService>();
 builder.Services.AddScoped<IUserApiService, UserApiService>();
 builder.Services.AddScoped<IEmployeeDocumentApiService, EmployeeDocumentApiService>();
 

@@ -14,6 +14,9 @@ namespace Backend.Services.Abstracts
         Task<ApiResponse<bool>> DeleteEmployeeAsync(string id);
         Task<ApiResponse<object>> GetAllEmployeeAsync(string searchTerm, int page, int pageSize);
         Task<ApiResponse<EmployeeDTO>> GetEmployeeByIdAsync(string id);
+
+        Task<ApiResponse< List<ManagerDto>>> GetManagersAsync();
+
         Task<ApiResponse<CreateEmployeeDTO>> UpdateEmployeeAsync(string id, CreateEmployeeDTO dto);
 
         Task<ApiResponse<EmployeeUploadResultDTO>> UploadEmployeesAsync(IFormFile file);

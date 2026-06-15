@@ -14,6 +14,11 @@ namespace AuthAPI.Data.Repos.Implements
             this.context = context;
         }
 
+        public async Task<RoleEntity> GetRoleById(int roleId)
+        {
+            return await context.Roles.FirstOrDefaultAsync(r => r.RoleId == roleId);
+        }
+
         public async Task<RoleEntity> GetRoleByName(string role)
         {
             return await context.Roles.FirstOrDefaultAsync(r => r.RoleName == role);

@@ -10,8 +10,8 @@ namespace Backend.Data.Entities.User
         [Column("user_id")]
         public Guid UserId { get; set; }
 
-        [Column("email")]
-        public required string Email { get; set; }
+        [Column("is_active")]
+        public bool IsActive { get; set; }
 
         [Column("password_hash")]
         public required string PasswordHash { get; set; }

@@ -1,6 +1,7 @@
 ﻿using AuthAPI.Data.Context;
 using AuthAPI.Data.Entitys;
 using AuthAPI.Data.Repos.Abstracts;
+using AuthAPI.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Data.Repos.Implements
@@ -18,7 +19,9 @@ namespace AuthAPI.Data.Repos.Implements
         {
             try
             {
-                return await context.Employees.FirstOrDefaultAsync(e => e.CompanyEmail == email);
+                return await context.Employees
+                    .Include(u => u.User)
+                    .FirstOrDefaultAsync(e => e.CompanyEmail == email);
             }
             catch (Exception ex)
             {
@@ -27,5 +30,7 @@ namespace AuthAPI.Data.Repos.Implements
             }
 
         }
+
+        
     }
 }

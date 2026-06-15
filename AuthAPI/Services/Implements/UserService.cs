@@ -3,6 +3,7 @@ using AuthAPI.Data.Repos.Abstracts;
 using AuthAPI.DTOs.Common;
 using AuthAPI.DTOs.SigIn;
 using AuthAPI.Services.Abstracts;
+using System.Security.Claims;
 
 namespace AuthAPI.Services.Implements
 {
@@ -21,79 +22,65 @@ namespace AuthAPI.Services.Implements
             this.roleRepo = roleRepo;
         }
 
-        public async Task<SignInResponse> SignIn(SignInDto loginDto)
+        public async Task<SignInResponse> SignIn(SignInDto signInDto)
         {
-            try
+            var validationResult = await ValidateEmployeeForLogin(signInDto.Email);
+
+            if (!validationResult.IsValid)
             {
-                var user = await userRepo.GetUserByEmail(loginDto.Email);
-                
-                if(user == null)
-                {
-                    var employee = await employeeRepo.CheckEmailExistsAsync(loginDto.Email);
+                return validationResult.Error!;
+            }
 
-                    if(employee == null) return new SignInResponse
-                    {
-                        Success = false,
-                        Message = "Invalid email or password"
-                    };
+            var employee = validationResult.Employee!;
 
-                    return new SignInResponse
-                    {
-                        Success = false,
-                        Message = "Please Active Your Account"
-                    };
-                }
-               
+            bool passwordMatch = BCrypt.Net.BCrypt.Verify(signInDto.Password, employee.User.PasswordHash);
 
-                bool passwordMatch = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash);
-
-                if (!passwordMatch) return new SignInResponse
+            if (!passwordMatch)
+            {
+                return new SignInResponse
                 {
                     Success = false,
                     Message = "Invalid email or password"
                 };
-
-                var authResponse = await jwtService.GenerateToken(user.Email, user.EmployeeId, user.Role.RoleName);
-                
-                await userRepo.SaveRefreshToken(user.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
-
-                return new SignInResponse
-                {
-                    Success = true,
-                    Message = "Login successful",
-                    AuthResponse = authResponse
-                };
-
-
             }
-            catch (Exception)
+
+            var role = await roleRepo.GetRoleById(employee.User.RoleId);
+
+            var authResponse = await jwtService.GenerateToken(employee.CompanyEmail, employee.EmployeeId,role.RoleName);
+
+            await userRepo.SaveRefreshToken(employee.User.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
+
+            return new SignInResponse
             {
-
-                throw;
-            }
-
+                Success = true,
+                Message = "SignIn successful",
+                AuthResponse = authResponse
+            };
         }
 
         public async Task<SignInResponse> MicrosoftLogin(MicrosoftSignInRequest request)
         {
             try
             {
-                var user = await userRepo.GetUserByEmail(request.Email);
+                var validationResult = await ValidateEmployeeForLogin(request.Email);
 
-                if (user == null) return new SignInResponse
+                if (!validationResult.IsValid)
                 {
-                    Success = false,
-                    Message = "User not registered"
-                };
+                    return validationResult.Error!;
+                }
 
-                var authResponse = await jwtService.GenerateToken(user.Email, user.EmployeeId, user.Role.RoleName);
-               
-                await userRepo.SaveRefreshToken(user.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
+                var employee = validationResult.Employee!;
+
+                var role = await roleRepo.GetRoleById(employee.User.RoleId);
+
+                var authResponse = await jwtService.GenerateToken(employee.CompanyEmail, employee.EmployeeId, role.RoleName);
+
+                await userRepo.SaveRefreshToken(employee.User.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
 
                 return new SignInResponse
                 {
                     Success = true,
-                    Message = "Login successful",
+                    Message = "SignIn successful",
                     AuthResponse = authResponse
                 };
 
@@ -105,14 +92,14 @@ namespace AuthAPI.Services.Implements
             }
         }
 
-        public async Task<ApiResponse<object>> ActivateAccount(SignInDto loginDto)
+        public async Task<ApiResponse<object>> ActivateAccount(ActivateAccountDto activateAccountDto)
         {
             try
             {
-                var existingUser =
-                    await userRepo.GetUserByEmail(loginDto.Email);
+                var employee = await employeeRepo.CheckEmailExistsAsync(activateAccountDto.Email);
 
-                if (existingUser != null)
+
+                if (employee.User.IsActive == true)
                 {
                     return new ApiResponse<object>
                     {
@@ -121,7 +108,6 @@ namespace AuthAPI.Services.Implements
                     };
                 }
 
-                var employee = await employeeRepo.CheckEmailExistsAsync(loginDto.Email);
 
                 if (employee == null)
                 {
@@ -132,18 +118,29 @@ namespace AuthAPI.Services.Implements
                     };
                 }
 
-                var role = await roleRepo.GetRoleByName("User");
+                bool isValidTemporaryPassword = BCrypt.Net.BCrypt.Verify(activateAccountDto.TemporaryPassword, employee.User.PasswordHash);
 
-                string hashPassword = BCrypt.Net.BCrypt.HashPassword(loginDto.Password);
+                if (!isValidTemporaryPassword)
+                {
+                    return new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Invalid Email or password"
+                    };
+                }
+
+                var role = await roleRepo.GetRoleByName("Employee");
+
+                string hashPassword = BCrypt.Net.BCrypt.HashPassword(activateAccountDto.Password);
 
                 var user = new UserEntity
                 {
-                    Email = loginDto.Email,
                     PasswordHash = hashPassword,
                     EmployeeId = employee.EmployeeId,
-                    RefreshToken = "",
+                    RefreshToken = null,
                     RefreshTokenExpiryTime = null,
-                    RoleId = role.RoleId
+                    RoleId = role.RoleId,
+                    IsActive = true
                 };
 
                 var result = await userRepo.AddUser(user);
@@ -216,12 +213,11 @@ namespace AuthAPI.Services.Implements
                 };
             }
 
-            var authResponse = await jwtService.GenerateToken(user.Email, user.EmployeeId, user.Role.RoleName);
+            var email = principal.FindFirst(ClaimTypes.Email)?.Value;
 
-            await userRepo.SaveRefreshToken(
-                user.UserId,
-                authResponse.RefreshToken,
-                authResponse.RefreshTokenExpiry);
+            var authResponse = await jwtService.GenerateToken(email, user.EmployeeId, user.Role.RoleName);
+
+            await userRepo.SaveRefreshToken(user.UserId, authResponse.RefreshToken, authResponse.RefreshTokenExpiry);
 
             return new ApiResponse<AuthResponse>
             {
@@ -245,9 +241,9 @@ namespace AuthAPI.Services.Implements
                     };
                 }
 
-                var user = await userRepo.GetUserByEmail(email);
+                var employee = await employeeRepo.CheckEmailExistsAsync(email);
 
-                if (user == null)
+                if (employee == null || employee.User == null)
                 {
                     return new ApiResponse<object>
                     {
@@ -256,7 +252,7 @@ namespace AuthAPI.Services.Implements
                     };
                 }
 
-                await userRepo.SaveRefreshToken(user.UserId, null, null);
+                await userRepo.SaveRefreshToken(employee.User.UserId, null, null);
                 return new ApiResponse<object>
                 {
                     Success = true,
@@ -268,6 +264,57 @@ namespace AuthAPI.Services.Implements
 
                 throw;
             }
+        }
+
+
+        // Helper method
+
+        private async Task<SignInValidationResult> ValidateEmployeeForLogin(string email)
+        {
+            var employee = await employeeRepo.CheckEmailExistsAsync(email);
+
+            if (employee == null || employee.User == null)
+            {
+                return new SignInValidationResult
+                {
+                    Error = new SignInResponse
+                    {
+                        Success = false,
+                        Message = "Invalid email or password"
+                    }
+                };
+            }
+
+            if (!employee.IsActive)
+            {
+                return new SignInValidationResult
+                {
+                    Error = new SignInResponse
+                    {
+                        Success = false,
+                        Message = "Account has been deactivated"
+                    }
+                };
+            }
+
+            if (!employee.User.IsActive)
+            {
+                return new SignInValidationResult
+                {
+                    Error = new SignInResponse
+                    {
+                        Success = false,
+                        Message = "Please activate your account"
+                    }
+                };
+            }
+
+
+
+            return new SignInValidationResult
+            {
+                Employee = employee
+            };
         }
     }
 }

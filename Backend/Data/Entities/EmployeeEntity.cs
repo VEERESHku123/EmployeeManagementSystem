@@ -73,9 +73,6 @@ namespace Backend.Data.Entities
         [ForeignKey(nameof(DepartmentId))]
         public DepartmentEntity Department { get; set; } = null!;
 
-        [ForeignKey(nameof(ManagerId))]
-        public ManagerEntity? Manager { get; set; }
-
         public EmployeeDocumentEntity? EmployeeDocuments { get; set; }
 
         [InverseProperty(nameof(UserEntity.Employee))]

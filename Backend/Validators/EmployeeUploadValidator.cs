@@ -11,13 +11,11 @@ namespace Backend.Validators
     {
         private readonly IEmployeeRepo employeeRepo;
         private readonly IDepartmentRepo departmentRepo;
-        private readonly IManagerRepo managerRepo;
 
-        public EmployeeUploadValidator(IEmployeeRepo employeeRepo, IDepartmentRepo departmentRepo, IManagerRepo managerRepo)
+        public EmployeeUploadValidator(IEmployeeRepo employeeRepo, IDepartmentRepo departmentRepo)
         {
             this.employeeRepo = employeeRepo;
             this.departmentRepo = departmentRepo;
-            this.managerRepo = managerRepo;
         }
 
         public async Task<List<string>> ValidateAsync(EmployeeUploadDTO dto, int rowNumber, ExcelDuplicateTracker tracker)
@@ -206,14 +204,14 @@ namespace Backend.Validators
             if (string.IsNullOrWhiteSpace(dto.ManagerName))
                 return;
 
-            var manager = await managerRepo.GetByNameAsync(dto.ManagerName);
+            var manager = await employeeRepo.GetManagerByNameAsync(dto.ManagerName);
 
             if (manager == null)
             {
                 errors.Add($"Row {rowNumber}, Manager: '{dto.ManagerName}' not found.");
             }
 
-            dto.ManagerId = manager.ManagerId;
+            dto.ManagerId = manager?.ManagerId;
         }
 
         private async Task ValidateDesignation(EmployeeUploadDTO dto, int rowNumber, List<string> errors)

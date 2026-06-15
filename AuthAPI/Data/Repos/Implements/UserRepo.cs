@@ -14,13 +14,6 @@ namespace AuthAPI.Data.Repos.Implements
             this.context = context;
         }
 
-        public async Task<UserEntity?> GetUserByEmail(string email)
-        {
-            return await context.Users
-                         .Include(u => u.Role)
-                         .FirstOrDefaultAsync(x => x.Email == email);
-        }
-
         public async Task SaveRefreshToken(Guid userId, string? refreshToken, DateTime? expiry)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
@@ -57,7 +50,10 @@ namespace AuthAPI.Data.Repos.Implements
 
         public async Task<UserEntity> GetUserByEmployeeId(string employeeId)
         {
-            return await context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.EmployeeId == employeeId);
+            return await context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Employee)
+                .FirstOrDefaultAsync(u => u.EmployeeId == employeeId);
         }
     }
 }

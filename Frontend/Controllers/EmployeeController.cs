@@ -10,13 +10,11 @@ namespace Frontend.Controllers
     {
         private readonly IEmployeeApiService employeeApiService;
         private readonly IDepartmentApiService departmentApi;
-        private readonly IManagerApiService managerApi;
         private readonly IMapper mapper;
 
-        public EmployeeController(IEmployeeApiService employeeApiService, IDepartmentApiService departmentApi, IManagerApiService managerApi, IMapper mapper)
+        public EmployeeController(IEmployeeApiService employeeApiService, IDepartmentApiService departmentApi, IMapper mapper)
         {
             this.departmentApi = departmentApi;
-            this.managerApi = managerApi;
             this.mapper = mapper;
             this.employeeApiService = employeeApiService;
         }
@@ -68,7 +66,7 @@ namespace Frontend.Controllers
         public async Task<IActionResult> AddNewEmployee()
         {
             var departments = await departmentApi.GetAllDepartments();
-            var managers = await managerApi.SendAllManagers();
+            var managers = await employeeApiService.SendAllManagers();
 
             var designations = await employeeApiService.GetAllDesignations();
 
@@ -143,7 +141,7 @@ namespace Frontend.Controllers
 
             var departments = await departmentApi.GetAllDepartments();
 
-            var managers = await managerApi.SendAllManagers();
+            var managers = await employeeApiService.SendAllManagers();
 
             var designations = await employeeApiService.GetAllDesignations();
 
