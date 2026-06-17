@@ -42,5 +42,7 @@ namespace Backend.DTOs.Employee
         public bool IsActive { get; set; }
         public int DepartmentId { get; set; }
         public string? ManagerId { get; set; }
+
+        public int RoleId { get; set; }
     }
 }

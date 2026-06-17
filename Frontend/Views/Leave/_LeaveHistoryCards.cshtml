@@ -1,0 +1,57 @@
+﻿@using Frontend.Models.Leave
+@model IEnumerable<LeaveHistoryModel>
+
+@if (Model?.Any() == true)
+{
+    foreach (var item in Model)
+    {
+        <div class="history-card @item.Status.ToLower()">
+
+            <div class="history-card-top">
+
+                <span class="status-badge @item.Status.ToLower()">
+                    @item.Status
+                </span>
+
+            </div>
+
+            <div class="history-card-body">
+
+                <h5>@item.LeaveTypeName</h5>
+
+                <p>
+                    Applied On:
+                    @item.CreatedAt.ToString("dd MMM yyyy")
+                </p>
+
+                <p>
+                    Leave Period:
+                    @item.StartDate.ToString("dd MMM yyyy")
+                    -
+                    @item.EndDate.ToString("dd MMM yyyy")
+                </p>
+
+                <p>
+                    Total Days:
+                    @item.TotalDays
+                </p>
+                @if(item.Status == "Rejected")
+                {
+                    <p style="color:red">
+                        ManagerRemark: 
+                        @item.ManagerRemark
+                    </p>
+                }
+
+
+            </div>
+
+        </div>
+    }
+}
+else
+{
+    <div class="no-history">
+        No leave requests found.
+    </div>
+}

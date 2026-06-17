@@ -37,7 +37,7 @@ namespace Frontend.Models.Employee
         [Required(ErrorMessage = "Designation is required")]
         public int DesignationId { get; set; }
 
-        public Role Role { get; set; }
+        public int RoleId { get; set; }
         public decimal Salary { get; set; }
 
         public bool IsActive { get; set; }

@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using Backend.Data.Context;
 using Backend.Data.Entities;
-using Backend.Data.Entities.User;
 using Backend.Data.Repos.Abstracts;
 using Backend.DTOs.Employee;
-using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Data.Repos.Implements
@@ -19,6 +17,7 @@ namespace Backend.Data.Repos.Implements
             this.mapper = mapper;
         }
 
+        #region Employee CRUD Repo Methods
         public async Task<(List<EmployeeEntity> Data, int TotalCount)> GetPagedEmployeesAsync(string searchTerm, int page, int pageSize)
         {
             page = page < 1 ? 1 : page;
@@ -140,38 +139,41 @@ namespace Backend.Data.Repos.Implements
 
         public async Task<bool> AddAsync(EmployeeEntity employee)
         {
-            using var transaction = await context.Database.BeginTransactionAsync();
 
             try
             {
                 employee.IsActive = true;
 
                 await context.Employees.AddAsync(employee);
+
                 await context.SaveChangesAsync();
-
-                var user = new UserEntity
-                {
-                    EmployeeId = employee.EmployeeId,
-                    RoleId = 104, // Employee role
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Start@123"),
-                    IsActive = false
-                    
-                };
-
-                await context.Users.AddAsync(user);
-                await context.SaveChangesAsync();
-
-                await transaction.CommitAsync();
 
                 return true;
             }
             catch
             {
-                await transaction.RollbackAsync();
                 throw;
             }
         }
 
+        public async Task BulkInsertEmployeesAsync(List<EmployeeEntity> employees)
+        {
+
+            try
+            {
+                await context.Employees.AddRangeAsync(employees);
+
+                await context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Employee Validation Repo methods
         public async Task<bool> CheckCompanyEmailExistsAsync(string companyEmail)
         {
             try
@@ -220,45 +222,6 @@ namespace Backend.Data.Repos.Implements
             
         }
 
-        public async Task BulkInsertEmployeesAsync(List<EmployeeEntity> employees)
-        {
-            using var transaction = await context.Database.BeginTransactionAsync();
-
-            try
-            {
-                await context.Employees.AddRangeAsync(employees);
-                await context.SaveChangesAsync();
-
-                var users = employees.Select(employee => new UserEntity
-                {
-                    EmployeeId = employee.EmployeeId,
-                    RoleId = 104, // Employee
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Start@123"),
-                    IsActive = false
-                }).ToList();
-
-                await context.Users.AddRangeAsync(users);
-                await context.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-
-        public async Task<List<DesignationEntity>> GetAllDesignations()
-        {
-            return await context.Designations.ToListAsync();
-        }
-
-        public async Task<DesignationEntity?> GetByDesignationNameAsync(string designationName)
-        {
-            return await context.Designations.FirstOrDefaultAsync(d => d.DesignationName == designationName);
-        }
-
         public async Task<bool> CheckPersonalEmailExistsAsync(string personalEmail)
         {
             try
@@ -274,8 +237,25 @@ namespace Backend.Data.Repos.Implements
             }
         }
 
+        #endregion
 
-        //Manager section
+
+        #region Designation Section
+        public async Task<List<DesignationEntity>> GetAllDesignations()
+        {
+            return await context.Designations.ToListAsync();
+        }
+
+        public async Task<DesignationEntity?> GetByDesignationNameAsync(string designationName)
+        {
+            return await context.Designations.FirstOrDefaultAsync(d => d.DesignationName == designationName);
+        }
+
+        #endregion
+
+
+        #region Manager section
+
         public async Task<List<ManagerDto>> GetManagersAsync()
         {
             return await context.Employees
@@ -302,6 +282,11 @@ namespace Backend.Data.Repos.Implements
                 })
                 .FirstOrDefaultAsync();
         }
+
+        #endregion
+
+
+        
 
 
     }

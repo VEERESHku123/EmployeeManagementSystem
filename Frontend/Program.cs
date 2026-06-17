@@ -36,6 +36,8 @@ builder.Services.AddScoped<IEmployeeApiService, EmployeeApiService>();
 builder.Services.AddScoped<IDepartmentApiService, DepartmentApiService>();
 builder.Services.AddScoped<IUserApiService, UserApiService>();
 builder.Services.AddScoped<IEmployeeDocumentApiService, EmployeeDocumentApiService>();
+builder.Services.AddScoped<ILeaveApiService, LeaveApiService>();
+builder.Services.AddScoped<IManagerApiService, ManagerApiService>();
 
 // HttpClient 
 builder.Services.AddHttpClient("Backend", client =>

@@ -21,5 +21,7 @@ namespace Frontend.ApiServices.Abstracts
         Task<byte[]> DownloadInvalidFileAsync(string fileName);
 
         Task<ApiResponse<List<ManagerModel>>> SendAllManagers();
+
+        Task<ApiResponse<List<RoleModel>>> SendAllRoles();
     }
 }

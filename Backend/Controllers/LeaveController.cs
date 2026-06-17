@@ -1,5 +1,6 @@
-﻿using Backend.DTOs.Leave;
+﻿using Backend.DTOs.EmployeeLeave;
 using Backend.Services.Abstracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
@@ -16,8 +17,11 @@ namespace Backend.Controllers
         }
 
         [HttpPost("apply")]
+        [Authorize]
         public async Task<IActionResult> ApplyLeave([FromBody] ApplyLeaveDto dto)
         {
+            var employeeId = User.FindFirst("employeeId")?.Value;
+            dto.EmployeeId = employeeId;
             var response = await leaveService.ApplyLeaveAsync(dto);
 
             if (!response.Success)
@@ -28,17 +32,32 @@ namespace Backend.Controllers
             return Ok(response);
         }
 
-        [HttpGet("manager/{managerId}")]
-        public async Task<IActionResult> GetLeaveRequestsByManager(string managerId)
+        
+
+        [HttpGet("balances")]
+        [Authorize]
+        public async Task<IActionResult> GetEmployeeLeaveBalances()
         {
-            var response = await leaveService.GetLeaveRequestsByManagerIdAsync(managerId);
+            var employeeId = User.FindFirst("employeeId")?.Value;
+
+            var response = await leaveService.GetEmployeeLeaveBalancesAsync(employeeId);
 
             if (!response.Success)
-            {
-                return BadRequest(response);
-            }
+                return NotFound(response);
 
             return Ok(response);
         }
+
+        [HttpGet("history/{status}")]
+        [Authorize]
+        public async Task<IActionResult> GetLeaveHistory(string status)
+        {
+            var employeeId = User.FindFirst("employeeId")?.Value;
+
+            var response = await leaveService.GetLeaveHistoryAsync(employeeId, status);
+
+            return Ok(response);
+        }
+
     }
 }

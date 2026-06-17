@@ -194,12 +194,14 @@
             @if (User.IsInRole("Admin"))
             {
                 <div class="col-md-6 form-group">
-                    <label asp-for="Role" class="form-label"></label>
-
-                    <select asp-for="Role"
+                    <label asp-for="RoleId" class="form-label">Role</label>
+                    <select asp-for="RoleId"
                             class="form-control"
-                            asp-items="Html.GetEnumSelectList<Role>()">
+                            asp-items="ViewBag.Roles">
+                        <option value="">-- Select role --</option>
                     </select>
+
+                    <span asp-validation-for="RoleId" class="text-danger"></span>
                 </div>
 
                 <div class="col-md-6 form-group">

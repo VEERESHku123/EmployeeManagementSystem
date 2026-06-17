@@ -51,5 +51,8 @@ namespace Frontend.Models.Employee
 
         [StringLength(50, ErrorMessage = "Manager Id too long")]
         public string? ManagerId { get; set; }
+
+        [Required]
+        public int RoleId { get; set; }
     }
 }

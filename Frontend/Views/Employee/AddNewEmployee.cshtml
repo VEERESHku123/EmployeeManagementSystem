@@ -114,8 +114,6 @@
                     </select>
 
                     <span asp-validation-for="DesignationId" class="text-danger"></span>
-
-                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
                 </div>
 
                 <div class="col-md-6 form-group">
@@ -132,6 +130,8 @@
                             asp-items="ViewBag.Departments">
                         <option value="">-- Select Department --</option>
                     </select>
+
+                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
                 </div>
 
                 <div class="col-md-6 form-group">
@@ -141,6 +141,21 @@
                             asp-items="ViewBag.Managers">
                         <option value="">-- Select Manager --</option>
                     </select>
+                    
+                    <span asp-validation-for="ManagerId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6 form-group">
+                    <label asp-for="RoleId" class="form-label">Role</label>
+                    <select asp-for="RoleId"
+                            class="form-control"
+                            asp-items="ViewBag.Roles">
+                        <option value="">-- Select role --</option>
+                    </select>
+
+                    <span asp-validation-for="RoleId" class="text-danger"></span>
                 </div>
             </div>
 

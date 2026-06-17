@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AuthAPI.Data.Entitys
 {
-    [Table("password_reset_otp")]
+    [Table("PasswordResetOtp")]
     public class PasswordResetOtpEntity
     {
         [Key]

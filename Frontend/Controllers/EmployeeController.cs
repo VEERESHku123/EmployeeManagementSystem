@@ -66,15 +66,39 @@ namespace Frontend.Controllers
         public async Task<IActionResult> AddNewEmployee()
         {
             var departments = await departmentApi.GetAllDepartments();
+
             var managers = await employeeApiService.SendAllManagers();
 
             var designations = await employeeApiService.GetAllDesignations();
+
+            var roles = await employeeApiService.SendAllRoles();
 
             ViewBag.Departments = new SelectList(departments.Data, "DepartmentId", "DepartmentName");
 
             ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
 
             ViewBag.Designations = new SelectList(designations.Data,"DesignationId","DesignationName");
+
+            ViewBag.Roles = new SelectList(roles.Data, "RoleId", "RoleName");
+
+            return PartialView("AddNewEmployee");
+        }
+
+        [HttpPost]
+        [Route("employee/add")]
+        public async Task<IActionResult> AddNewEmployee(EmployeeModel model)
+        {
+
+            var result = await employeeApiService.AddNewEmployee(model);
+
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = $"Employee: {model.FirstName} added successfully!";
+
+                return RedirectToAction("GetAllEmployees");
+            }
+
+            TempData["ErrorMessage"] = result.Message ?? "Unable to create employee";
 
             return PartialView("AddNewEmployee");
         }
@@ -112,24 +136,7 @@ namespace Frontend.Controllers
                 "EmployeeTemplate.xlsx");
         }
 
-        [HttpPost]
-        [Route("employee/add")]
-        public async Task<IActionResult> AddNewEmployee(EmployeeModel model)
-        {
-
-            var result = await employeeApiService.AddNewEmployee(model);
-
-            if (result.Success)
-            {
-                TempData["SuccessMessage"] = $"Employee: {model.FirstName} added successfully!";
-
-                return RedirectToAction("GetAllEmployees");
-            }
-
-            TempData["ErrorMessage"] = result.Message ?? "Unable to create employee";
-
-            return PartialView("AddNewEmployee");
-        }
+       
 
         [HttpGet]
         [Route("employee/update")]
@@ -145,11 +152,15 @@ namespace Frontend.Controllers
 
             var designations = await employeeApiService.GetAllDesignations();
 
+            var roles = await employeeApiService.SendAllRoles();
+
             ViewBag.Departments = new SelectList(departments.Data, "DepartmentId", "DepartmentName");
 
             ViewBag.Managers = new SelectList(managers.Data, "ManagerId", "ManagerName");
 
             ViewBag.Designations = new SelectList(designations.Data, "DesignationId", "DesignationName");
+
+            ViewBag.Roles = new SelectList(roles.Data, "RoleId", "RoleName");
 
 
             return PartialView("UpdateEmployee", employee);

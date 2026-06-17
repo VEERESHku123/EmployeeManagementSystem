@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Backend.DTOs.Leave
+namespace Backend.DTOs.EmployeeLeave
 {
     public class ApplyLeaveDto
     {
-        [Required]
-        public string EmployeeId { get; set; }
+        public string? EmployeeId { get; set; }
 
         [Required]
         public int LeaveTypeId { get; set; }

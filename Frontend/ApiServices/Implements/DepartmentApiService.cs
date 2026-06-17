@@ -27,7 +27,7 @@ namespace Frontend.ApiServices.Implements
                     return cachedData;
                 }
 
-                var response =await SendAuthorizedRequestAsync(() => client.GetAsync("department/all"));
+                var response =await SendAuthorizedRequestAsync(() => client.GetAsync("departments"));
 
                 if (response == null)
                 {
@@ -37,7 +37,7 @@ namespace Frontend.ApiServices.Implements
                         Message = "Session expired"
                     };
                 }
-
+                
                 if (!response.IsSuccessStatusCode)
                 {
                     return new ApiResponse<List<DepartmentModel>>

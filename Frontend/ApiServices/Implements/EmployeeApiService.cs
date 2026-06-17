@@ -294,7 +294,8 @@ namespace Frontend.ApiServices.Implements
         }
 
 
-        //--------------------------------Manager Section---------------------------
+        #region Manager Section
+
         public async Task<ApiResponse<List<ManagerModel>>> SendAllManagers()
         {
             if (cache.TryGetValue("Managers", out List<ManagerModel> cachedManagers))
@@ -306,8 +307,7 @@ namespace Frontend.ApiServices.Implements
                 };
             }
 
-            var response = await SendAuthorizedRequestAsync(
-                () => client.GetAsync("employee/managers"));
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync("employee/managers"));
 
             var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<ManagerModel>>>();
 
@@ -324,5 +324,23 @@ namespace Frontend.ApiServices.Implements
 
             return result;
         }
+
+        #endregion
+
+        #region Role Section
+
+        public async Task<ApiResponse<List<RoleModel>>> SendAllRoles()
+        {
+            var response = await SendAuthorizedRequestAsync(() => client.GetAsync("employee/roles"));
+
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<RoleModel>>>();
+
+            return result ??= new ApiResponse<List<RoleModel>>
+            {
+                Success = false,
+                Message = "No response received"
+            };
+        }
+        #endregion
     }
 }

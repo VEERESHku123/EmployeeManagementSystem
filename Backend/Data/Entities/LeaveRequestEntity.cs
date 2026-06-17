@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Data.Entities
 {
-    [Table("leave_requests")]
+    [Table("LeaveRequests")]
     public class LeaveRequestEntity
     {
         [Key]
@@ -30,9 +30,13 @@ namespace Backend.Data.Entities
         [Column("total_days")]
         public int TotalDays { get; set; }
 
+        [Required]
         [StringLength(500)]
         [Column("reason")]
-        public string? Reason { get; set; }
+        public string Reason { get; set; }
+
+        [Column("manager_remark")]
+        public string? ManagerRemark { get; set; }
 
         [Required]
         [StringLength(20)]

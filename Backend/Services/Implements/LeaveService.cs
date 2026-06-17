@@ -2,8 +2,7 @@
 using Backend.Data.Entities;
 using Backend.Data.Repos.Abstracts;
 using Backend.DTOs.Common;
-using Backend.DTOs.Employee;
-using Backend.DTOs.Leave;
+using Backend.DTOs.EmployeeLeave;
 using Backend.Services.Abstracts;
 
 namespace Backend.Services.Implements
@@ -83,36 +82,42 @@ namespace Backend.Services.Implements
             }
         }
 
-        public async Task<ApiResponse<List<LeaveRequestListDto>>> GetLeaveRequestsByManagerIdAsync(string managerId)
+        public async Task<ApiResponse<List<LeaveBalanceDto>>> GetEmployeeLeaveBalancesAsync(string employeeId)
         {
-            try
+            var balances = await leaveRepo.GetEmployeeLeaveBalancesAsync(employeeId);
+
+            if (balances == null || !balances.Any())
             {
-                var leaveRequests = await leaveRepo.GetLeaveRequestsByManagerIdAsync(managerId);
-
-                var leaveRequestDtos = mapper.Map<List<LeaveRequestListDto>>(leaveRequests);
-
-                return new ApiResponse<List<LeaveRequestListDto>>
-                {
-                    Success = true,
-                    Message = leaveRequestDtos.Any()
-                        ? "Leave requests fetched successfully."
-                        : "No leave requests found.",
-                    Data = leaveRequestDtos
-                };
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex,
-                    "Error fetching leave requests for manager {ManagerId}",
-                    managerId);
-
-                return new ApiResponse<List<LeaveRequestListDto>>
+                return new ApiResponse<List<LeaveBalanceDto>>
                 {
                     Success = false,
-                    Message = "Failed to fetch leave requests.",
-                    Errors = new List<string> { ex.Message }
+                    Message = "No leave balances found.",
+                    Data = null
                 };
             }
+
+            return new ApiResponse<List<LeaveBalanceDto>>
+            {
+                Success = true,
+                Message = "Leave balances retrieved successfully.",
+                Data = balances
+            };
+        }
+
+        
+
+        public async Task<ApiResponse<List<LeaveHistoryDto>>> GetLeaveHistoryAsync(string employeeId, string? status = null)
+        {
+            var leaveRequests = await leaveRepo.GetLeaveHistoryAsync(employeeId, status);
+
+            var result = mapper.Map<List<LeaveHistoryDto>>(leaveRequests);
+
+            return new ApiResponse<List<LeaveHistoryDto>>
+            {
+                Success = true,
+                Message = "Leave history fetched successfully",
+                Data = result
+            };
         }
     }
 }

@@ -2,6 +2,8 @@
 using Backend.Data.Entities;
 using Backend.DTOs.Employee;
 using Backend.DTOs.EmployeeDocument;
+using Backend.DTOs.EmployeeLeave;
+using Backend.DTOs.Manager;
 
 namespace Backend.Mapper
 {
@@ -22,6 +24,26 @@ namespace Backend.Mapper
                     opt => opt.MapFrom(src =>
                         src.LeaveType.LeaveTypeName)
                     );
+
+
+            CreateMap<LeaveRequestEntity, LeaveHistoryDto>()
+            .ForMember(
+                dest => dest.LeaveTypeName,
+                opt => opt.MapFrom(src => src.LeaveType.LeaveTypeName))
+            .ForMember(
+                dest => dest.ApprovedByName,
+                opt => opt.MapFrom(src =>
+                    src.ApprovedByEmployee != null
+                        ? src.ApprovedByEmployee.FirstName + src.ApprovedByEmployee.LastName
+                        : null));
+
+            CreateMap<LeaveRequestEntity, LeaveRequestDto>()
+            .ForMember(
+                dest => dest.EmployeeName,
+                opt => opt.MapFrom(src => src.Employee.FirstName + src.Employee.LastName))
+            .ForMember(
+                dest => dest.LeaveTypeName,
+                opt => opt.MapFrom(src => src.LeaveType.LeaveTypeName));
 
         }
     }

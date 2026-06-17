@@ -1,0 +1,70 @@
+﻿@using Frontend.Models.Leave
+@model LeaveApplyViewModel
+
+@{
+    ViewData["Title"] = "Apply Leave";
+}
+
+<link rel="stylesheet" href="~/css/leave-apply.css" />
+
+<div class="leave-container">
+
+    <div class="page-actions">
+
+        <button type="button"
+                id="btnApplyLeave"
+                class="apply-leave-btn">
+            Apply Leave
+        </button>
+
+    </div>
+
+    <div id="leaveFormSection" style="display:none;">
+        <div class="leave-form-wrapper">
+            <partial name="_LeaveApplyForm" model="Model" />
+        </div>
+    </div>
+
+    <div id="historySection">
+
+        <div class="history-header">
+            <h2>Leave History</h2>
+        </div>
+
+        <div class="history-tabs">
+
+            <button type="button"
+                    class="history-tab active"
+                    data-status="Pending">
+                Pending
+            </button>
+
+            <button type="button"
+                    class="history-tab"
+                    data-status="Approved">
+                Approved
+            </button>
+
+            <button type="button"
+                    class="history-tab"
+                    data-status="Rejected">
+                Rejected
+            </button>
+
+        </div>
+
+        <div id="historyContainer">
+
+            <partial name="_LeaveHistoryCards"
+                     model="Model.LeaveHistory" />
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script src="~/js/leave-apply.js" asp-append-version="true"></script>
+}

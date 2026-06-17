@@ -17,7 +17,8 @@ namespace Backend.Controllers
             this.employeeService = service;
         }
 
-        
+
+        #region Employee CRUD Region
 
         [HttpGet]
         [Route("all")]
@@ -177,6 +178,10 @@ namespace Backend.Controllers
                 "EmployeeTemplate.xlsx");
         }
 
+        #endregion
+
+        #region Employee Validation Region
+
         [HttpGet]
         [Route("CheckEmailExists/{email}")]
         [Authorize(Roles = "Admin,User")]
@@ -210,6 +215,10 @@ namespace Backend.Controllers
             return Ok("Phone number is available");
         }
 
+        #endregion
+
+        #region Designation Region
+
         [HttpGet]
         [Route("designationList")]
         [Authorize]
@@ -218,7 +227,9 @@ namespace Backend.Controllers
             return Ok(await employeeService.GetAllDesignations());
         }
 
-        //------------------------------- Manager Section -------------------------------------
+        #endregion
+
+        #region Manager Region
 
         [HttpGet("managers")]
         [Authorize]
@@ -228,6 +239,20 @@ namespace Backend.Controllers
 
             return Ok(response);
         }
+
+        #endregion
+
+        #region Role Region
+
+        [HttpGet("roles")]
+        [Authorize]
+        public async Task<IActionResult> GetRoles()
+        {
+            var response = await employeeService.GetAllRoles();
+
+            return Ok(response);
+        }
+        #endregion
 
     }
 }

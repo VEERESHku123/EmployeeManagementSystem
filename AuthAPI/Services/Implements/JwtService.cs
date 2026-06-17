@@ -34,7 +34,7 @@ namespace AuthAPI.Services.Implements
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var expiry = DateTime.UtcNow.AddSeconds(int.Parse(config["Jwt:DurationInMinutes"]));
+            var expiry = DateTime.UtcNow.AddMinutes(int.Parse(config["Jwt:DurationInMinutes"]));
 
             var jwt = new JwtSecurityToken(
                             issuer: config["Jwt:Issuer"],

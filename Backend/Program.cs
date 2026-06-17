@@ -108,15 +108,25 @@ builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(
 builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
 builder.Services.AddScoped<IDepartmentRepo, DepartmentRepo>();
 builder.Services.AddScoped<IEmployeeDocumentRepo, EmployeeDocumentRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<ILeaveRepo, LeaveRepo>();
+builder.Services.AddScoped<IManagerRepo, ManagerRepo>();
 
+//Filters
 builder.Services.AddControllers(
     options => options.Filters.Add<CommonExceptionFilter>());
 
+//Services
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeDocumentService, EmployeeDocumentService>();
+builder.Services.AddScoped<ILeaveService, LeaveService>();
+builder.Services.AddScoped<IManagerService, ManagerService>();
+
+//Validators
 builder.Services.AddScoped<EmployeeUploadValidator>();
 
+//Dto to Entity Mapping
 builder.Services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
 
 var app = builder.Build();

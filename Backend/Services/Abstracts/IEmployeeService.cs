@@ -24,5 +24,7 @@ namespace Backend.Services.Abstracts
         Task<byte[]> DownloadTemplateAsync();
 
         Task<ApiResponse<List<DesignationEntity>>> GetAllDesignations();
+
+        Task<ApiResponse<List<RoleEntity>>> GetAllRoles();
     }
 }

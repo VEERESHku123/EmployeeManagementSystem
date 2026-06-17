@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
-    [Route("api/department")]
+    [Route("api/departments")]
     [ApiController]
     public class DepartmentController : ControllerBase
     {
@@ -18,8 +18,8 @@ namespace Backend.Controllers
 
         
 
-        [HttpGet("all")]
-        [Authorize(Roles = "Admin,User")]
+        [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllDepartments()
         {
             var result = await departmentService.GetAllManagersAsync();

@@ -20,6 +20,7 @@ namespace Backend.Data.Context
         public DbSet<LeaveTypeEntity> LeaveTypes { get; set; }
         public DbSet<LeaveRequestEntity> LeaveRequests { get; set; }
         public DbSet<LeaveBalanceEntity> LeaveBalances { get; set; }
+        public DbSet<RoleEntity> Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

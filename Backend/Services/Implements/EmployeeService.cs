@@ -1,16 +1,14 @@
 ﻿using AutoMapper;
 using Backend.Data.Entities;
+using Backend.Data.Entities.User;
 using Backend.Data.Repos.Abstracts;
 using Backend.DTOs.Common;
 using Backend.DTOs.Employee;
-using Backend.Enums;
 using Backend.Helpers;
 using Backend.Services.Abstracts;
 using Backend.Validators;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Globalization;
-using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Identity;
 
 namespace Backend.Services.Implements
 {
@@ -21,16 +19,18 @@ namespace Backend.Services.Implements
         private readonly ILogger<EmployeeService> logger;
         private readonly IMapper mapper;
         private readonly EmployeeUploadValidator employeeUploadValidator;
-        public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper, ILogger<EmployeeService> logger, IDepartmentRepo departmentRepo, EmployeeUploadValidator employeeUploadValidator)
+        private readonly IUserRepo userRepo;
+        public EmployeeService(IEmployeeRepo employeeRepo, IMapper mapper, ILogger<EmployeeService> logger, IDepartmentRepo departmentRepo, EmployeeUploadValidator employeeUploadValidator, IUserRepo userRepo)
         {
             this.employeeRepo = employeeRepo;
             this.mapper = mapper;
             this.logger = logger;
             this.departmentRepo = departmentRepo;
             this.employeeUploadValidator = employeeUploadValidator;
+            this.userRepo = userRepo;
         }
 
-
+        #region Employee CRUD Region
 
         public async Task<ApiResponse<object>> GetAllEmployeeAsync(string searchTerm, int page, int pageSize)
         {
@@ -112,15 +112,11 @@ namespace Backend.Services.Implements
 
             try
             {
-                logger.LogInformation(
-                    "Adding employee. Email: {Email}",
-                    employeeDTO.CompanyEmail);
+                logger.LogInformation("Adding employee. Email: {Email}", employeeDTO.CompanyEmail);
 
                 if (await CheckEmailExistsAsync(employeeDTO.CompanyEmail))
                 {
-                    logger.LogWarning(
-                        "Employee creation failed. Email already exists: {Email}",
-                        employeeDTO.CompanyEmail);
+                    logger.LogWarning("Employee creation failed. Email already exists: {Email}", employeeDTO.CompanyEmail);
 
                     return new ApiResponse<CreateEmployeeDTO>
                     {
@@ -132,6 +128,26 @@ namespace Backend.Services.Implements
                 var employee = mapper.Map<EmployeeEntity>(employeeDTO);
 
                 var added = await employeeRepo.AddAsync(employee);
+
+                if (!added)
+                {
+                    return new ApiResponse<CreateEmployeeDTO>
+                    {
+                        Success = false,
+                        Message = "Failed to add employee"
+                    };
+                }
+
+                // EmployeeId should now be available
+                var userEntity = new UserEntity
+                {
+                    EmployeeId = employee.EmployeeId,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Start@123"),
+                    RoleId = employeeDTO.RoleId,
+                    IsActive = false
+                };
+
+                await userRepo.AddUser(userEntity);
 
                 return new ApiResponse<CreateEmployeeDTO>
                 {
@@ -155,9 +171,7 @@ namespace Backend.Services.Implements
         {
             try
             {
-                logger.LogInformation(
-                    "Updating employee. EmployeeId: {EmployeeId}",
-                    id);
+                logger.LogInformation("Updating employee. EmployeeId: {EmployeeId}", id);
 
                 if (await CheckPhoneExistsAsync(employeeDTO.PhoneNumber, employeeDTO.EmployeeId))
                 {
@@ -178,9 +192,7 @@ namespace Backend.Services.Implements
 
                 if (!updated)
                 {
-                    logger.LogWarning(
-                        "Employee update failed. Employee not found. EmployeeId: {EmployeeId}",
-                        id);
+                    logger.LogWarning("Employee update failed. Employee not found. EmployeeId: {EmployeeId}", id);
 
                     return new ApiResponse<CreateEmployeeDTO>
                     {
@@ -188,6 +200,10 @@ namespace Backend.Services.Implements
                         Message = "Employee not found"
                     };
                 }
+
+                // Update user Role
+
+                await userRepo.UpdateUserRole(id, employeeDTO.RoleId);
 
                 return new ApiResponse<CreateEmployeeDTO>
                 {
@@ -249,6 +265,10 @@ namespace Backend.Services.Implements
             }
         }
 
+        #endregion
+
+        #region Employee Validation Region
+
         public async Task<bool> CheckEmailExistsAsync(string companyEmail)
         {
             try
@@ -301,7 +321,9 @@ namespace Backend.Services.Implements
             
         }
 
-        //-----------------------------------Manager Section -------------------
+        #endregion
+
+        #region Manager Region
         public async Task<ApiResponse<List<ManagerDto>>> GetManagersAsync()
         {
             var managers = await employeeRepo.GetManagersAsync();
@@ -314,8 +336,10 @@ namespace Backend.Services.Implements
             };
         }
 
+        #endregion
 
-        //------------------------------------- XL Template Download --------------------------
+
+        #region XL Template Download 
         public async Task<byte[]> DownloadTemplateAsync()
         {
             using var workbook = new XLWorkbook();
@@ -429,7 +453,10 @@ namespace Backend.Services.Implements
             worksheet.Columns().AdjustToContents();
         }
 
-        //------------------------------------- bulck uploade employee --------------------------
+        #endregion
+
+
+        #region bulck uploade employee 
         public async Task<ApiResponse<EmployeeUploadResultDTO>> UploadEmployeesAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -492,6 +519,15 @@ namespace Backend.Services.Implements
             if (validEmployees.Any())
             {
                 await employeeRepo.BulkInsertEmployeesAsync(mapper.Map<List<EmployeeEntity>>(validEmployees));
+
+                var userEntities = validEmployees.Select(e => new UserEntity
+                {
+                    EmployeeId = e.EmployeeId,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Start@123"),
+                    RoleId = 104 // default employee
+                }).ToList();
+
+                await userRepo.BulkInsertUserAsync(userEntities);
             }
 
             string? invalidFileName = null;
@@ -624,6 +660,23 @@ namespace Backend.Services.Implements
                 IsActive = true
             };
         }
+
+        #endregion
+
+        #region Role Region
+
+        public async Task<ApiResponse<List<RoleEntity>>> GetAllRoles()
+        {
+            return new ApiResponse<List<RoleEntity>>
+            {
+                Data = await userRepo.GetAllRoles(),
+                Message = "Roles Fetched Successfully.",
+                Success = true
+            };
+
+        }
+
+        #endregion
 
     }
 }

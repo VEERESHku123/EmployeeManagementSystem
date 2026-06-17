@@ -1,0 +1,80 @@
+﻿@model List<Frontend.Models.Leave.LeaveRequestModel>
+
+<link href="~/css/teamleave-requests.css" rel="stylesheet" />
+
+@if (Model == null || !Model.Any())
+{
+    <div class="empty-state">
+        <h4>No Leave Requests Found</h4>
+    </div>
+}
+else
+{
+    <div class="leave-grid">
+
+        @foreach (var leave in Model)
+        {
+            <div class="leave-card" data-leave-id="@leave.LeaveRequestId">
+
+                <div class="leave-header">
+                    <div>
+                        <h4>@leave.EmployeeName</h4>
+                        <span class="employee-id">@leave.EmployeeId</span>
+                    </div>
+
+                    <span class="status-badge @leave.Status.ToLower()">
+                        @leave.Status
+                    </span>
+                </div>
+
+                <div class="leave-body">
+
+                    <div class="info-row">
+                        <span class="label">Leave Type</span>
+                        <span>@leave.LeaveTypeName</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Date</span>
+                        <span>@leave.StartDate.ToString("dd MMM yyyy") - @leave.EndDate.ToString("dd MMM yyyy")</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Days</span>
+                        <span>@leave.TotalDays</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">Applied On</span>
+                        <span>@leave.CreatedAt.ToString("dd MMM yyyy")</span>
+                    </div>
+
+                    <div class="reason-section">
+                        <label>Reason</label>
+                        <p>@leave.Reason</p>
+                    </div>
+
+                </div>
+
+             
+
+                <div class="action-buttons">
+
+                    <button class="btn-approve"
+                            onclick="approveLeave(@leave.LeaveRequestId)">
+                        Approve
+                    </button>
+
+                    <button class="btn-reject"
+                            onclick="rejectLeave(@leave.LeaveRequestId)">
+                        Reject
+                    </button>
+
+                </div>
+                
+
+            </div>
+        }
+
+    </div>
+}

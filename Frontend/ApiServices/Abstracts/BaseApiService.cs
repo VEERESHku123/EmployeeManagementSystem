@@ -25,6 +25,7 @@ namespace Frontend.ApiServices.Abstracts
         {
             var token = httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
 
+
             if (!string.IsNullOrEmpty(token))
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
